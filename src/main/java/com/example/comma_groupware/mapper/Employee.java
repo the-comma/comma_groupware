@@ -1,5 +1,5 @@
 package com.example.comma_groupware.mapper;
 
-public class test {
+public interface Employee {
 
 }

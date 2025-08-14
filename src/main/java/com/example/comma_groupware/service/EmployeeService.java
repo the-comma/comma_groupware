@@ -1,5 +1,5 @@
 package com.example.comma_groupware.service;
 
-public class test {
+public class EmployeeService {
 
 }
