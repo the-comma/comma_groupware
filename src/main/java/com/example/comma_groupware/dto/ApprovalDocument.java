@@ -13,6 +13,6 @@ public class ApprovalDocument {
 	private String approvalStatus;
 	private String approvalReason;
 	private Integer isFile;
-	private LocalDateTime createAt;
+	private LocalDateTime createAt;	
 	private LocalDateTime completeAt;
 }
