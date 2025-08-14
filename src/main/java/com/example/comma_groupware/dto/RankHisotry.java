@@ -6,9 +6,10 @@ import lombok.Data;
 
 @Data
 public class RankHisotry {
-	private Long rankHistoryId;
-	private int empId;
-	private int rankId;
-	private LocalDateTime startDate;
-	private LocalDateTime endDate;
+	private Long rankHistoryId;    //사원별 직급이력
+	private int empId;				 //사원ID
+	private int rankId;				 //직급ID
+	private LocalDateTime startDate; //시작일
+	private LocalDateTime endDate;   //종료일
+
 }
