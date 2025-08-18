@@ -15,4 +15,5 @@ public class Notice {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private int fileCount;
+	private Integer isFile;
 }
