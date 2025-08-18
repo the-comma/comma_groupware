@@ -27,6 +27,18 @@ public class EmployeeController {
 		this.deptmentService = deptmentService;
 	}
 	
+	// 사원카드 페이지
+	@GetMapping("employeeCard")
+	public String employeeCard(Model model,
+			@RequestParam Integer id) {
+		
+		// 해당 사원 한 명 조회
+		Map<String,Object> emp = employeeService.employeeCard(id);
+		model.addAttribute("emp",emp);
+		
+		return "employeeCard";
+	}
+	
 	// 조직도 페이지
 	@GetMapping("organizationChart")
 	public String organizationChart(Model model,
@@ -34,13 +46,17 @@ public class EmployeeController {
 									@RequestParam(defaultValue = "") String name,
 									@RequestParam(defaultValue = "") String dept,
 									@RequestParam(defaultValue = "") String team) {
+		
+		// 현재 페이지값 없을때 defaultValue
 		if(page == null) page = 0;
 		
+		// 받아온 부서/팀 리스트
 		List<Map<String,Object>> deptTeamList = deptmentService.getDeptTeamList();
 
-		// 부서 리스트
+		// 분류 리스트
 		Map<String,List<String>> deptTeam = new HashMap<>();
 		
+		// key는 부서이고 value 리스트에 해당 부서 소속의 팀들 분류 작업
 		for(Map<String,Object> dt : deptTeamList) {
 			String key = (String) dt.get("deptName");
 			String val = (String) dt.get("teamName");
@@ -54,9 +70,22 @@ public class EmployeeController {
 			}
 		}
 		
-		int totalCount = employeeService.organizationListCount(name, team, dept);
-		Page p = new Page(10,page,totalCount,name);
+		// 전체 데이터 수 구할때 필터링할 param 값들
+		Map<String,Object> param = new HashMap<>();
+		param.put("name", name);
+		param.put("team", team);
+		param.put("dept", dept);
+		
+		// 전체 데이터 수 가져옴
+		int totalCount = employeeService.organizationListCount(param);
+		
+		// 페이징 옵션
+		Page p = new Page(10,page,totalCount,param);
+		
+		// 해당 페이지에 사원 리스트
 		List<Map<String,Object>> organiList = employeeService.organizationList(p);
+		
+		// model 값 전달
 		model.addAttribute("organiList",organiList);
 		model.addAttribute("deptTeam",deptTeam);
 		model.addAttribute("name", name);

@@ -12,5 +12,7 @@ public interface EmployeeMapper {
 	
 	// SELECT
 	List<Map<String,Object>> organizationList(Page p);					// 조직도 조회
-	int organizationListCount(String team, String name, String dept);	// 조직도 리스트 전체 데이터 수
+	int organizationListCount(Map<String,Object> param);	// 조직도 리스트 전체 데이터 수
+	
+	Map<String, Object> employeeCard(int empId);
 }

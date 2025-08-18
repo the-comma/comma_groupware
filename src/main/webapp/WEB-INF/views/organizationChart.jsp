@@ -43,7 +43,11 @@
 </head>
 <body>
     <h1>조직도</h1>
-
+    
+    <!-- 모달창 출력 -->
+	<div class="empCard">
+	</div>
+	
     <div class="container">
         <!-- 왼쪽: 부서/팀 -->
         <div class="org-tree">
@@ -51,26 +55,30 @@
                 부서/팀이 없습니다.
             </c:if>
             <c:if test="${deptTeam != null}">
-                콤마컴퍼니<br>
+                <a href="?page=0">콤마컴퍼니</a><br>
                 <c:forEach items="${deptTeam}" var="dept">
-                    &nbsp;&nbsp;&nbsp;ㄴ${dept.key}
+                    &nbsp;&nbsp;&nbsp;<a href="?page=0&name=${page.searchWord}&dept=${dept.key}">ㄴ${dept.key}</a>
                     <c:forEach items="${dept.value}" var="team">
                         <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ㄴ${team}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="?page=0&name=${page.searchWord}&dept=${dept.key}&team=${team}">ㄴ${team}</a>
                     </c:forEach>
                     <br>
                 </c:forEach>
             </c:if>
         </div>
-
+		<!-- 왼쪽 영역 끝 -->
+		
         <!-- 오른쪽: 사원 리스트 -->
         <div class="emp-table">
+        	<!-- 이름 검색 -->
             <div style="margin-bottom:10px;">
             	<form action="organizationChart" method="get">
 	                <input type="text" class="name" name="name" placeholder="이름으로 검색.." value="${name != null ? name : ''}">
 	                <button type="submit">검색</button>
                 </form>
             </div>
+            <!-- 이름 검색 끝 -->
+            
             <c:if test="${organiList == null}">
                 사원이 없습니다.
             </c:if>
@@ -84,7 +92,13 @@
                     <tbody>
                         <c:forEach items="${organiList}" var="e">
                         <tr>
-                            <td>${e.empName}</td>
+                            <td onclick="openEmpCard(${e.empId})">${e.empName}</td>
+                            <script>
+                            	/** 이름 클릭하면 모달창 생성**/
+                            	function openEmpCard(empId){
+                            		$('.empCard').load("/employeeCard?id=" + empId);
+                            	}
+                            </script>
                             <td>${e.empEmail}</td>
                             <td>${e.rankName}</td>
                             <td>${e.deptName}</td>
@@ -94,9 +108,22 @@
                     </tbody>
                 </table>
             </c:if>
+			<!-- 사원 리스트 끝 -->
 
-            ${page.currentPage + 1} / ${page.lastPage + 1} 
+			<!-- 페이징 -->
+			<c:if test="${page.currentPage != 0}">
+				<a href="?page=${page.currentPage - 1}&name=${page.searchWord}&dept=${dept}&team=${team}">이전</a>
+			</c:if>
+
+            ${page.currentPage + 1} / ${page.lastPage}
+            
+            <c:if test="${page.currentPage != page.lastPage - 1}">
+				<a href="?page=${page.currentPage + 1}&name=${page.searchWord}&dept=${dept}&team=${team}">다음</a>
+			</c:if>
+			<!-- 페이징 끝 -->
         </div>
+        <!-- 오른쪽 영역 끝 -->
+        
     </div>
 </body>
 </html>
