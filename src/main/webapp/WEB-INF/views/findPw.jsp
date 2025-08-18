@@ -1,5 +1,7 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html lang="en" data-layout="">
+<html lang="ko" data-layout="">
 
 <head>
     <meta charset="utf-8" />
@@ -15,13 +17,17 @@
     <script src="assets/js/config.js"></script>
 
     <!-- Vendor css -->
-    <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
+    <link href= "<c:url value='/HTML/Admin/dist/assets/css/vendor.min.css'/>" rel="stylesheet" type="text/css" />
 
     <!-- App css -->
-    <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" id="app-style" />
+    <link href= "<c:url value='/HTML/Admin/dist/assets/css/app.min.css'/>"  rel="stylesheet" type="text/css" id="app-style" />
 
     <!-- Icons css -->
-    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <link href= "<c:url value='/HTML/Admin/dist/assets/css/icons.min.css'/>" rel="stylesheet" type="text/css" />
+    
+    <script defer src="<c:url value='/HTML/Admin/dist/assets/js/vendor.min.js'/>"></script>
+	<script defer src="<c:url value='/HTML/Admin/dist/assets/js/app.js'/>"></script>
+    
 </head>
 
 <body class="h-100">
@@ -67,11 +73,6 @@
         </div>
     </div>
 
-    <!-- Vendor js -->
-    <script src="assets/js/vendor.min.js"></script>
-
-    <!-- App js -->
-    <script src="assets/js/app.js"></script>
 
 </body>
 
