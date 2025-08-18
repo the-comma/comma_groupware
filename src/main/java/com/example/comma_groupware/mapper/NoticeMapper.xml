@@ -59,7 +59,7 @@
 
   <insert id="insertNotice"
           parameterType="com.example.comma_groupware.dto.Notice"
-          useGeneratedKeys="true" keyProperty="noticeId">
+          useGeneratedKeys="true" keyProperty="noticeId" keyColumn="notice_id">
     INSERT INTO notice (writer_id, notice_title, notice_content, is_pin, is_file)
     VALUES (#{writerId}, #{noticeTitle}, #{noticeContent}, #{isPin}, #{isFile})
   </insert>
@@ -109,11 +109,13 @@
   </delete>
 
   <!-- 현재 '경영지원팀' 재직중 여부 -->
-  <select id="isSupportDeptNow" parameterType="int" resultType="int">
-    SELECT CASE WHEN COUNT(*)>0 THEN 1 ELSE 0 END
-    FROM department_history
-    WHERE emp_id = #{empId}
-      AND dept_name = '경영지원팀'
-      AND (end_date IS NULL OR end_date > NOW())
-  </select>
+	<select id="isSupportDeptNow" resultType="int">
+	  SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+	  FROM department_history dh
+	  JOIN team t ON t.team_id = dh.team_id
+	  JOIN department d ON d.dept_id = t.dept_id
+	  WHERE dh.emp_id = #{empId}
+	    AND d.dept_name = #{deptName}
+	    AND (dh.end_date IS NULL OR dh.end_date >= CURRENT_DATE)
+	</select>
 </mapper>

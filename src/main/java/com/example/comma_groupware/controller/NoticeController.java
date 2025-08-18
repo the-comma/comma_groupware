@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.comma_groupware.dto.FileResource;
 import com.example.comma_groupware.dto.Notice;
 import com.example.comma_groupware.service.NoticeService;
+import com.example.comma_groupware.security.CustomUserDetails; 
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +33,7 @@ public class NoticeController {
 	private final NoticeService noticeService;	
 	 @Value("${comma.upload.notice-root}")
 	    private String noticeRoot; // 다운로드 시 경로 계산에 사용
-
-	    /** TODO: 실제 로그인 세션/시큐리티 연동 */
-	    private int getLoginEmpId() { return 1001; }
-
-	    /** TODO: 실제 로그인 세션/시큐리티 연동 */
-	    private int getLoginEmpId() { return 1001; }
-
+	 
 	    /** 목록 */
 	    @GetMapping("/list")
 	    public String list(@RequestParam(required=false) String keyword,
@@ -60,9 +56,11 @@ public class NoticeController {
 	    /** 등록 */
 	    @PostMapping("/add")
 	    public String add(@ModelAttribute Notice notice,
-	                      @RequestParam(required=false, name="files") List<MultipartFile> files) throws Exception {
-	        int id = noticeService.addNotice(notice, getLoginEmpId(), files);
-	        return "redirect:/notice/detail?noticeId="+ id;
+	                      @RequestParam(required=false, name="files") List<MultipartFile> files,
+	                      @AuthenticationPrincipal CustomUserDetails me) throws Exception {
+	    	int empId = me.getEmployee().getEmpId(); 
+	    	int id = noticeService.addNotice(notice, empId, files);
+	        return "redirect:/notice/one?noticeId="+ id;
 	    }
 
 	    /** 상세 (조회수 증가) */
@@ -88,15 +86,18 @@ public class NoticeController {
 	    /** 수정 */
 	    @PostMapping("/edit")
 	    public String edit(@ModelAttribute Notice notice,
-	                       @RequestParam(required=false, name="files") List<MultipartFile> addFiles) throws Exception {
-	        noticeService.modifyNotice(notice, getLoginEmpId(), addFiles);
+	                       @RequestParam(required=false, name="files") List<MultipartFile> addFiles,
+	                       @AuthenticationPrincipal CustomUserDetails me) throws Exception {
+	    	int empId = me.getEmployee().getEmpId(); 
+	        noticeService.modifyNotice(notice, empId, addFiles);
 	        return "redirect:/notice/one?noticeId=" + notice.getNoticeId();
 	    }
 
 	    /** 삭제 */
 	    @PostMapping("/remove")
-	    public String remove(@RequestParam int noticeId) throws Exception {
-	        noticeService.removeNotice(noticeId, getLoginEmpId());
+	    public String remove(@RequestParam int noticeId, @AuthenticationPrincipal CustomUserDetails me) throws Exception {
+	    	int empId = me.getEmployee().getEmpId(); 
+	        noticeService.removeNotice(noticeId, empId);
 	        return "redirect:/notice/list";
 	    }
 
@@ -115,8 +116,10 @@ public class NoticeController {
 
 	    /** 파일 개별 삭제 (수정 화면에서) */
 	    @PostMapping("/file/remove")
-	    public String deleteFile(@RequestParam int fileId, @RequestParam int noticeId) throws Exception {
-	        noticeService.removeFile(fileId, getLoginEmpId());
+	    public String deleteFile(@RequestParam int fileId, @RequestParam int noticeId,
+	    		@AuthenticationPrincipal CustomUserDetails me) throws Exception {
+	    	int empId = me.getEmployee().getEmpId(); 
+	        noticeService.removeFile(fileId, empId);
 	        return "redirect:/notice/edit?noticeId=" + noticeId;
 	    }
 }

@@ -29,6 +29,7 @@ public interface NoticeMapper {
     int deleteFile(int fileId);
     int deleteFilesByRef(@Param("refType") String refType, @Param("refId") long refId);
 
-    // ===== 권한: 현재 경영지원팀 여부 (1=가능) =====
-    int isSupportDeptNow(int empId);
+    // ===== 권한: 현재 경영지원팀 여부 =====
+    int isSupportDeptNow(@Param("empId") int empId
+    				     , @Param("deptName") String deptName);
 }

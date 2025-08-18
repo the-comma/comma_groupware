@@ -38,12 +38,16 @@ public class NoticeService {
     private String noticeRoot;       // 예: C:/comma_upload/notice
 
     private static final String REF_TYPE_NOTICE = "NOTICE";
-
+    private static final String NOTICE_DEPT_NAME = "경영"; 
+    //경영지원팀만 가능하게
+    //@Value("${comma.auth.notice-writable-dept:경영}")
+    //private String writableDeptName;
+    
     /** 현재 로그인 사용자가 경영지원팀인지 검사(작성/수정/삭제 권한) */
     private void assertWritable(int empId) {
-        if (noticeMapper.isSupportDeptNow(empId) != 1) {
-            throw new RuntimeException("권한이 없습니다. (경영지원팀 전용)");
-        }
+        //if (noticeMapper.isSupportDeptNow(empId, writableDeptName) != 1) {
+    	if (empId > 0 && noticeMapper.isSupportDeptNow(empId, NOTICE_DEPT_NAME) == 1) return;
+    	throw new RuntimeException("권한이 없습니다. (" + NOTICE_DEPT_NAME +" 전용)");
     }
 
     /** 목록 + 페이징 */
@@ -72,6 +76,7 @@ public class NoticeService {
     /** 공지 등록 (파일 업로드 포함) */
     @Transactional(rollbackFor = Exception.class)
     public int addNotice(Notice notice, int loginEmpId, List<MultipartFile> files) throws IOException {
+    	System.out.println("[addNotice] after insert, noticeId=" + notice.getNoticeId());
         assertWritable(loginEmpId);
         notice.setWriterId(loginEmpId);
 
@@ -176,7 +181,7 @@ public class NoticeService {
             noticeMapper.insertFile(meta);
         }
     }
-
+    
     /** 물리 경로 조합 유틸 */
     private File buildPath(int noticeId, String savedName) {
         return new File(new File(noticeRoot, String.valueOf(noticeId)), savedName);
