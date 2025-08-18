@@ -19,7 +19,7 @@
     <!-- Begin page -->
     <div class="wrapper">
 
-		<%@ include file="/HTML/Admin/src/partials/menu.html" %>
+		<%-- <%@ include file="/HTML/Admin/src/partials/menu.jsp" %> --%>
         <!-- ============================================================== -->
         <!-- Start Page Content here -->
         <!-- ============================================================== -->
