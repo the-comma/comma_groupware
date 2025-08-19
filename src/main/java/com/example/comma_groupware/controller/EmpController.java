@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.example.comma_groupware.dto.Page;
 import com.example.comma_groupware.service.EmpService;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Controller
 public class EmpController {
 
@@ -64,7 +66,7 @@ public class EmpController {
     @GetMapping("/api/teams")
     @ResponseBody
     public List<String> getTeamsByDepartment(@RequestParam("deptName") String deptName) {
-    	
+    	log.debug("deptName::::::::::::::::::::::::::: {}", deptName);
         return empService.getTeamsByDepartment(deptName);
     }
     

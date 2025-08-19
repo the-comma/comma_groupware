@@ -30,12 +30,12 @@ public class EmpService {
 
         return empMapper.selectEmployeeList(param);
     }
-    // 직급 목록을 
+    // 직급 목록
     public List<String> getAllRanks() {
         return empMapper.selectAllRanks();
     }
 
-    // 부서 목록을 
+    // 부서 목록
     public List<String> getAllDepartments() {
         return empMapper.selectAllDepartments();
     }
@@ -86,7 +86,7 @@ public class EmpService {
         // employee 테이블 삭제
         empMapper.deleteEmployee(empId);
     }
-
+    //사원번호로 직원 1명 조회 
     public Map<String, Object> getEmployee(String empId) {
         return empMapper.selectEmployeeById(empId);
     }

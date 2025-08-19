@@ -17,44 +17,44 @@
 		</where>
 	</select>
 	<!-- 인사관리용 직원 조회 -->
-<select id="selectEmployeeList" parameterType="map"
-	resultType="java.util.Map">
-	SELECT
-		e.emp_id AS empId,
-		e.emp_name AS empName,
-		e.emp_email AS empEmail,
-		e.emp_status AS empStatus,
-		e.emp_phone AS empPhone,
-		e.emp_exp AS empExp,
-		e.`role` AS `role`,
-		s.salary_amount AS salaryAmount,
-		r.rank_name AS rankName,
-		d.dept_name AS deptName,
-		t.team_name AS teamName
-	FROM
-		employee e
-	LEFT OUTER JOIN
-		salary s ON e.emp_Id = s.emp_id
-	LEFT OUTER JOIN
-		rank_history rh ON e.emp_Id = rh.emp_id AND rh.end_date IS NULL
-	LEFT OUTER JOIN
-		`rank` r ON rh.rank_id = r.rank_id
-	LEFT OUTER JOIN
-		department_history dh ON e.emp_Id = dh.emp_id AND dh.end_date IS NULL
-	LEFT OUTER JOIN
-		team t ON dh.team_id = t.team_id
-	LEFT OUTER JOIN
-		department d ON t.dept_id = d.dept_id
-	<where>
-		<if test="searchWord != null and searchWord != ''">
-			(e.emp_name LIKE CONCAT('%', #{searchWord}, '%')
-			OR e.username LIKE CONCAT('%', #{searchWord}, '%')
-			OR e.emp_email LIKE CONCAT('%', #{searchWord}, '%'))
-		</if>
-	</where>
-	ORDER BY e.emp_id DESC
-	LIMIT #{rowPerPage} OFFSET #{beginRow}
-</select>
+	<select id="selectEmployeeList" parameterType="map"
+		resultType="java.util.Map">
+		SELECT
+			e.emp_id AS empId,
+			e.emp_name AS empName,
+			e.emp_email AS empEmail,
+			e.emp_status AS empStatus,
+			e.emp_phone AS empPhone,
+			e.emp_exp AS empExp,
+			e.`role` AS `role`,
+			s.salary_amount AS salaryAmount,
+			r.rank_name AS rankName,
+			d.dept_name AS deptName,
+			t.team_name AS teamName
+		FROM
+			employee e
+		LEFT OUTER JOIN
+			salary s ON e.emp_Id = s.emp_id
+		LEFT OUTER JOIN
+			rank_history rh ON e.emp_Id = rh.emp_id AND rh.end_date IS NULL
+		LEFT OUTER JOIN
+			`rank` r ON rh.rank_id = r.rank_id
+		LEFT OUTER JOIN
+			department_history dh ON e.emp_Id = dh.emp_id AND dh.end_date IS NULL
+		LEFT OUTER JOIN
+			team t ON dh.team_id = t.team_id
+		LEFT OUTER JOIN
+			department d ON t.dept_id = d.dept_id
+		<where>
+			<if test="searchWord != null and searchWord != ''">
+				(e.emp_name LIKE CONCAT('%', #{searchWord}, '%')
+				OR e.username LIKE CONCAT('%', #{searchWord}, '%')
+				OR e.emp_email LIKE CONCAT('%', #{searchWord}, '%'))
+			</if>
+		</where>
+		ORDER BY e.emp_id DESC
+		<!-- LIMIT #{rowPerPage} OFFSET #{beginRow} -->
+	</select>
 
 	<!-- 특정 직원 정보 조회 -->
 	<select id="selectEmployeeById" parameterType="string"
@@ -86,70 +86,82 @@
 		WHERE
 		emp_id = #{empId}
 	</update>
+	
 	<!-- 직급 이력 end date 수정 -->
 	<update id="updateRankHistoryEndDate" parameterType="map">
 		UPDATE rank_history
 		SET end_date = NOW()
 		WHERE emp_id = #{empId} AND end_date IS NULL
 	</update>
+	
 	<!-- 직급 이력 추가 -->
 	<insert id="insertRankHistory" parameterType="map">
 		INSERT INTO rank_history (emp_id, rank_id, start_date)
 		VALUES (#{empId}, (SELECT rank_id FROM `rank` WHERE rank_name =
 		#{rankName}), NOW())
 	</insert>
+	
 	<!-- 부서 이력 end Date 수정 -->
 	<update id="updateDeptHistoryEndDate" parameterType="map">
 		UPDATE department_history
 		SET end_date = NOW()
 		WHERE emp_id = #{empId} AND end_date IS NULL
 	</update>
+	
 	<!-- 부서 이력 추가 -->
 	<insert id="insertDeptHistory" parameterType="map">
 		INSERT INTO department_history (emp_id, team_id, start_date)
 		VALUES (#{empId}, (SELECT team_id FROM `team` WHERE team_name =
 		#{teamName}), NOW())
 	</insert>
+	
 	<!-- 사원 삭제 -->
 	<delete id="deleteEmployee" parameterType="string">
 		DELETE FROM employee WHERE emp_id = #{empId}
 	</delete>
+	
 	<!-- 한 직원의 좋아요 삭제 -->
 	<delete id="deleteAnonymousLike" parameterType="string">
 		DELETE FROM anonymous_like WHERE emp_id = #{empId}
 	</delete>
+	
 	<!--댓글 삭제 -->
 	<delete id="deleteAnonymousComment" parameterType="string">
 		DELETE FROM anonymous_comment WHERE writer_id = #{empId}
 	</delete>
+	
 	<!-- 게시물 삭제 -->
 	<delete id="deleteAnonymousPost" parameterType="string">
 		DELETE FROM anonymous_post WHERE writer_id = #{empId}
 	</delete>
+	
 	<!-- 급여 삭제 -->
 	<delete id="deleteSalary" parameterType="string">
 		DELETE FROM salary WHERE emp_id = #{empId}
 	</delete>
+	
 	<!-- 직급 이력 삭제 -->
 	<delete id="deleteRankHistory" parameterType="string">
 		DELETE FROM rank_history WHERE emp_id = #{empId}
 	</delete>
+	
 	<!-- 부서 이력 삭제 -->
 	<delete id="deleteDepartmentHistory" parameterType="string">
 		DELETE FROM department_history WHERE emp_id = #{empId}
 	</delete>
 	<!-- 모든 직급 조회 -->
 	<select id="selectAllRanks" resultType="string">
-		SELECT rank_name as rankName FROM `rank`
+		SELECT rank_name FROM `rank`
 	</select>
+	
 	<!-- 모든 부서 조회 -->
 	<select id="selectAllDepartments" resultType="string">
-		SELECT dept_name as deptName FROM department
+		SELECT dept_name FROM department
 	</select>
+	
 	<!-- 부서별 팀 조회 -->
-	<select id="selectTeamsByDepartment" parameterType="string"
-		resultType="string">
-		SELECT team_name AS teamName
+	<select id="selectTeamsByDepartment" resultType="string">
+		SELECT team_name 
 		FROM team
 		WHERE dept_id = (SELECT dept_id FROM department WHERE dept_name =
 		#{deptName})
