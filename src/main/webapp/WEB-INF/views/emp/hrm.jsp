@@ -52,6 +52,11 @@
             <th>전화번호</th>
             <th>경력</th>
             <th>상태</th>
+            <th>급여</th>
+            <th>직급</th>
+            <th>부서</th>
+            <th>팀</th>
+            
       
         </tr>
         </thead>
@@ -64,12 +69,32 @@
                 <td>${e.empPhone}</td>
                 <td>${e.empExp}년</td>
                 <td>${e.empStatus}</td>
-           
+                <td>${e.salaryAmount }</td>
+                <td>${e.rankName }</td>
+                <td>${e.deptName }</td>
+                <td>${e.teamName }</td>
+ 				<td>
+                    <button onclick="openEditModal('${e.empId}')">수정</button>
+                    <button onclick="deleteEmployee('${e.empId}')">삭제</button>
+                </td>         
             </tr>
         </c:forEach>
         </tbody>
     </table>
-
+	
+	<!-- 수정MODAL -->
+	<div id="editModal" style="display:none;">
+    <h3>직원 정보 수정</h3>
+    <form id="editForm">
+        <input type="hidden" id="editEmpId" name="empId">
+        급여: <input type="number" id="editSalary" name="salaryAmount"><br>
+        직급: <input type="text" id="editRank" name="rankName"><br>
+        부서: <input type="text" id="editDept" name="deptName"><br>
+        팀: <input type="text" id="editTeam" name="teamName"><br>
+        <button type="button" onclick="submitEditForm()">저장</button>
+        <button type="button" onclick="closeEditModal()">취소</button>
+    </form>
+</div>
     <!-- 페이징 -->
     <div class="paging">
         <c:if test="${page.startPage > 1}">
@@ -86,4 +111,54 @@
         </c:if>
     </div>
 </body>
+<script>
+    function openEditModal(empId) {
+        // empId를 폼에 설정
+        document.getElementById('editEmpId').value = empId;
+        // 모달 표시
+        document.getElementById('editModal').style.display = 'block';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    function submitEditForm() {
+        // 폼 데이터를 가져와서 서버로 전송 
+        const formData = new FormData(document.getElementById('editForm'));
+        const data = Object.fromEntries(formData.entries());
+
+        fetch('/hrm/edit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('수정 성공!');
+                location.reload(); // 페이지 새로고침
+            } else {
+                alert('수정 실패!');
+            }
+        });
+    }
+
+    function deleteEmployee(empId) {
+        if (confirm('정말로 삭제하시겠습니까?')) {
+            fetch(`/hrm/delete/${empId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('삭제 성공!');
+                    location.reload();
+                } else {
+                    alert('삭제 실패!');
+                }
+            });
+        }
+    }
+</script>
 </html>
