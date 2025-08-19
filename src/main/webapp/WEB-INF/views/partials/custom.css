@@ -1,0 +1,142 @@
+/* ===============================
+   🎯 기본 변수
+=============================== */
+:root{
+  --acc:#2b6cff;
+  --bd:#eaedf1;
+  --txt-sub:#8a8f98;
+  --shadow:0 8px 24px rgba(17,17,17,.06);
+}
+
+/* ===============================
+   📦 캘린더 컨테이너/크기
+=============================== */
+.calendar-card .card-body{
+  padding:12px;
+  min-height:80vh;                 /* 필요시 100vh 또는 calc(100vh - X)로 조절 */
+}
+#calendar{
+  height:100%;                     /* 부모 .card-body 높이를 그대로 채움 */
+  background:#fff;
+  border:1px solid var(--bd);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+/* FullCalendar 내부 래퍼가 부모 높이를 100%로 이어받도록 */
+.fc .fc-view-harness{height:100% !important; min-height:0 !important;}
+
+/* ===============================
+   🧰 툴바/버튼
+=============================== */
+.fc .fc-toolbar{padding:12px 16px;}
+.fc .fc-toolbar-title{font-weight:800;font-size:18px;}
+.fc .fc-button{
+  border-radius:10px; border:1px solid var(--bd);
+  background:#fff; color:#111; transition:transform .12s;
+}
+.fc .fc-button-primary{background:var(--acc); border-color:var(--acc); color:#fff;}
+.fc .fc-button:hover{transform:translateY(-1px);}
+
+/* 커스텀 버튼 이름을 쓴 경우(옵션) */
+.fc-addEvent-button{background:#2b6cff!important; border-color:#2b6cff!important; color:#fff!important; font-weight:700; border-radius:10px;}
+.fc-toggleExt-button{border-radius:10px;}
+
+/* ===============================
+   📅 Grid / Today
+=============================== */
+.fc .fc-scrollgrid{border:none;}
+.fc .fc-col-header-cell, .fc .fc-daygrid-day-frame{border-color:var(--bd);}
+.fc .fc-col-header-cell-cushion{padding:10px 0; color:var(--txt-sub); font-weight:600;}
+.fc .fc-day-today{background:#e8f0ff;}
+
+/* ===============================
+   🏷️ 이벤트
+=============================== */
+.fc .fc-event{
+  border:none; border-radius:10px; padding:4px 8px;
+  font-weight:600; box-shadow:0 1px 0 rgba(0,0,0,.04);
+  transition:filter .15s, transform .15s;
+}
+.fc .fc-event:hover{filter:saturate(1.05) brightness(.98); transform:translateY(-1px);}
+
+/* ===============================
+   💬 툴팁(타이틀)
+=============================== */
+.fc .fc-event[title]{position:relative;}
+.fc .fc-event[title]:hover::after{
+  content:attr(title); position:absolute; bottom:110%; left:50%; transform:translateX(-50%);
+  background:#111; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; white-space:nowrap;
+}
+
+/* ===============================
+   🧱 내부 외부-이벤트 패널(툴바 아래)
+=============================== */
+.cal-ext{background:#fff; border:1px solid var(--bd); border-radius:12px; padding:12px; margin:10px 12px 0;}
+.cal-ext__head{font-weight:800; font-size:13.5px; color:#111; margin-bottom:8px;}
+#external-events, #cal-legend{transition:opacity .2s ease;}
+#external-events.d-none, #cal-legend.d-none{opacity:0;}
+
+/* 칩 & 범례 (내부/외부 공용) */
+.cal-side__list{margin-top:12px; display:flex; flex-direction:column; gap:8px;}
+.evt-chip{
+  display:flex; align-items:center; gap:10px; padding:10px 12px;
+  background:#fff; border:1px solid var(--bd); border-radius:10px;
+  font-weight:600; cursor:grab; margin-bottom:4px;
+  box-shadow:0 1px 0 rgba(0,0,0,.03); transition:background .15s, transform .12s, border-color .15s;
+}
+.evt-chip:hover{background:#f9fbff; border-color:#dfe6f3; transform:translateY(-1px);}
+.evt-chip:active{cursor:grabbing;}
+.chip-dot,.dot{width:10px; height:10px; border-radius:50%; display:inline-block;}
+.chip-label{font-weight:600; font-size:13.5px; letter-spacing:-.2px;}
+.dot--blue{background:#2b6cff;} .dot--green{background:#3fb988;} .dot--purple{background:#7b61ff;}
+.dot--teal{background:#20b26c;} .dot--cyan{background:#5bc0de;} .dot--yellow{background:#ffd166;} .dot--red{background:#ff6b6b;}
+.cal-legend{display:flex; flex-wrap:wrap; gap:10px;}
+.cal-legend span{display:inline-flex; align-items:center; gap:6px; color:var(--txt-sub); font-size:.83rem;}
+
+/* ===============================
+   📱 반응형
+=============================== */
+@media (max-width:768px){
+  #calendar{border-radius:8px; box-shadow:none;}
+  .cal-side__list{flex-direction:row; overflow-x:auto; gap:10px;}
+  .evt-chip{min-width:120px;}
+}
+
+/* ===============================
+   🖤 텍스트를 전부 검은색으로 고정 (중복 없이 한 번만)
+=============================== */
+#calendar, 
+#calendar .fc{ color:#111 !important; }
+
+/* 요일/날짜/이벤트 등 모든 링크 상태 */
+#calendar a,
+#calendar a:link, 
+#calendar a:visited, 
+#calendar a:hover, 
+#calendar a:active,
+#calendar .fc a,
+#calendar .fc a:link,
+#calendar .fc a:visited,
+#calendar .fc a:hover,
+#calendar .fc a:active,
+#calendar .fc-col-header-cell-cushion,
+#calendar .fc-daygrid-day-number,
+#calendar .fc-more-link{
+  color:#111 !important;
+  text-decoration:none;
+}
+
+/* 이벤트 카드 내부 텍스트(시간/제목 포함) */
+#calendar .fc-event,
+#calendar .fc-event *{ color:#111 !important; }
+
+/* FullCalendar v6 변수 보정 */
+#calendar{
+  --fc-link-color:#111;
+  --fc-neutral-text-color:#111;
+  --fc-event-text-color:#111;
+}
+
+/* 파란 액션 버튼 텍스트는 흰색 유지 */
+#calendar .fc .fc-button-primary{ color:#fff !important; }
