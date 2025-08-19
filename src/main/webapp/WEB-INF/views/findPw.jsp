@@ -25,8 +25,10 @@
     <!-- Icons css -->
     <link href= "<c:url value='/HTML/Admin/dist/assets/css/icons.min.css'/>" rel="stylesheet" type="text/css" />
     
+    
     <script defer src="<c:url value='/HTML/Admin/dist/assets/js/vendor.min.js'/>"></script>
 	<script defer src="<c:url value='/HTML/Admin/dist/assets/js/app.js'/>"></script>
+  
     
 </head>
 
@@ -36,8 +38,8 @@
         <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
             <div class="col-xxl-3 col-lg-5 col-md-6">
                 <a href="index.html" class="auth-brand d-flex justify-content-center mb-2">
-                    <img src="assets/images/logo-dark.png" alt="dark logo" height="26" class="logo-dark">
-                    <img src="assets/images/logo.png" alt="logo light" height="26" class="logo-light">
+                    <img src="/HTML/Admin/dist/assets/images/logo-dark.png" alt="dark logo" height="26" class="logo-dark">
+                    <img src="/HTML/Admin/dist/assets/images/logo.png" alt="logo light" height="26" class="logo-light">
                 </a>
 
                 <p class="fw-semibold mb-4 text-center text-muted fs-15">Admin Panel Design by Coderthemes</p>
