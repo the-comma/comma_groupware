@@ -30,6 +30,20 @@ public class EmpService {
 
         return empMapper.selectEmployeeList(param);
     }
+    // 직급 목록을 
+    public List<String> getAllRanks() {
+        return empMapper.selectAllRanks();
+    }
+
+    // 부서 목록을 
+    public List<String> getAllDepartments() {
+        return empMapper.selectAllDepartments();
+    }
+
+    // 부서 이름으로 팀 목록을 가져옴
+    public List<String> getTeamsByDepartment(String deptName) {
+        return empMapper.selectTeamsByDepartment(deptName);
+    }
 
     // 직원 정보 업데이트
     @Transactional // 이 메서드의 모든 DB 작업이 하나의 트랜잭션으로 처리됩니다.
@@ -71,5 +85,9 @@ public class EmpService {
 
         // employee 테이블 삭제
         empMapper.deleteEmployee(empId);
+    }
+
+    public Map<String, Object> getEmployee(String empId) {
+        return empMapper.selectEmployeeById(empId);
     }
 }

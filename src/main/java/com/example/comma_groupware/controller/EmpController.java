@@ -40,35 +40,62 @@ public class EmpController {
 
         return "emp/hrm"; 
     }
+    // 특정 직원 상세 정보 조회
+    @GetMapping("/hrm/employee/{empId}")
+    @ResponseBody 
+    public Map<String, Object> getEmployee(@PathVariable String empId) {    
+        return empService.getEmployee(empId);
+    }
+    // 모든 직급 목록을 반환하는 API
+    @GetMapping("/api/ranks")
+    @ResponseBody
+    public List<String> getRanks() {
+        return empService.getAllRanks();
+    }
 
-    // 직원 정보 수정 (AJAX 요청 처리)
+    // 모든 부서 목록을 반환하는 API
+    @GetMapping("/api/departments")
+    @ResponseBody
+    public List<String> getDepartments() {
+        return empService.getAllDepartments();
+    }
+
+    // 특정 부서에 속한 팀 목록을 반환하는 API
+    @GetMapping("/api/teams")
+    @ResponseBody
+    public List<String> getTeamsByDepartment(@RequestParam("deptName") String deptName) {
+    	
+        return empService.getTeamsByDepartment(deptName);
+    }
+    
+    // 직원 정보 수정 
     @PostMapping("/hrm/edit")
-    @ResponseBody // Map을 JSON으로 변환하여 응답
+    @ResponseBody 
     public Map<String, Object> editEmployee(@RequestBody Map<String, Object> paramMap) {
         Map<String, Object> response = new HashMap<>();
         try {
             empService.updateEmployee(paramMap);
             response.put("success", true);
-            response.put("message", "직원 정보가 성공적으로 수정되었습니다.");
+            response.put("message", "수정 완료.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "직원 정보 수정 실패: " + e.getMessage());
+            response.put("message", "수정 실패: " + e.getMessage());
         }
         return response;
     }
 
-    // 직원 삭제 (AJAX 요청 처리)
+    // 직원 삭제 
     @DeleteMapping("/hrm/delete/{empId}")
-    @ResponseBody // Map을 JSON으로 변환하여 응답
+    @ResponseBody 
     public Map<String, Object> deleteEmployee(@PathVariable String empId) {
         Map<String, Object> response = new HashMap<>();
         try {
             empService.deleteEmployee(empId);
             response.put("success", true);
-            response.put("message", "직원이 성공적으로 삭제되었습니다.");
+            response.put("message", "삭제 성공.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "직원 삭제 실패: " + e.getMessage());
+            response.put("message", "삭제 실패: " + e.getMessage());
         }
         return response;
     }

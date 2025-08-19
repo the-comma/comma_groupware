@@ -11,7 +11,7 @@ public interface EmpMapper {
     // 직원 수 조회
     int selectEmployeeCount(@Param("searchWord") String searchWord);
 
-    // 직원 리스트 조회 (Map 형태로 반환)
+    // 직원 리스트 조회
     List<Map<String, Object>> selectEmployeeList(Map<String, Object> paramMap);
 
     // 급여 업데이트
@@ -39,4 +39,17 @@ public interface EmpMapper {
     int deleteSalary(@Param("empId") String empId);
     int deleteRankHistory(@Param("empId") String empId);
     int deleteDepartmentHistory(@Param("empId") String empId);
+    
+    //특정 직원 정보 조회
+    Map<String, Object> selectEmployeeById(@Param("empId") String empId);
+    
+    // 모든 직급 목록을 
+    List<String> selectAllRanks();
+
+    // 모든 부서 목록을 
+    List<String> selectAllDepartments();
+
+    // 특정 부서(deptName)에 속한 모든 팀 목록
+    List<String> selectTeamsByDepartment(@Param("deptName") String deptName);
+
 }

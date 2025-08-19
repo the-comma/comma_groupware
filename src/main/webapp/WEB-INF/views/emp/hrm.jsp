@@ -34,7 +34,6 @@
 <body>
     <h2>인사관리 페이지</h2>
 
-    <!-- 검색창 -->
     <div class="search-box">
         <form method="get" action="${pageContext.request.contextPath}/hrm">
             <input type="text" name="searchWord" value="${page.searchWord}" placeholder="사원명/아이디 검색">
@@ -42,7 +41,6 @@
         </form>
     </div>
 
-    <!-- 사원 목록 -->
     <table>
         <thead>
         <tr>
@@ -56,8 +54,7 @@
             <th>직급</th>
             <th>부서</th>
             <th>팀</th>
-            
-      
+            <th>관리</th>
         </tr>
         </thead>
         <tbody>
@@ -74,28 +71,29 @@
                 <td>${e.deptName }</td>
                 <td>${e.teamName }</td>
  				<td>
-                    <button onclick="openEditModal('${e.empId}')">수정</button>
-                    <button onclick="deleteEmployee('${e.empId}')">삭제</button>
-                </td>         
+  				    <button onclick="fetchEmployeeDataAndOpenModal('${e.empId}')">수정</button>
+ 				    <button onclick="deleteEmployee('${e.empId}')">삭제</button>
+				</td>
             </tr>
         </c:forEach>
         </tbody>
     </table>
-	
-	<!-- 수정MODAL -->
+
 	<div id="editModal" style="display:none;">
-    <h3>직원 정보 수정</h3>
-    <form id="editForm">
-        <input type="hidden" id="editEmpId" name="empId">
-        급여: <input type="number" id="editSalary" name="salaryAmount"><br>
-        직급: <input type="text" id="editRank" name="rankName"><br>
-        부서: <input type="text" id="editDept" name="deptName"><br>
-        팀: <input type="text" id="editTeam" name="teamName"><br>
-        <button type="button" onclick="submitEditForm()">저장</button>
-        <button type="button" onclick="closeEditModal()">취소</button>
-    </form>
-</div>
-    <!-- 페이징 -->
+        <h3>직원 정보 수정</h3>
+        <form id="editForm">
+            <input type="hidden" id="editEmpId" name="empId">
+            급여: <input type="number" id="editSalary" name="salaryAmount"><br>
+
+            직급: <select id="editRank" name="rankName"></select><br>
+            부서: <select id="editDept" name="deptName"></select><br>
+            팀: <select id="editTeam" name="teamName"></select><br>
+
+            <button type="button" onclick="submitEditForm()">저장</button>
+            <button type="button" onclick="closeEditModal()">취소</button>
+        </form>
+	</div>
+
     <div class="paging">
         <c:if test="${page.startPage > 1}">
             <a href="?currentPage=${page.startPage - 1}&searchWord=${page.searchWord}">[이전]</a>
@@ -112,19 +110,108 @@
     </div>
 </body>
 <script>
-    function openEditModal(empId) {
-        // empId를 폼에 설정
-        document.getElementById('editEmpId').value = empId;
-        // 모달 표시
-        document.getElementById('editModal').style.display = 'block';
+    // 모달을 열기 전, 부서와 직급 목록을 먼저 가져옵니다.
+    function fetchEmployeeDataAndOpenModal(empId) {
+        // API 호출을 병렬로 처리하여 효율성을 높입니다.
+        Promise.all([
+            fetch('/api/departments').then(res => res.json()),
+            fetch('/api/ranks').then(res => res.json()),
+            fetch('/hrm/employee/' + empId).then(res => res.json())
+        ])
+        .then(([deptList, rankList, employeeData]) => {
+            // 부서 셀렉트박스 채우기
+            const deptSelect = document.getElementById('editDept');
+            deptSelect.innerHTML = '<option value="">선택</option>';
+            deptList.forEach(dept => {
+                const option = new Option(dept, dept);
+                deptSelect.add(option);
+            });
+
+            // 직급 셀렉트박스 채우기
+            const rankSelect = document.getElementById('editRank');
+            rankSelect.innerHTML = '<option value="">선택</option>';
+            rankList.forEach(rank => {
+                const option = new Option(rank, rank);
+                rankSelect.add(option);
+            });
+
+            // 기존 직원 정보로 폼 채우기
+            document.getElementById('editEmpId').value = employeeData.empId;
+            document.getElementById('editSalary').value = employeeData.salaryAmount;
+
+            // 기존 부서 및 직급 선택 상태로 설정
+            if (employeeData.deptName) {
+                deptSelect.value = employeeData.deptName;
+            }
+            if (employeeData.rankName) {
+                rankSelect.value = employeeData.rankName;
+            }
+
+            // 부서 선택 후 팀 목록 가져오기 (비동기)
+            if (employeeData.deptName) {
+                fetchAndSetTeams(employeeData.deptName, employeeData.teamName);
+            }
+
+            // 모달 표시
+            document.getElementById('editModal').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            alert('데이터를 불러오는 데 실패했습니다.');
+        });
     }
 
+    // 부서 변경 시 팀 목록을 가져와서 셀렉트 박스를 업데이트하는 함수
+    document.getElementById('editDept').addEventListener('change', (event) => {
+        const selectedDeptName = event.target.value;
+        fetchAndSetTeams(selectedDeptName);
+    });
+
+    
+
+    function fetchAndSetTeams(deptName, currentTeamName = null) {
+        const teamSelect = document.getElementById('editTeam');
+        teamSelect.innerHTML = '<option value="">선택</option>'; // 팀 목록 초기화
+
+        if (!deptName) return;
+
+        // deptName을 URL에 안전하게 전달하기 위해 인코딩합니다.
+        const encodedDeptName = encodeURIComponent(deptName);
+        
+        // 인코딩된 변수를 URL에 사용합니다.
+        console.log("encodedDeptName" ,  encodedDeptName);
+        fetch(`/api/teams?deptName=${encodedDeptName}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('네트워크 응답이 올바르지 않습니다.');
+            }
+            return res.json();
+        })
+        .then(teamList => {
+            if (!Array.isArray(teamList)) {
+                throw new Error('유효한 팀 목록 데이터가 아닙니다.');
+            }
+            teamList.forEach(team => {
+                const option = new Option(team, team);
+                teamSelect.add(option);
+            });
+            
+            // 기존 팀 정보가 있으면 선택 상태로 설정
+            if (currentTeamName) {
+                teamSelect.value = currentTeamName;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching teams:', error);
+            alert('팀 목록을 불러오는 데 실패했습니다.');
+        });
+    }
     function closeEditModal() {
         document.getElementById('editModal').style.display = 'none';
     }
 
     function submitEditForm() {
-        // 폼 데이터를 가져와서 서버로 전송 
+        // 폼 데이터를 가져와서 서버로 전송
         const formData = new FormData(document.getElementById('editForm'));
         const data = Object.fromEntries(formData.entries());
 
@@ -146,7 +233,7 @@
 
     function deleteEmployee(empId) {
         if (confirm('정말로 삭제하시겠습니까?')) {
-            fetch(`/hrm/delete/${empId}`, {
+            fetch('/hrm/delete/' + empId, {
                 method: 'DELETE'
             })
             .then(response => response.json())
@@ -156,6 +243,7 @@
                     location.reload();
                 } else {
                     alert('삭제 실패!');
+                    console.log(empId);
                 }
             });
         }
