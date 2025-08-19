@@ -27,6 +27,12 @@ public class EmployeeController {
 		this.deptmentService = deptmentService;
 	}
 	
+	// 템플릿 테스트
+	@GetMapping("NewFile")
+	public String newFile() {
+		return "NewFile";
+	}
+	
 	// 사원카드 페이지
 	@GetMapping("employeeCard")
 	public String employeeCard(Model model,
@@ -87,6 +93,7 @@ public class EmployeeController {
 		
 		// model 값 전달
 		model.addAttribute("organiList",organiList);
+		model.addAttribute("totalCount",totalCount);
 		model.addAttribute("deptTeam",deptTeam);
 		model.addAttribute("name", name);
 		model.addAttribute("page", p);

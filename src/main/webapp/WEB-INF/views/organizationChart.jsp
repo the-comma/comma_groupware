@@ -4,6 +4,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+		<!-- Vendor css -->
+    <link href= "<c:url value='/HTML/Admin/dist/assets/css/vendor.min.css'/>" rel="stylesheet" type="text/css" />
+
+    <!-- App css -->
+    <link href= "<c:url value='/HTML/Admin/dist/assets/css/app.min.css'/>"  rel="stylesheet" type="text/css" id="app-style" />
+
+    <!-- Icons css -->
+    <link href= "<c:url value='/HTML/Admin/dist/assets/css/icons.min.css'/>" rel="stylesheet" type="text/css" />
+
+   <!-- App favicon -->
+	<link rel="shortcut icon" href="/HTML/Admin/dist/assets/images/favicon.ico">
 <meta charset="UTF-8">
 <title>조직도</title>
 <!-- JQuery -->
@@ -42,6 +53,34 @@
 </style>
 </head>
 <body>
+    <!-- Begin page -->
+    <div class="wrapper">
+
+	<!-- Menu -->
+	<%@ include file="/HTML/Admin/src/partials/sidenav.html" %>
+	
+	<c:choose>
+	  <c:when test="${not empty title}">
+	    <jsp:include page="/HTML/Admin/src/partials/topbar.html">
+	      <jsp:param name="topbarTitle" value="${title}" />
+	    </jsp:include>
+	  </c:when>
+	  <c:otherwise>
+	    <%@ include file="/HTML/Admin/src/partials/topbar.html" %>
+	  </c:otherwise>
+	</c:choose>
+	
+	<%-- 필요하면 수평 네비게이션 활성화
+	<%@ include file="/WEB-INF/views/partials/horizontal-nav.jsp" %>
+	--%>
+
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
+
+        <div class="page-content">
+
+            <div class="page-container">
     <h1>조직도</h1>
     
     <!-- 모달창 출력 -->
@@ -79,12 +118,13 @@
             </div>
             <!-- 이름 검색 끝 -->
             
-            <c:if test="${organiList == null}">
+            <c:if test="${totalCount == 0}">
                 사원이 없습니다.
             </c:if>
-            <c:if test="${organiList != null}">
-                <table>
-                    <thead>
+            <c:if test="${totalCount != 0}">
+                <div class="table-responsive-sm">
+                    <table class="table mb-0">
+                        <thead class="table-light">
                         <tr>
                             <th>이름</th><th>이메일</th><th>직급</th><th>부서</th><th>팀</th>
                         </tr>
@@ -107,23 +147,39 @@
                         </c:forEach>
                     </tbody>
                 </table>
+                </div>
+                
+                <!-- 페이징 -->
+				<c:if test="${page.currentPage != 0}">
+					<a href="?page=${page.currentPage - 1}&name=${page.searchWord}&dept=${dept}&team=${team}">이전</a>
+				</c:if>
+	
+	            ${page.currentPage + 1} / ${page.lastPage}
+	            
+	            <c:if test="${page.currentPage != page.lastPage - 1}">
+					<a href="?page=${page.currentPage + 1}&name=${page.searchWord}&dept=${dept}&team=${team}">다음</a>
+				</c:if>
+				<!-- 페이징 끝 -->
             </c:if>
-			<!-- 사원 리스트 끝 -->
-
-			<!-- 페이징 -->
-			<c:if test="${page.currentPage != 0}">
-				<a href="?page=${page.currentPage - 1}&name=${page.searchWord}&dept=${dept}&team=${team}">이전</a>
-			</c:if>
-
-            ${page.currentPage + 1} / ${page.lastPage}
-            
-            <c:if test="${page.currentPage != page.lastPage - 1}">
-				<a href="?page=${page.currentPage + 1}&name=${page.searchWord}&dept=${dept}&team=${team}">다음</a>
-			</c:if>
-			<!-- 페이징 끝 -->
+            <!-- 사원 리스트 끝 -->
         </div>
         <!-- 오른쪽 영역 끝 -->
         
     </div>
+    </div> <!-- container -->
+
+			<%@ include file="/HTML/Admin/src/partials/footer.html" %>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- End Page content -->
+        <!-- ============================================================== -->
+
+    </div>
+    <!-- END wrapper -->
+    
+    <%@ include file="/HTML/Admin/src/partials/customizer.html" %>
+    
+    <%@ include file="/HTML/Admin/src/partials/footer-scripts.html" %>
 </body>
 </html>
