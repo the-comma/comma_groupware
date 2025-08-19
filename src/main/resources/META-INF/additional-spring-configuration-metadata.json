@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "app.email-otp.secret",
+  "type": "java.lang.String",
+  "description": "A description for 'app.email-otp.secret'"
+}]}

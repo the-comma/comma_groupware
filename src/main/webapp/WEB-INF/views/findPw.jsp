@@ -50,11 +50,22 @@
 
                     <p class="text-muted mb-4">Enter your email address and we'll send you an email with instructions to
                         reset your password.</p>
+                        
+                        
 
-                    <form action="index.html" class="text-start mb-3">
+                    <form action="/findPw" method="post" class="text-start mb-3">
+                        
+                        
+    	                 <div class="mb-3">
+                            <label class="form-label" for="username">사원번호</label>
+                            <input type="text" id="username" name="username" class="form-control"
+                                placeholder="사원번호를 입력해주세요.">
+                        </div> 
+                        
+                        
                         <div class="mb-3">
                             <label class="form-label" for="example-email">Email</label>
-                            <input type="email" id="example-email" name="example-email" class="form-control"
+                            <input type="email" id="example-email" name="emp_email" class="form-control"
                                 placeholder="Enter your email">
                         </div>
                         <div class="d-grid">

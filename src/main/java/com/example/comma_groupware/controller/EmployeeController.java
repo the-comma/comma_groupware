@@ -38,6 +38,13 @@ public class EmployeeController {
 	}
 	
 	
+	@PostMapping("/findPw")
+	public String findPw(@RequestParam("username") String username, @RequestParam("emp_email") String email) {
+		employeeService.sendEmail(username,email);
+		
+		return email;
+		
+	}
 	
 	
 	@PostMapping("/resetPw") // 비밀번호 재설정

@@ -21,4 +21,13 @@
 	WHERE username = #{username}
 	</update>
 	
+	
+	<!-- 이메일이 존재하는지 확인 -->
+	<select id="existsByEmail" parameterType="string">
+	SELECT
+		COUNT(*)
+	FROM employee
+	WHERE email = #{email}
+	
+	</select>
 </mapper>
