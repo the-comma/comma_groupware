@@ -107,7 +107,7 @@
 		LEFT OUTER JOIN (SELECT * from department_history WHERE end_date IS NULL) dh ON e.emp_id = dh.emp_id
 		LEFT OUTER JOIN team t ON t.team_id = dh.team_id
 		LEFT OUTER JOIN department d ON d.dept_id = t.dept_id
-		LEFT OUTER JOIN rank_history rh ON e.emp_id = rh.emp_id
+		LEFT OUTER JOIN (SELECT * from rank_history WHERE end_date IS NULL) rh ON e.emp_id = rh.emp_id
 		LEFT OUTER JOIN `rank` r ON r.rank_id = rh.rank_id
 	</select>
 	
