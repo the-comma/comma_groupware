@@ -19,3 +19,4 @@ public class CalendarEvent {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 }
+

@@ -8,4 +8,5 @@
 <script src="<c:url value='/HTML/Admin/dist/assets/vendor/fullcalendar/index.global.min.js'/>"></script>
 
 <!-- Calendar App Custom JS -->
-<script src="<c:url value='/HTML/Admin/dist/assets/js/pages/apps-calendar.js'/>"></script>
+  <script src="<c:url value='/HTML/Admin/dist/assets/js/pages/apps-calendar.js'/>"></script> 
+

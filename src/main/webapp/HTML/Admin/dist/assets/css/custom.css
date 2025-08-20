@@ -1,0 +1,238 @@
+/* =========================================
+   Toss × Google Minimal — FullCalendar Skin
+   (단일 팔레트 + 일관된 컴포넌트 스케일)
+   ========================================= */
+
+/* ---------- Palette / Tokens ---------- */
+:root{
+  /* brand */
+  --acc:#1a73e8;        /* Google Blue */
+  --acc-600:#185abc;
+
+  /* text */
+  --ink:#0f172a;        /* 본문 텍스트 */
+  --muted:#64748b;      /* 서브 텍스트 */
+
+  /* surfaces / lines / radius / shadow */
+  --bg:#f7f9fb;         /* 페이지 바탕 틴트 */
+  --bd:#e6e9ef;         /* 얇은 라인 */
+  --radius:12px;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.06);
+  --shadow-md:0 8px 22px rgba(15,23,42,.10);
+}
+
+/* ---------- Container ---------- */
+.calendar-card .card-body{ padding:16px; min-height:80vh; background:var(--bg); }
+#calendar{
+  height:100%;
+  background:#fff;
+  border:1px solid var(--bd);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);
+  overflow:hidden;
+  font-family:'Inter','Pretendard','Noto Sans KR',system-ui,Segoe UI,Apple SD Gothic Neo,sans-serif;
+}
+
+/* 공통 링크 톤다운 */
+body #calendar .fc a{ color:var(--ink) !important; text-decoration:none !important; }
+
+/* ---------- Toolbar ---------- */
+body #calendar .fc .fc-toolbar{
+  padding:14px 18px;
+  background:#fff;
+  border-bottom:1px solid var(--bd);
+}
+body #calendar .fc .fc-toolbar-title{
+  color:var(--ink) !important;
+  font-weight:900 !important;
+  letter-spacing:-.3px !important;
+}
+
+/* ---------- Buttons (pill) ---------- */
+body #calendar .fc .fc-button{
+  border-radius:9999px !important;
+  border:1px solid var(--bd) !important;
+  background:#fff !important;
+  color:var(--ink) !important;
+  font-weight:700 !important;
+  padding:8px 14px !important;
+  box-shadow:var(--shadow-sm) !important;
+  transition:transform .12s, box-shadow .15s, background .15s, color .15s !important;
+}
+body #calendar .fc .fc-button:hover{
+  background:var(--acc) !important; color:#fff !important; border-color:var(--acc) !important;
+  transform:translateY(-1px); box-shadow:var(--shadow-md) !important;
+}
+body #calendar .fc .fc-button-primary{
+  background:var(--acc) !important; border-color:var(--acc) !important; color:#fff !important;
+}
+body #calendar .fc .fc-button-primary:not(:disabled):active,
+body #calendar .fc .fc-button-primary.fc-button-active{
+  background:var(--acc-600) !important; border-color:var(--acc-600) !important;
+}
+body #calendar .fc .fc-button-group .fc-button{ border-radius:9999px !important; }
+
+/* ---------- Grid / Header ---------- */
+body #calendar .fc .fc-scrollgrid{ border:none !important; }
+body #calendar .fc .fc-col-header-cell,
+body #calendar .fc .fc-daygrid-day-frame{ border-color:var(--bd) !important; }
+body #calendar .fc .fc-col-header-cell-cushion{
+  color:var(--muted) !important; font-weight:800 !important; padding:12px 0 !important;
+}
+body #calendar .fc .fc-daygrid-day-number{
+  color:#334155 !important; font-weight:700 !important;
+}
+
+/* 주말 아주 옅은 틴트 */
+body #calendar .fc .fc-daygrid-day.fc-day-sat .fc-daygrid-day-frame,
+body #calendar .fc .fc-daygrid-day.fc-day-sun .fc-daygrid-day-frame{ background:#fbfdff; }
+
+/* Today 표시 – 숫자 캡슐 */
+body #calendar .fc-day-today{ background:#f2f7ff !important; }
+body #calendar .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number{
+  background:#e7f0ff; color:var(--ink) !important; border-radius:999px; padding:2px 8px;
+}
+
+/* “+ more” 링크 */
+body #calendar .fc .fc-more-link{
+  color:var(--ink) !important; background:#eef2ff !important; border-radius:999px !important; padding:0 8px !important;
+}
+
+/* ---------- Events (chip + left bar) ---------- */
+body #calendar .fc .fc-event{
+  position:relative !important;
+  border:1px solid rgba(2,6,23,.08) !important;
+  border-radius:10px !important;
+  overflow:hidden !important;
+  background-clip:padding-box !important;
+  box-shadow:0 1px 3px rgba(2,6,23,.06) !important;
+  transition:transform .12s, box-shadow .15s !important;
+}
+body #calendar .fc .fc-event:hover,
+body #calendar .fc .fc-event.is-hover{
+  transform:translateY(-2px) !important; box-shadow:0 10px 24px rgba(2,6,23,.12) !important; z-index:2 !important;
+}
+body #calendar .fc-h-event .fc-event-main{ padding:6px 12px !important; }
+body #calendar .fc-v-event .fc-event-main{ padding:8px 12px !important; }
+body #calendar .fc-daygrid-event .fc-event-time,
+body #calendar .fc-daygrid-event .fc-event-title,
+body #calendar .fc-v-event .fc-event-time,
+body #calendar .fc-v-event .fc-event-title{ color:var(--ink) !important; letter-spacing:-.2px; }
+
+/* 좌측 바 */
+body #calendar .fc .fc-event::before{
+  content:""; position:absolute; inset:0 auto 0 0; width:3px; display:block; opacity:.95;
+}
+
+/* ---------- Category Variants (classNames: cat-*) ---------- */
+/* pastel bg + solid left bar */
+body #calendar .fc .fc-event.cat-company    { background:#f5f9ff !important; }
+body #calendar .fc .fc-event.cat-department { background:#f4fbf7 !important; }
+body #calendar .fc .fc-event.cat-project    { background:#f2fbff !important; }
+body #calendar .fc .fc-event.cat-vacation   { background:#fff9eb !important; }
+body #calendar .fc .fc-event.cat-etc,
+body #calendar .fc .fc-event.cat-theme,
+body #calendar .fc .fc-event.cat-meeting,
+body #calendar .fc .fc-event.cat-report     { background:#fff0f1 !important; }
+
+body #calendar .fc .fc-event.cat-company::before    { background:#1a73e8 !important; }
+body #calendar .fc .fc-event.cat-department::before { background:#10b981 !important; }
+body #calendar .fc .fc-event.cat-project::before    { background:#06b6d4 !important; }
+body #calendar .fc .fc-event.cat-vacation::before   { background:#f59e0b !important; }
+body #calendar .fc .fc-event.cat-etc::before,
+body #calendar .fc .fc-event.cat-theme::before,
+body #calendar .fc .fc-event.cat-meeting::before,
+body #calendar .fc .fc-event.cat-report::before     { background:#ef4444 !important; }
+
+/* 제목/메모 (eventContent에서 .fc-my-title / .fc-my-sub 사용) */
+body #calendar .fc-my-title{ font-weight:800 !important; }
+body #calendar .fc-my-sub{ font-size:12px !important; color:var(--muted) !important; margin-top:2px !important; }
+
+/* ---------- List View (card-like) ---------- */
+body #calendar .fc-theme-standard .fc-list{
+  border:1px solid var(--bd) !important; border-radius:12px !important; overflow:hidden !important;
+}
+body #calendar .fc-list-day-cushion{
+  background:#f3f6fa !important; color:var(--ink) !important; font-weight:800 !important;
+}
+body #calendar .fc-list-event:hover td{ background:#f8fafc !important; }
+
+/* ---------- External Draggable Chips (optional) ---------- */
+.cal-ext{
+  background:#fff; border:1px solid var(--bd); border-radius:var(--radius);
+  padding:14px; margin:12px 14px 0; box-shadow:var(--shadow-sm);
+}
+.evt-chip{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; background:#fff; border:1px solid var(--bd); border-radius:var(--radius);
+  font-weight:600; cursor:grab; transition:transform .15s, box-shadow .2s;
+}
+.evt-chip:hover{ transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.chip-dot{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+
+/* ---------- Responsive ---------- */
+@media (max-width:768px){
+  #calendar{ border-radius:10px; box-shadow:none; }
+  body #calendar .fc .fc-toolbar-title{ font-size:16px !important; }
+}
+/* ===== FULLCALENDAR HOTFIX PACK (put at very bottom) ===== */
+
+/* 0) 캘린더 루트 강제 확인용(선택): 테마 클래스 찍힘 */
+body #calendar .fc.fc-theme-standard{}
+
+/* 1) 툴바/버튼 — 남색 버튼 죽이고 pill + 흰바탕로 통일 */
+body #calendar .fc.fc-theme-standard .fc-toolbar{
+  padding:14px 18px;
+  background:#fff;
+  border-bottom:1px solid var(--bd) !important;
+}
+body #calendar .fc.fc-theme-standard .fc-toolbar-title{
+  color:var(--ink) !important; font-weight:900 !important; letter-spacing:-.3px !important;
+}
+
+/* 버튼 */
+body #calendar .fc.fc-theme-standard .fc-button{
+  border-radius:9999px !important;
+  border:1px solid var(--bd) !important;
+  background:#fff !important;
+  color:var(--ink) !important;
+  font-weight:700 !important;
+  padding:8px 14px !important;
+  box-shadow:var(--shadow-sm) !important;
+  transition:transform .12s, box-shadow .15s, background .15s, color .15s !important;
+}
+body #calendar .fc.fc-theme-standard .fc-button:hover{
+  background:var(--acc) !important; color:#fff !important; border-color:var(--acc) !important;
+  transform:translateY(-1px); box-shadow:var(--shadow-md) !important;
+}
+body #calendar .fc.fc-theme-standard .fc-button-primary,
+body #calendar .fc.fc-theme-standard .fc-button.fc-button-primary{
+  background:var(--acc) !important; border-color:var(--acc) !important; color:#fff !important;
+}
+
+/* 2) 날짜 링크(파란색) → 잉크색 톤다운 */
+body #calendar .fc a,
+body #calendar .fc .fc-daygrid-day-number{
+  color:var(--ink) !important; text-decoration:none !important;
+}
+
+/* 3) 그리드 라인/머릿줄 */
+body #calendar .fc .fc-scrollgrid{ border:none !important; }
+body #calendar .fc .fc-col-header-cell,
+body #calendar .fc .fc-daygrid-day-frame{ border-color:var(--bd) !important; }
+body #calendar .fc .fc-col-header-cell-cushion{
+  color:var(--muted) !important; font-weight:800 !important; padding:12px 0 !important;
+}
+
+/* 4) 이벤트 카드(이미 파스텔 보이는데, 바/그림자 한번 더 확정) */
+body #calendar .fc .fc-event{
+  border:1px solid rgba(2,6,23,.08) !important;
+  border-radius:10px !important;
+  box-shadow:0 1px 3px rgba(2,6,23,.06) !important;
+}
+body #calendar .fc .fc-event::before{
+  content:""; position:absolute; inset:0 auto 0 0; width:3px; display:block; opacity:.95;
+}
+/* 날짜/링크 톤 다운 */
+body #calendar .fc a,
+body #calendar .fc .fc-daygrid-day-number{ color:var(--ink) !important; text-decoration:none !important; }

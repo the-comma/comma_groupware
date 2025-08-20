@@ -3,6 +3,7 @@
 <mapper namespace="com.example.comma_groupware.mapper.EmployeeMapper">
 	<select id="selectByUserName" parameterType="string" resultType="com.example.comma_groupware.dto.Employee">
 	SELECT 
+		emp_id     AS empId,
 		username,
 		password,
 		role 

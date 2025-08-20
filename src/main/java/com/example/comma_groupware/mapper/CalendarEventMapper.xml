@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.comma_groupware.mapper.CalendarEventMapper">
+
+  <!-- INSERT -->
+  <insert id="insert"
+          parameterType="com.example.comma_groupware.dto.CalendarEvent"
+          useGeneratedKeys="true" keyProperty="eventId">
+    <![CDATA[
+      INSERT INTO calendar_event
+        (event_title, event_desc, start_datetime, end_datetime, is_all_day,
+         event_type, dept_id, project_id, created_by, created_at, updated_at)
+      VALUES
+        (#{eventTitle}, #{eventDesc}, #{startDatetime}, #{endDatetime}, #{isAllDay},
+         #{eventType}, NULLIF(#{deptId}, 0), NULLIF(#{projectId}, 0), #{createdBy}, NOW(), NOW())
+    ]]>
+  </insert>
+
+  <!-- 기간 조회 -->
+  <select id="selectByRange" resultType="com.example.comma_groupware.dto.CalendarEvent">
+  <![CDATA[
+    SELECT
+      event_id        AS eventId,
+      event_title     AS eventTitle,
+      event_desc      AS eventDesc,
+      start_datetime  AS startDatetime,
+      end_datetime    AS endDatetime,
+      is_all_day      AS isAllDay,
+      event_type      AS eventType,
+      dept_id         AS deptId,
+      project_id      AS projectId,
+      created_by      AS createdBy,
+      created_at      AS createdAt,
+      updated_at      AS updatedAt
+    FROM calendar_event
+    WHERE
+      start_datetime < #{end}
+      AND COALESCE(end_datetime, start_datetime) > #{start}
+    ORDER BY start_datetime ASC
+  ]]>
+</select>
+
+<!-- 부분 업데이트 (NULL은 건너뛰기) -->
+<update id="updatePartial" parameterType="com.example.comma_groupware.dto.CalendarEvent">
+  UPDATE calendar_event
+  <set>
+    <if test="eventTitle != null"> event_title = #{eventTitle}, </if>
+    <if test="eventDesc  != null"> event_desc  = #{eventDesc},  </if>
+    <if test="startDatetime != null"> start_datetime = #{startDatetime}, </if>
+    <if test="endDatetime   != null"> end_datetime   = #{endDatetime},   </if>
+    <if test="eventType     != null"> event_type     = #{eventType},     </if>
+    <if test="deptId        != null"> dept_id        = NULLIF(#{deptId},0), </if>
+    <if test="projectId     != null"> project_id     = NULLIF(#{projectId},0), </if>
+    updated_at = NOW()
+  </set>
+  WHERE event_id = #{eventId}
+</update>
+
+<delete id="delete" parameterType="int">
+  DELETE FROM calendar_event WHERE event_id = #{eventId}
+</delete>
+
+
+</mapper>

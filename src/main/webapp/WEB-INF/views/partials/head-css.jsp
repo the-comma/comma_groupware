@@ -5,18 +5,14 @@
 <link rel="stylesheet" href="<c:url value='/HTML/Admin/dist/assets/css/core.css'/>">
 <link rel="stylesheet" href="<c:url value='/HTML/Admin/dist/assets/css/apps-calendar.css'/>">
 
-<!-- FullCalendar CSS -->
-<link rel="stylesheet" href="<c:url value='/HTML/Admin/dist/assets/vendor/fullcalendar/index.global.min.css'/>">
+<!-- FullCalendar: 검증은 CDN으로 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/main.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js"></script>
 
-<!-- FullCalendar JS (footer-scripts.jsp 쪽에서 불러도 됨) -->
-<script src="<c:url value='/HTML/Admin/dist/assets/vendor/fullcalendar/index.global.min.js'/>"></script>
-
-<!-- Bootstrap CSS -->
+<!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- 아이콘 (선택) -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-<!-- Custom CSS (캘린더 전용) -->
-<link rel="stylesheet" href="<c:url value='/HTML/Admin/dist/assets/css/custom.css'/>">
+<!-- Custom CSS: 반드시 맨 마지막 -->
+<link rel="stylesheet" href="<c:url value='/HTML/Admin/dist/assets/css/custom.css'/>?v=<%=System.currentTimeMillis()%>">
 
-<link rel="stylesheet" href="<c:url value='/assets/css/custom.css'/>">
