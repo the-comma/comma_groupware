@@ -25,7 +25,7 @@ public interface EmpMapper {
 
     // 기존 부서/팀 이력 종료
     int updateDeptHistoryEndDate(Map<String, Object> paramMap);
-
+    int updateStatus(Map<String,Object> paraMap);
     // 새로운 부서/팀 이력 추가
     int insertDeptHistory(Map<String, Object> paramMap);
 

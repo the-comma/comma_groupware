@@ -5,7 +5,7 @@ import java.time.LocalTime;
 import lombok.Data;
 
 @Data
-public class DepartMentHistory { //사원별 부서이력
+public class DepartmentHistory { //사원별 부서이력
 	private int deptHistoryId;	 //부서이력 
 	private int deptId;			 //부서
 	private int empId;			 //사원

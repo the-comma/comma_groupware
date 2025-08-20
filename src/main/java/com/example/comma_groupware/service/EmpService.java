@@ -46,7 +46,7 @@ public class EmpService {
     }
 
     // 직원 정보 업데이트
-    @Transactional // 이 메서드의 모든 DB 작업이 하나의 트랜잭션으로 처리됩니다.
+    @Transactional //하나의 트랜잭션으로 처리
     public void updateEmployee(Map<String, Object> paramMap) {
         // 1. 급여 업데이트
         if (paramMap.containsKey("salaryAmount")) {
@@ -67,6 +67,10 @@ public class EmpService {
             empMapper.updateDeptHistoryEndDate(paramMap);
             // 새로운 부서/팀 이력 추가
             empMapper.insertDeptHistory(paramMap);
+        }
+        //4. 재직 상태 업데이트
+        if(paramMap.containsKey("empStatus")) {
+        	empMapper.updateStatus(paramMap);
         }
     }
 

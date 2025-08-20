@@ -119,6 +119,12 @@
                                 <select id="editRank" name="rankName" class="form-control"></select>
                             </div>
                         </div>
+                         <div class="form-group row">
+                            <label for="editRank" class="col-4 col-form-label">재직상태</label>
+                            <div class="col-8">
+                               <input type="text" id="empStatus" name="empStatus" class="form-control" value="empStatus">
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label for="editDept" class="col-4 col-form-label">부서</label>
                             <div class="col-8">
@@ -167,11 +173,13 @@
                 rankSelect.add(option);
             });
 
-            // 사원 이름 표시
+            // 🔹 사원 이름 표시
             document.getElementById('editEmpName').textContent = employeeData.empName;
 
+            // 🔹 기존 데이터 세팅
             document.getElementById('editEmpId').value = employeeData.empId;
-            document.getElementById('editSalary').value = employeeData.salaryAmount;
+            document.getElementById('editSalary').value = employeeData.salaryAmount || "";
+            document.getElementById('empStatus').value = employeeData.empStatus || "";
 
             if (employeeData.deptName) {
                 deptSelect.value = employeeData.deptName;
@@ -192,6 +200,7 @@
             alert('데이터를 불러오는 데 실패했습니다.');
         });
     }
+
 
     // 부서 변경 시 팀 목록을 가져와서 셀렉트 박스를 업데이트
     document.getElementById('editDept').addEventListener('change', (event) => {
