@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.comma_groupware.mapper.ApprovalMapper">
+
+ <!-- 문서 생성/상태 -->
+  <insert id="insertApprovalDocument" useGeneratedKeys="true" keyProperty="approvalDocumentId">
+    INSERT INTO approval_document (
+      emp_id, approval_title, document_type, approval_status, approval_reason, is_file, create_at
+    ) VALUES (
+      #{empId}, #{approvalTitle}, #{documentType}, #{approvalStatus}, #{approvalReason}, #{isFile}, NOW()
+    )
+  </insert>
+
+  <update id="updateDocumentStatus">
+    UPDATE approval_document
+       SET approval_status = #{status},
+           complete_at = #{completeAt}
+     WHERE approval_document_id = #{docId}
+  </update>
+
+
+  <!-- 휴가/지출 상세 -->
+  <insert id="insertRequestVacation" useGeneratedKeys="true" keyProperty="requestId">
+    INSERT INTO request_vacation(
+      approval_document_id, vacation_id, request_reason, start_date, end_date, total_days
+    ) VALUES (
+      #{approvalDocumentId}, #{vacationId}, #{requestReason}, #{startDate}, #{endDate}, #{totalDays}
+    )
+  </insert>
+
+  <insert id="insertRequestExpense" useGeneratedKeys="true" keyProperty="requestId">
+    INSERT INTO request_expense(
+      approval_document_id, expense_id, request_reason, request_amount, expense_date
+    ) VALUES (
+      #{approvalDocumentId}, #{expenseId}, #{requestReason}, #{requestAmount}, #{expenseDate}
+    )
+  </insert>
+
+  <select id="findVacationByDocId" resultType="map">
+    SELECT rv.*, v.vacation_title AS v_vacation_title
+      FROM request_vacation rv
+      LEFT JOIN vacation v ON v.vacation_id = rv.vacation_id
+     WHERE rv.approval_document_id = #{docId}
+  </select>
+
+  <select id="findExpenseByDocId" resultType="map">
+    SELECT re.*, e.expense_title AS ex_expense_title
+      FROM request_expense re
+      LEFT JOIN expense e ON e.expense_id = re.expense_id
+     WHERE re.approval_document_id = #{docId}
+  </select>
+  
+  <!-- 결재선 -->
+  <insert id="insertApprovalLines">
+    INSERT INTO approval_line(approval_document_id, emp_id, approval_step, approval_status, file_count)
+    VALUES
+    (#{docId}, #{firstApprover}, 1, 'PENDING', 0),
+    (#{docId}, #{secondApprover}, 2, 'PENDING', 0)
+  </insert>
+
+  <update id="updateLineStatus">
+    UPDATE approval_line SET approval_status = #{status}, approve_at = NOW()
+     WHERE approval_line_id = #{lineId}
+  </update>
+
+  <select id="findLineById" resultType="map">
+    SELECT al.* FROM approval_line al WHERE al.approval_line_id = #{lineId}
+  </select>
+
+  <select id="findNextPendingLine" resultType="map">
+    SELECT * FROM approval_line
+     WHERE approval_document_id = #{docId}
+       AND approval_status = 'PENDING'
+     ORDER BY approval_step ASC
+     LIMIT 1
+  </select>
+    <!-- 상세 화면에서 결재자 이름/직급까지 보여주도록 조인 -->
+  <select id="listLinesByDocId" resultType="map">
+    SELECT al.*,
+           emp.emp_name        AS approverName,
+           rk.rank_name        AS approverRank,
+           rr.reject_reason    AS rejectReason
+      FROM approval_line al
+      LEFT JOIN reject_reason rr ON rr.approval_line_id = al.approval_line_id
+      LEFT JOIN employee emp      ON emp.emp_id = al.emp_id
+      LEFT JOIN rank_history rh   ON rh.emp_id = al.emp_id AND rh.end_date IS NULL
+      LEFT JOIN `rank` rk           ON rk.rank_id = rh.rank_id
+     WHERE al.approval_document_id = #{docId}
+     ORDER BY al.approval_step
+  </select>
+
+ <!-- 반려사유 -->
+  <insert id="insertRejectReason">
+    INSERT INTO reject_reason(approval_line_id, reject_reason, reject_at)
+    VALUES(#{lineId}, #{reason}, NOW())
+  </insert>
+
+  <!-- 목록/상세/결재함 -->
+  <select id="listMyDocs" resultType="map">
+    SELECT ad.approval_document_id AS docId,
+           ad.approval_title       AS title,
+           ad.document_type        AS type,
+           ad.approval_status      AS status,
+           ad.create_at            AS createdAt,
+           ad.complete_at          AS completeAt
+      FROM approval_document ad
+     WHERE ad.emp_id = #{empId}
+       AND (#{type}   IS NULL OR ad.document_type = #{type})
+       AND (#{status} IS NULL OR ad.approval_status = #{status})
+     ORDER BY ad.approval_document_id DESC
+  </select>
+
+  <select id="findDetailMap" resultType="map">
+    SELECT ad.*, e.emp_name,
+           rv.request_id        AS v_request_id,
+           rv.vacation_id       AS v_vacation_id,
+           v.vacation_title     AS v_vacation_title,
+           rv.request_reason    AS v_reason,
+           rv.start_date        AS v_start_date,
+           rv.end_date          AS v_end_date,
+           rv.total_days        AS v_total_days,
+           re.request_id        AS ex_request_id,
+           re.expense_id        AS ex_expense_id,
+           ex.expense_title     AS ex_expense_title,
+           re.request_reason    AS ex_reason,
+           re.request_amount    AS ex_amount,
+           re.expense_date      AS ex_date
+      FROM approval_document ad
+      JOIN employee e ON e.emp_id = ad.emp_id
+      LEFT JOIN request_vacation rv ON rv.approval_document_id = ad.approval_document_id
+      LEFT JOIN vacation v ON v.vacation_id = rv.vacation_id
+      LEFT JOIN request_expense re ON re.approval_document_id = ad.approval_document_id
+      LEFT JOIN expense ex ON ex.expense_id = re.expense_id
+     WHERE ad.approval_document_id = #{docId}
+  </select>
+
+  <select id="listMyInbox" resultType="map">
+    SELECT al.approval_line_id AS lineId,
+           al.approval_step    AS step,
+           ad.approval_document_id AS docId,
+           ad.approval_title   AS title,
+           ad.document_type    AS type,
+           ad.emp_id           AS writerEmpId,
+           e.emp_name          AS writerName,
+           al.approval_status  AS lineStatus,
+           ad.approval_status  AS docStatus,
+           ad.create_at        AS createdAt
+      FROM approval_line al
+      JOIN approval_document ad ON ad.approval_document_id = al.approval_document_id
+      JOIN employee e ON e.emp_id = ad.emp_id
+     WHERE al.emp_id = #{approverEmpId}
+       AND al.approval_status = 'PENDING'
+     ORDER BY ad.approval_document_id DESC
+  </select>
+
+  <!-- 연차 -->
+  <select id="getAnnualRemain" resultType="double">
+    SELECT annual_leave_count FROM annual_leave WHERE emp_id = #{empId}
+  </select>
+
+  <update id="deductAnnual">
+    UPDATE annual_leave
+       SET annual_leave_count = annual_leave_count - #{days}
+     WHERE emp_id = #{empId}
+       AND annual_leave_count >= #{days}
+  </update>
+
+
+ <!-- 결재 권한 여부: 부장(<=2) 또는 인사/경영 -->
+  <select id="isApproverEligible" resultType="int">
+    SELECT COUNT(*)
+      FROM employee me
+      JOIN department_history dh_me ON dh_me.emp_id = me.emp_id AND dh_me.end_date IS NULL
+      JOIN rank_history rh_me ON rh_me.emp_id = me.emp_id AND rh_me.end_date IS NULL
+      JOIN `rank` r ON r.rank_id = rh_me.rank_id
+      JOIN team t ON t.team_id = dh_me.team_id
+      JOIN department d ON d.dept_id = t.dept_id
+     WHERE me.emp_id = #{empId}
+       AND ( r.rank_id &lt;= 2 OR d.dept_id IN (2,3) )
+  </select>
+
+
+  <!-- 자동 결재선 -->
+  <select id="findFirstApprover" resultType="int">
+    SELECT rh.emp_id
+      FROM department_history dh
+      JOIN team t ON t.team_id = dh.team_id
+      JOIN rank_history rh ON rh.emp_id = dh.emp_id AND rh.end_date IS NULL
+      JOIN `rank` r ON r.rank_id = rh.rank_id
+     WHERE dh.team_id IN (
+       SELECT dh2.team_id FROM department_history dh2 WHERE dh2.emp_id = #{empId} AND dh2.end_date IS NULL
+     )
+       AND dh.end_date IS NULL
+       AND r.rank_id &lt;= 2
+     ORDER BY rh.emp_id
+     LIMIT 1
+  </select>
+
+  <select id="findSecondApproverForVacation" resultType="int">
+    SELECT rh.emp_id
+      FROM team t
+      JOIN department d ON d.dept_id = t.dept_id AND d.dept_id = 2
+      JOIN department_history dh ON dh.team_id = t.team_id AND dh.end_date IS NULL
+      JOIN rank_history rh ON rh.emp_id = dh.emp_id AND rh.end_date IS NULL
+      JOIN `rank` r ON r.rank_id = rh.rank_id
+     WHERE r.rank_id &lt;= 2
+     ORDER BY rh.emp_id
+     LIMIT 1
+  </select>
+
+  <select id="findSecondApproverForExpense" resultType="int">
+    SELECT rh.emp_id
+      FROM team t
+      JOIN department d ON d.dept_id = t.dept_id AND d.dept_id = 3
+      JOIN department_history dh ON dh.team_id = t.team_id AND dh.end_date IS NULL
+      JOIN rank_history rh ON rh.emp_id = dh.emp_id AND rh.end_date IS NULL
+      JOIN `rank` r ON r.rank_id = rh.rank_id
+     WHERE r.rank_id &lt;= 2
+     ORDER BY rh.emp_id
+     LIMIT 1
+  </select>
+
+
+</mapper>
