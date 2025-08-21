@@ -25,6 +25,7 @@
     <!-- Icons css -->
     <link href="<c:url value='/HTML/Admin/dist/assets/css/icons.min.css'/>"  rel="stylesheet" type="text/css" />
     
+    
     <script defer src="<c:url value='/HTML/Admin/dist/assets/js/vendor.min.js'/>"></script>
 	<script defer src="<c:url value='/HTML/Admin/dist/assets/js/app.js'/>"></script>
 </head>
@@ -37,7 +38,14 @@
                     <img src="assets/images/logo-dark.png" alt="dark logo" height="26" class="logo-dark">
                     <img src="assets/images/logo.png" alt="logo light" height="26" class="logo-light">
                 </a>
-
+<c:choose>
+	<c:when test="${not empty msg}">
+		<script type="text/javascript">alert("${msg}")</script>
+	</c:when>
+	<c:when test="${not empty error}">
+		<script type="text/javascript">alert("${error}")</script>
+	</c:when>
+</c:choose>
                 <p class="fw-semibold mb-4 text-center text-muted fs-15">Admin Panel Design by Coderthemes</p>
 
                 <div class="card overflow-hidden text-center p-xxl-4 p-3 mb-0">
@@ -47,26 +55,33 @@
                         <span class="link-dark fs-13 fw-medium">+ (12) 345-678-912</span>
                     </p>
 
-                    <form action="index.html" class="text-start mb-3">
-                        <label class="form-label" for="code">Enter 6 Digit Code</label>
+                    <form action="/login-pin" method="post" class="text-start mb-3">
+        				<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+        				<input type="hidden" id="code" name="code"/>
+        				
+        
+                        <label class="form-label" for="code">6자리 코드 입력</label>
+		
+                        <div class="d-flex gap-2 mt-1 mb-3" id="otpInputs">
+					        <input type="text" maxlength="1" class="form-control text-center">
+					        <input type="text" maxlength="1" class="form-control text-center">
+					        <input type="text" maxlength="1" class="form-control text-center">
+					        <input type="text" maxlength="1" class="form-control text-center">
+					        <input type="text" maxlength="1" class="form-control text-center">
+					        <input type="text" maxlength="1" class="form-control text-center">
+					    </div>
 
-                        <div class="d-flex gap-2 mt-1 mb-3">
-                            <input type="text" maxlength="1" class="form-control text-center">
-                            <input type="text" maxlength="1" class="form-control text-center">
-                            <input type="text" maxlength="1" class="form-control text-center">
-                            <input type="text" maxlength="1" class="form-control text-center">
-                            <input type="text" maxlength="1" class="form-control text-center">
-                            <input type="text" maxlength="1" class="form-control text-center">
-                        </div>
-
+						
+						<div class="mb-2">남은 시간: <span id="timer">${remainSeconds}</span>초</div>
+						
                         <div class="mb-3 d-grid">
-                            <button class="btn btn-primary fw-semibold" type="submit">Continue</button>
+                            <button id="submitBtn"  class="btn btn-primary fw-semibold" type="submit">번호 인증하기</button>
                         </div>
-                        <p class="mb-0 text-center">Don't received code yet? <a href="#!"
-                                class="link-primary fw-semibold text-decoration-underline">Send again</a></p>
+                        <p class="mb-0 text-center">인증번호를 아직 못받으셨나요?  <a href="/findPw"
+                                class="link-primary fw-semibold text-decoration-underline">인증번호 다시 보내기</a></p>
                     </form>
 
-                    <p class="text-muted fs-14 mb-0">Back To <a href="index.html"
+                    <p class="text-muted fs-14 mb-0">Back To <a href="/login"
                             class="fw-semibold text-danger ms-1">Home!</a></p>
 
                 </div>
@@ -80,7 +95,59 @@
     </div>
 
 
+<script type="text/javascript">
+(function(){
+  const boxes = Array.from(document.querySelectorAll('#otpInputs input'));
+  const hidden = document.getElementById('code');
+  const submitBtn = document.getElementById('submitBtn');
+  const resendBtn = document.getElementById('resendBtn');
+
+  // 숫자만, 자동 이동, 붙여넣기 지원
+  boxes.forEach((el, idx) => {
+    el.addEventListener('keydown', e => {
+      if (e.key === ' ') e.preventDefault();
+      if (e.key === 'Backspace' && !el.value && idx > 0) boxes[idx-1].focus();
+    });
+    el.addEventListener('input', e => {
+      el.value = el.value.replace(/\D/g,'').slice(0,1);
+      if (el.value && idx < boxes.length - 1) boxes[idx+1].focus();
+      sync();
+    });
+    el.addEventListener('paste', e => {
+      const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+      if (!text) return;
+      e.preventDefault();
+      for (let i=0;i<boxes.length;i++) boxes[i].value = text[i] || '';
+      boxes[Math.min(text.length, boxes.length) - 1]?.focus();
+      sync();
+    });
+  });
+
+  function sync(){
+    const code = boxes.map(b=>b.value).join('');
+    hidden.value = code;
+    submitBtn.disabled = (code.length !== 6);
+  }
+
+  // 타이머
+  let remain = parseInt(document.getElementById('timer').textContent || '0', 10);
+  function tick(){
+    if (remain <= 0) {
+      document.getElementById('timer').textContent = '0';
+      submitBtn.disabled = true;
+      if (resendBtn) resendBtn.disabled = false;
+      return;
+    }
+    document.getElementById('timer').textContent = remain.toString();
+    remain -= 1;
+    setTimeout(tick, 1000);
+  }
+  tick();
+
+  // 처음 포커스
+  boxes[0].focus();
+})();
+</script>
 
 </body>
-
 </html>

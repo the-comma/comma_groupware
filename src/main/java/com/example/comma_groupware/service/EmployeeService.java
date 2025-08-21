@@ -1,6 +1,10 @@
 package com.example.comma_groupware.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,20 +14,31 @@ import com.example.comma_groupware.mapper.EmployeeMapper;
 
 
 
+
+
 @Service
 public class EmployeeService {
 
 	private final EmployeeMapper employeeMapper;
 	private final PasswordEncoder passwordEncoder;
-	
 	private final JavaMailSender mailSender;
+	private final JwtEmailOtpService otpService;
+
+
 	
 	
-	public EmployeeService(EmployeeMapper employeeMapper, PasswordEncoder passwordEncoder
-			,JavaMailSender mailSender ) {
+	public EmployeeService(EmployeeMapper employeeMapper,
+			PasswordEncoder passwordEncoder
+			,JavaMailSender mailSender 
+			,JwtEmailOtpService otpService
+			)
+	{
 		this.employeeMapper = employeeMapper;
 		this.passwordEncoder = passwordEncoder;
 		this.mailSender = mailSender;
+		this.otpService = otpService;
+		
+
 	}
 
 	// 비밀번호 변경
@@ -45,17 +60,42 @@ public class EmployeeService {
 		return false;
 	}
 
-	public void sendEmail(String username, String email) { // 이메일 보내기
-		
+	public Map<String, Object> sendEmail(String username, String email) {
 		int row =employeeMapper.existsByEmail(email);
 		if(row == 0) { // 존재하는 이메일 0개면 반환
-			return;
+			throw new IllegalArgumentException("이메일이 존재하지 않습니다.");
 		}
+		
+		
+		var issue  = otpService.issue(email, "RESET_PW", 300); // 유효시간 : 5분
+		
+		SimpleMailMessage msg = new SimpleMailMessage();
+		msg.setTo(email);
+		msg.setSubject("[비밀번호 찾기] 이메일 인증 코드");
+		msg.setText("""
+				안녕하세요, %s 님.
+				
+				아래 6자리 인증코드를 입력해주세요.
+				
+				인증코드: %s
+				유효시간: %d분
+				
+				본 메일을 요청하지 않으셨다면 이 메시지를 무시하세요.
+				
+				""".formatted(username, issue.code(), issue.ttlSeconds()/60));
+		
+		 mailSender.send(msg);
+				
+		 return Map.of(
+				 "token" , issue.token(),
+				 "ttlSeconds" , issue.ttlSeconds()
+				 );
 		
 	}
 
-	
-	
-	
-	
+
+
+ 
 }
+	
+

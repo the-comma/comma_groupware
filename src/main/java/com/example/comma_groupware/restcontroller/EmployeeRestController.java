@@ -1,6 +1,8 @@
 package com.example.comma_groupware.restcontroller;
 
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +26,8 @@ public class EmployeeRestController {
 		this.employeeService = employeeService;
 	}
 	
+
+	
 	@PostMapping("/auth/check-password")
 	public ResponseEntity<?>checkPassword(@RequestParam("new-password") String newPassword, HttpSession session){
 		String username =  (String) session.getAttribute("username");
@@ -37,4 +41,14 @@ public class EmployeeRestController {
 		
 		
 	}
+	
+	
+	@PostMapping( value =  "/findPw" ,produces = "application/json")
+	public ResponseEntity<Map<String,Object>> findPw(@RequestParam("username") String username, @RequestParam("emp_email") String email) {
+		Map<String,Object> res = employeeService.sendEmail(username,email);
+		
+		return ResponseEntity.ok(res);
+		
+	}
+	
 }

@@ -27,7 +27,7 @@
 	SELECT
 		COUNT(*)
 	FROM employee
-	WHERE email = #{email}
+	WHERE emp_email = #{email}
 	
 	</select>
 </mapper>
