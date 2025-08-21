@@ -4,10 +4,10 @@
 
 	<insert id="addProject" parameterType="com.example.comma_groupware.dto.Project">
 		INSERT INTO project(
-			project_id, project_title, pm_id, project_desc, project_status, project_git_url,
+			project_title, pm_id, project_desc, project_status, project_git_url,
 			start_date, end_date
 		) VALUES(
-			#{projectId}, #{projectTitle}, #{pmId}, #{projectDesc}, #{projectStatus}, #{projectGitUrl},
+			#{projectTitle}, #{pmId}, #{projectDesc}, #{projectStatus}, #{projectGitUrl},
 			#{startDate}, #{endDate}
 		)
 	</insert>

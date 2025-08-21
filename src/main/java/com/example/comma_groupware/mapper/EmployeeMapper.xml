@@ -111,5 +111,20 @@
 		LEFT OUTER JOIN `rank` r ON r.rank_id = rh.rank_id
 	</select>
 	
+	<select id="empListByTeam" parameterType="String">
+		SELECT
+			e.emp_id AS empId,
+			r.rank_name AS rankName,
+			e.emp_name AS empName,
+			CONCAT(e.emp_exp,'년차') AS empExp
+		FROM employee e
+		INNER JOIN
+		(SELECT * FROM department_history WHERE end_date IS NULL AND team_id = (
+			SELECT team_id FROM team WHERE team_name = #{team}
+		)) dh ON e.emp_id = dh.emp_id
+		INNER JOIN (SELECT * FROM rank_history WHERE end_date IS NULL) rh ON e.emp_id = rh.emp_id
+		INNER JOIN `rank` r ON rh.rank_id = r.rank_id
+		ORDER BY empExp DESC
+	</select>
 	
 </mapper>

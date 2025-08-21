@@ -15,4 +15,6 @@ public interface EmployeeMapper {
 	int organizationListCount(Map<String,Object> param);	// 조직도 리스트 전체 데이터 수
 	
 	Map<String, Object> employeeCard(int empId);
+	
+	List<Map<String,Object>> empListByTeam(String team);
 }

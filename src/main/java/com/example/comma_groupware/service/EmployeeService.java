@@ -32,4 +32,9 @@ public class EmployeeService {
 	public Map<String, Object> employeeCard(int id){
 		return employeeMapper.employeeCard(id);
 	}
+	
+	/** 해당 팀 소속 사원 조회 **/
+	public List<Map<String,Object>> empListByTeam(String team){
+		return employeeMapper.empListByTeam(team);
+	}
 }
