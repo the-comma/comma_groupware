@@ -110,6 +110,7 @@ public class Page {
 		}
 	}
 
+	/** 검색 조건 많을때 **/
 	public Page(int rowPerPage, int currentPage, int totalCount, Map<String, Object> searchList) {
 		this.rowPerPage = rowPerPage;
 		this.currentPage = currentPage;

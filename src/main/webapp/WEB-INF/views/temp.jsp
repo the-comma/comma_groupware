@@ -4,56 +4,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<!-- Vendor css -->
-    <link href= "<c:url value='/HTML/Admin/dist/assets/css/vendor.min.css'/>" rel="stylesheet" type="text/css" />
 
-    <!-- App css -->
-    <link href= "<c:url value='/HTML/Admin/dist/assets/css/app.min.css'/>"  rel="stylesheet" type="text/css" id="app-style" />
-
-    <!-- Icons css -->
-    <link href= "<c:url value='/HTML/Admin/dist/assets/css/icons.min.css'/>" rel="stylesheet" type="text/css" />
-
-   	<!-- App favicon -->
+	<!-- CSS -->
+	<jsp:include page ="../views/nav/head-css.jsp"></jsp:include>
+	
+   	<!-- App 아이콘 -->
 	<link rel="shortcut icon" href="/HTML/Admin/dist/assets/images/favicon.ico">
-
-	<!-- config -->
-	<link href= "<c:url value='/HTML/Admin/dist/assets/js/config.js'/>" rel="stylesheet" type="text/css" />
 	
 <meta charset="UTF-8">
-<title>타이틀</title>
+<title>temp 타이틀</title>
 </head>
 <body>
-	    <!-- Begin page -->
+    <!-- 페이지 시작 -->
     <div class="wrapper">
 
-	<!-- Menu -->
-	<%@ include file="/HTML/Admin/src/partials/sidenav.html" %>
+	<!-- 사이드바 -->
+	<jsp:include page ="../views/nav/sidenav.jsp"></jsp:include>
 	
-	<c:choose>
-	  <c:when test="${not empty title}">
-	    <jsp:include page="/HTML/Admin/src/partials/topbar.html">
-	      <jsp:param name="topbarTitle" value="${title}" />
-	    </jsp:include>
-	  </c:when>
-	  <c:otherwise>
-	    <%@ include file="/HTML/Admin/src/partials/topbar.html" %>
-	  </c:otherwise>
-	</c:choose>
+	<!-- 헤더 -->
+	<jsp:include page ="../views/nav/header.jsp"></jsp:include>
 	
         <div class="page-content">
 
             <div class="page-container">
             
             	<div class="container">
-            
-            
-            	</div>
+            	<!-- 본문 내용 -->
             	
-            	<%@ include file="/HTML/Admin/src/partials/footer.html" %>
-            </div>
-       	</div>
+            	<div class="row">
+                    <div class="col-16">
+                        <div class="card">
+                            <div class="card-header border-bottom border-dashed d-flex align-items-center">
+                                <h4 class="header-title">제목</h4>
+                            </div>
+
+                            <div class="card-body">
+                                <p class="text-muted">
+	                            	<!-- 부가 설명 -->
+                                </p>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form>
+											내용
+                                        </form>
+                                    </div> <!-- end col -->
+                                </div>
+                                <!-- end row-->
+                            </div> <!-- end card-body -->
+                        </div> <!-- end card -->
+                    </div><!-- end col -->
+                </div><!-- end row -->
+            	
+            	
+            	<!-- 본문 내용 끝 -->
+            
+            	</div><!-- container 끝 -->
+            	
+            	<!-- 푸터 -->
+            	<jsp:include page ="../views/nav/footer.jsp"></jsp:include>
+            	
+            </div><!-- page-container 끝 -->
+            
+       	</div><!-- page-content 끝 -->
        	
-   	<%@ include file="/HTML/Admin/src/partials/customizer.html" %>
-    <%@ include file="/HTML/Admin/src/partials/footer-scripts.html" %>
+   </div><!-- wrapper 끝 -->
+       	
+   <!-- 자바 스크립트 -->
+   <jsp:include page ="../views/nav/javascript.jsp"></jsp:include>
 </body>
 </html>

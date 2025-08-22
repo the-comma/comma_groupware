@@ -49,7 +49,26 @@
 		
 		LEFT OUTER JOIN (SELECT * from rank_history WHERE end_date IS NULL) rh ON e.emp_id = rh.emp_id
 		LEFT OUTER JOIN `rank` r ON r.rank_id = rh.rank_id
-		ORDER BY empName
+		
+		<if test="searchList.order == 'empName'">
+			ORDER BY empName
+		</if>
+		<if test="searchList.order == 'empEmail'">
+			ORDER BY empEmail
+		</if>
+		<if test="searchList.order == 'rankName'">
+			ORDER BY rankName
+		</if>
+		<if test="searchList.order == 'deptName'">
+			ORDER BY deptName
+		</if>
+		<if test="searchList.order == 'teamName'">
+			ORDER BY teamName
+		</if>
+		
+		<if test="searchList.sort == 'desc'">
+			DESC
+		</if>
 		LIMIT #{beginRow}, #{rowPerPage};
 	</select>
 

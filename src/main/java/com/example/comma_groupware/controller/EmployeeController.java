@@ -28,9 +28,9 @@ public class EmployeeController {
 	}
 	
 	// 템플릿 테스트
-	@GetMapping("NewFile")
+	@GetMapping("temp")
 	public String newFile() {
-		return "NewFile";
+		return "temp";
 	}
 	
 	// 사원카드 페이지
@@ -51,7 +51,9 @@ public class EmployeeController {
 									@RequestParam(required = false) Integer page,
 									@RequestParam(defaultValue = "") String name,
 									@RequestParam(defaultValue = "") String dept,
-									@RequestParam(defaultValue = "") String team) {
+									@RequestParam(defaultValue = "") String team,
+									@RequestParam(defaultValue = "") String order,
+									@RequestParam(defaultValue = "") String sort) {
 		
 		// 현재 페이지값 없을때 defaultValue
 		if(page == null) page = 0;
@@ -81,6 +83,9 @@ public class EmployeeController {
 		param.put("name", name);
 		param.put("team", team);
 		param.put("dept", dept);
+		param.put("order", order);
+		param.put("sort", sort);
+		
 		
 		// 전체 데이터 수 가져옴
 		int totalCount = employeeService.organizationListCount(param);
@@ -96,6 +101,7 @@ public class EmployeeController {
 		model.addAttribute("totalCount",totalCount);
 		model.addAttribute("deptTeam",deptTeam);
 		model.addAttribute("name", name);
+		model.addAttribute("topbarTitle", "조직도");
 		model.addAttribute("page", p);
 		return "organizationChart";
 	}

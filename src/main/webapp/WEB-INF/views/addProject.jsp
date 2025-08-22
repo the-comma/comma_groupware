@@ -4,163 +4,164 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<!-- Vendor css -->
-    <link href= "<c:url value='/HTML/Admin/dist/assets/css/vendor.min.css'/>" rel="stylesheet" type="text/css" />
 
-    <!-- App css -->
-    <link href= "<c:url value='/HTML/Admin/dist/assets/css/app.min.css'/>"  rel="stylesheet" type="text/css" id="app-style" />
-
-    <!-- Icons css -->
-    <link href= "<c:url value='/HTML/Admin/dist/assets/css/icons.min.css'/>" rel="stylesheet" type="text/css" />
-
-   	<!-- App favicon -->
+	<!-- CSS -->
+	<jsp:include page ="../views/nav/head-css.jsp"></jsp:include>
+	
+   	<!-- App 아이콘 -->
 	<link rel="shortcut icon" href="/HTML/Admin/dist/assets/images/favicon.ico">
-
-	<!-- config -->
-	<link href= "<c:url value='/HTML/Admin/dist/assets/js/config.js'/>" rel="stylesheet" type="text/css" />
 	
 <meta charset="UTF-8">
-<title>프로젝트 추가</title>
+<title>프로젝트 생성</title>
 </head>
 <body>
-    <!-- Begin page -->
+    <!-- 페이지 시작 -->
     <div class="wrapper">
 
-	<!-- Menu -->
-	<%@ include file="/HTML/Admin/src/partials/sidenav.html" %>
+	<!-- 사이드바 -->
+	<jsp:include page ="../views/nav/sidenav.jsp"></jsp:include>
 	
-	<c:choose>
-	  <c:when test="${not empty title}">
-	    <jsp:include page="/HTML/Admin/src/partials/topbar.html">
-	      <jsp:param name="topbarTitle" value="${title}" />
-	    </jsp:include>
-	  </c:when>
-	  <c:otherwise>
-	    <%@ include file="/HTML/Admin/src/partials/topbar.html" %>
-	  </c:otherwise>
-	</c:choose>
+	<!-- 헤더 -->
+	<jsp:include page ="../views/nav/header.jsp"></jsp:include>
 	
-	<%-- 필요하면 수평 네비게이션 활성화
-	<%@ include file="/WEB-INF/views/partials/horizontal-nav.jsp" %>
-	--%>
-
-        <!-- ============================================================== -->
-        <!-- Start Page Content here -->
-        <!-- ============================================================== -->
-
         <div class="page-content">
 
             <div class="page-container">
             
-            <div class="container">
-				<h1>프로젝트 추가</h1>
-				
-				<form action="/addProject" method="post" id="project" name="project">
-					<label for="empName">PM</label>
-					<input type="text" id="empName" name="empName" value=""><br>
-					
-					<label for="projectTitle">프로젝트 명</label>
-					<input type="text" id="projectTitle" name="projectTitle" placeholder="프로젝트 명 입력.."><br>
-					
-					<label for="projectDesc">설명</label>
-					<textarea rows="10" cols="20" id="projectDesc" name="projectDesc"></textarea><br>
-					
-					<label for="projectGitUrl">Github URL</label>
-					<input type="text" id="projectGitUrl" name="projectGitUrl" placeholder="Git URL 입력.."><br>
-					
-					<label for="startDate">시작일</label>
-					<input type="date" id="startDate" name="startDate"><br>
-					
-					<label for="endDate">마감일</label>
-					<input type="date" id="endDate" name="endDate"><br>
-					
-					FE 개발자
-					<!-- 추가 버튼 -->
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                     data-bs-target="#scrollable-modal">추가</button>	<br>
-                     <input type="text" id="feList" readonly="readonly">
-                     <br>
-					
-					<!-- 모달 -->
-					<div class="modal fade" id="scrollable-modal" tabindex="-1" role="dialog"
-	                    aria-labelledby="scrollableModalTitle" aria-hidden="true">
-	                    <div class="modal-dialog modal-dialog-scrollable" role="document">
-	                        <div class="modal-content">
-	                            <div class="modal-header">
-	                                <h4 class="modal-title" id="scrollableModalTitle">개발자 추가</h4>
-	                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-	                                    aria-label="Close"></button>
-	                            </div>
-	                            <div class="modal-body">
-	                            	부서/팀<br>
-	                                <select id="deptTeam" name="deptTeam">
-	                                	<option value="">부서/팀 선택</option>
-	                                	<c:if test="${deptTeamList != null}">
-	                                		<c:forEach items="${deptTeamList}" var="dept">
-	                                			<option value="${dept.teamName}">${dept.deptName}/${dept.teamName}</option>
-							                </c:forEach>
-	                                	</c:if>
-	                                </select>
-	                                
-	                                <br>사원<br>
-	                                <table>
-	                                	<thead>
-	                                		<tr>
-	                                			<td>FE</td>
-	                                			<td>BE</td>
-	                                			<td>기획자</td>
-	                                		</tr>
-	                                	</thead>
-	                                	<tbody id="empList" name="empList">
-	                                	</tbody>
-	                                </table>	 
-	                                
-	                                <div id="memberList">
-	                                
-	                                </div>                               
-	                                <br>
-	                                <br>
-	                                <br>
-	                                <br>
-	                                <br>
-	                            </div>
-	                            <div class="modal-footer">
-	                                <button type="button" class="btn btn-secondary"
-	                                    data-bs-dismiss="modal">취소</button>
-	                                <button type="button" class="btn btn-primary" id="modalBtn">등록</button>
-	                            </div>
-	                        </div><!-- /.modal-content -->
-	                    </div><!-- /.modal-dialog -->
-	                </div><!-- /.modal -->
-					
-					BE 개발자<br>
-                    <input type="text" id="beList" readonly="readonly">
-                    <br>
-					
-					기획자<br>
-					<input type="text" id="plList" readonly="readonly">
-					<br>
-					
-					<!-- FE, BE, PL 리스트 들어갈 영역 -->
-					<div id="feListBox"></div>
-					<div id="beListBox"></div>
-					<div id="plListBox"></div>
-					
-					<button type="submit">생성</button>
-				</form>
-		    </div> <!-- container -->
+            	<div class="container">
+            	<!-- 본문 내용 -->
+            	
+            	<div class="row">
+                    <div class="col-16">
+                        <div class="card">
+                            <div class="card-header border-bottom border-dashed d-flex align-items-center">
+                                <h4 class="header-title">프로젝트 추가</h4>
+                            </div>
 
-			<%@ include file="/HTML/Admin/src/partials/footer.html" %>
-        </div>
-
-        <!-- ============================================================== -->
-        <!-- End Page content -->
-        <!-- ============================================================== -->
-
-    </div>
-    </div>
-    
-    <script>
+                            <div class="card-body">
+                                <p class="text-muted">
+	                            	<!-- 부가 설명 -->
+                                </p>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form action="/addProject" method="post" id="project" name="project">
+											<label for="empName">PM</label>
+											<input type="text" id="empName" name="empName" value=""><br>
+											
+											<label for="projectTitle">프로젝트 명</label>
+											<input type="text" id="projectTitle" name="projectTitle" placeholder="프로젝트 명 입력.."><br>
+											
+											<label for="projectDesc">설명</label>
+											<textarea rows="10" cols="20" id="projectDesc" name="projectDesc"></textarea><br>
+											
+											<label for="projectGitUrl">Github URL</label>
+											<input type="text" id="projectGitUrl" name="projectGitUrl" placeholder="Git URL 입력.."><br>
+											
+											<label for="startDate">시작일</label>
+											<input type="date" id="startDate" name="startDate"><br>
+											
+											<label for="endDate">마감일</label>
+											<input type="date" id="endDate" name="endDate"><br>
+											
+											FE 개발자
+											<!-- 추가 버튼 -->
+						                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+						                     data-bs-target="#scrollable-modal">추가</button>	<br>
+						                     <input type="text" id="feList" readonly="readonly">
+						                     <br>
+											
+											<!-- 모달 -->
+											<div class="modal fade" id="scrollable-modal" tabindex="-1" role="dialog"
+							                    aria-labelledby="scrollableModalTitle" aria-hidden="true">
+							                    <div class="modal-dialog modal-dialog-scrollable" role="document">
+							                        <div class="modal-content">
+							                            <div class="modal-header">
+							                                <h4 class="modal-title" id="scrollableModalTitle">개발자 추가</h4>
+							                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+							                                    aria-label="Close"></button>
+							                            </div>
+							                            <div class="modal-body">
+							                            	부서/팀<br>
+							                                <select id="deptTeam" name="deptTeam">
+							                                	<option value="">부서/팀 선택</option>
+							                                	<c:if test="${deptTeamList != null}">
+							                                		<c:forEach items="${deptTeamList}" var="dept">
+							                                			<option value="${dept.teamName}">${dept.deptName}/${dept.teamName}</option>
+													                </c:forEach>
+							                                	</c:if>
+							                                </select>
+							                                
+							                                <br>사원<br>
+							                                <table>
+							                                	<thead>
+							                                		<tr>
+							                                			<td>FE</td>
+							                                			<td>BE</td>
+							                                			<td>기획자</td>
+							                                		</tr>
+							                                	</thead>
+							                                	<tbody id="empList" name="empList">
+							                                	</tbody>
+							                                </table>	 
+							                                
+							                                <div id="memberList">
+							                                
+							                                </div>                               
+							                                <br>
+							                                <br>
+							                                <br>
+							                                <br>
+							                                <br>
+							                            </div>
+							                            <div class="modal-footer">
+							                                <button type="button" class="btn btn-secondary"
+							                                    data-bs-dismiss="modal">취소</button>
+							                                <button type="button" class="btn btn-primary" id="modalBtn">등록</button>
+							                            </div>
+							                        </div><!-- /.modal-content -->
+							                    </div><!-- /.modal-dialog -->
+							                </div><!-- /.modal -->
+											
+											BE 개발자<br>
+						                    <input type="text" id="beList" readonly="readonly">
+						                    <br>
+											
+											기획자<br>
+											<input type="text" id="plList" readonly="readonly">
+											<br>
+											
+											<!-- FE, BE, PL 리스트 들어갈 영역 -->
+											<div id="feListBox"></div>
+											<div id="beListBox"></div>
+											<div id="plListBox"></div>
+											
+											<button type="submit">생성</button>
+										</form>
+                                    </div> <!-- end col -->
+                                </div>
+                                <!-- end row-->
+                            </div> <!-- end card-body -->
+                        </div> <!-- end card -->
+                    </div><!-- end col -->
+                </div><!-- end row -->
+            	
+            	
+            	<!-- 본문 내용 끝 -->
+            
+            	</div><!-- container 끝 -->
+            	
+            	<!-- 푸터 -->
+            	<jsp:include page ="../views/nav/footer.jsp"></jsp:include>
+            	
+            </div><!-- page-container 끝 -->
+            
+       	</div><!-- page-content 끝 -->
+       	
+   </div><!-- wrapper 끝 -->
+   
+   <!-- 자바 스크립트 -->
+   
+   <script>
  		// 선택된 멤버를 저장할 Set (중복 방지)
 		const selectedFE = new Set();
 		const selectedBE = new Set();
@@ -332,9 +333,7 @@
 
 
     </script>
-    
-    <!-- END wrapper -->
-    <%@ include file="/HTML/Admin/src/partials/customizer.html" %>
-    <%@ include file="/HTML/Admin/src/partials/footer-scripts.html" %>
+   
+   <jsp:include page ="../views/nav/javascript.jsp"></jsp:include>
 </body>
 </html>

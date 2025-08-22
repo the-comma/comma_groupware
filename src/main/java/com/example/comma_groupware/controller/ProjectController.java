@@ -42,6 +42,7 @@ public class ProjectController {
 		// 1. 모달창에 쓸 부서/팀 리스트
 		List<Map<String,Object>> deptTeamList = deptService.getDeptTeamList();
 		model.addAttribute("deptTeamList",deptTeamList);
+		model.addAttribute("topbarTitle", "프로젝트 생성");
 		
 		return "addProject";
 	}
