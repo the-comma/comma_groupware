@@ -78,9 +78,45 @@
 		LEFT JOIN department d ON t.dept_id = d.dept_id
 		WHERE e.emp_id = #{empId}
 	</select>
+	
+	<!--사원 등록 -->
+  	<insert id="insertEmployee">
+    INSERT INTO employee (
+        emp_id, username, password, emp_name, emp_status, emp_email, emp_phone, emp_exp,
+        role, created_at
+    ) VALUES (
+        #{empId}, #{empName}, #{password}, #{empName}, '재직' , #{empEmail}, #{empPhone}, #{empExp},
+        #{role}, NOW()
+    )
+	</insert>
+  	<!-- 신규직원 급여 등록 -->
+  	<insert id="insertSalary" parameterType="com.example.comma_groupware.dto.Salary">
+  		INSERT INTO salary (
+  		emp_id, salary_amount) VALUES (
+  		#{empId}, #{salaryAmount})
+  	</insert>
+  	<!-- 직급 이력 추가 -->
+	
+    <!-- 직급 이력 등록 (조회된 rank_id 사용) -->
+    <insert id="insertRankHistory">
+        INSERT INTO rank_history (
+            emp_id, rank_id, start_date
+        ) VALUES (
+            #{empId}, #{rankId}, NOW()
+        )
+    </insert>
 
+	<!-- 부서 이력 추가  -->
+	<insert id="insertDeptHistory">
+        INSERT INTO department_history (
+            emp_id, team_id, start_date
+        ) VALUES (
+            #{empId}, #{teamId}, NOW()
+        )
+    </insert>
+    
 	<!-- 급여 수정 -->
-	<update id="updateSalary" parameterType="map">
+	<update id="updateSalary" parameterType="com.example.comma_groupware.dto.Salary">
 		UPDATE salary
 		SET
 		salary_amount = #{salaryAmount}
@@ -88,7 +124,7 @@
 		emp_id = #{empId}
 	</update>
 	<!-- 재직 상태 수정 -->
-	<update id ="updateStatus" parameterType="map">
+	<update id ="updateStatus" parameterType="com.example.comma_groupware.dto.Employee">
 		UPDATE employee
 		SET 
 		emp_status = #{empStatus}
@@ -96,77 +132,35 @@
 		emp_id = #{empId}
 		
 	</update>
+	<!-- 업데이트 일시  -->
+	<update id ="updateDate" parameterType="com.example.comma_groupware.dto.Employee">
+		UPDATE employee
+		SET 
+		updated_at = now()
+		WHERE
+		emp_id = #{empId}	
+	</update>
 	<!-- 직급 이력 end date 수정 -->
-	<update id="updateRankHistoryEndDate" parameterType="map">
+	<update id="updateRankHistoryEndDate" parameterType="com.example.comma_groupware.dto.RankHistory">
 		UPDATE rank_history
 		SET end_date = NOW()
 		WHERE emp_id = #{empId} AND end_date IS NULL
 	</update>
 	
-	<!-- 직급 이력 추가 -->
-	<insert id="insertRankHistory" parameterType="map">
-		INSERT INTO rank_history (emp_id, rank_id, start_date)
-		VALUES (#{empId}, (SELECT rank_id FROM `rank` WHERE rank_name =
-		#{rankName}), NOW())
-	</insert>
 	
 	<!-- 부서 이력 end Date 수정 -->
-	<update id="updateDeptHistoryEndDate" parameterType="map">
+	<update id="updateDeptHistoryEndDate" parameterType="com.example.comma_groupware.dto.DepartmentHistory">
 		UPDATE department_history
 		SET end_date = NOW()
 		WHERE emp_id = #{empId} AND end_date IS NULL
 	</update>
 	
-	<!-- 부서 이력 추가 -->
-	<insert id="insertDeptHistory" parameterType="map">
-		INSERT INTO department_history (emp_id, team_id, start_date)
-		VALUES (#{empId}, (SELECT team_id FROM `team` WHERE team_name =
-		#{teamName}), NOW())
-	</insert>
-	
-	<!-- 사원 삭제 -->
-	<!-- <delete id="deleteEmployee" parameterType="string">
-		DELETE FROM employee WHERE emp_id = #{empId}
-	</delete> -->
-	
-	<!-- 한 직원의 좋아요 삭제 -->
-	<delete id="deleteAnonymousLike" parameterType="string">
-		DELETE FROM anonymous_like WHERE emp_id = #{empId}
-	</delete>
-	
-	<!--댓글 삭제 -->
-	<delete id="deleteAnonymousComment" parameterType="string">
-		DELETE FROM anonymous_comment WHERE writer_id = #{empId}
-	</delete>
-	
-	<!-- 게시물 삭제 -->
-	<delete id="deleteAnonymousPost" parameterType="string">
-		DELETE FROM anonymous_post WHERE writer_id = #{empId}
-	</delete>
-	
-	<!-- 급여 삭제 -->
-	<delete id="deleteSalary" parameterType="string">
-		DELETE FROM salary WHERE emp_id = #{empId}
-	</delete>
-	
-	<!-- 직급 이력 삭제 -->
-	<delete id="deleteRankHistory" parameterType="string">
-		DELETE FROM rank_history WHERE emp_id = #{empId}
-	</delete>
-	
-	<!-- 부서 이력 삭제 -->
-	<delete id="deleteDepartmentHistory" parameterType="string">
-		DELETE FROM department_history WHERE emp_id = #{empId}
-	</delete>
 	<!-- 모든 직급 조회 -->
 	<select id="selectAllRanks" resultType="string">
 		SELECT rank_name FROM `rank`
 	</select>
 	
-	<!-- 모든 부서 조회 -->
-	<select id="selectAllDepartments" resultType="string">
-		SELECT dept_name FROM department
-	</select>
+
 	
 	<!-- 부서별 팀 조회 -->
 	<select id="selectTeamsByDepartment" resultType="string">
@@ -175,5 +169,52 @@
 		WHERE dept_id = (SELECT dept_id FROM department WHERE dept_name =
 		#{deptName})
 	</select>
+	<!-- 팀 이름으로 팀 ID 조회 -->
+	<select id="selectTeamIdByTeamName" parameterType="string" resultType="int">
+		SELECT team_id 
+		FROM team 
+		WHERE team_name = #{teamName}
+	</select>
+	<!-- 직급 이름으로 직급ID 조회 -->
+	<select id="selectRankIdByRankName" resultType="int">
+	    SELECT rank_id 
+	    FROM `rank`
+	    WHERE rank_name = #{rankName}
+	</select>
 	
+	<!-- 부서 등록 -->
+	<insert id="insertNewDept" parameterType="com.example.comma_groupware.dto.Department">
+		INSERT INTO department (dept_name)
+		VALUES (#{deptName})
+	</insert>
+
+	<!-- 부서명 수정 -->
+	<update id="updateDeptName" parameterType="com.example.comma_groupware.dto.Department">
+		UPDATE department
+		SET dept_name = #{deptName}
+		WHERE dept_id = #{deptId}
+	</update>
+	
+	<!-- 전체 부서 조회 (ID와 이름 모두 포함) -->
+	<select id="getAllDepartmentsWithId" resultType="com.example.comma_groupware.dto.Department">
+        SELECT dept_id AS deptId, dept_name AS deptName 
+        FROM department
+    </select>
+
+    <!-- 팀 관리  -->
+    <insert id="insertNewTeam" parameterType="com.example.comma_groupware.dto.Team">
+        INSERT INTO team (team_name, dept_id) 
+        VALUES (#{teamName}, #{deptId})
+    </insert>
+
+    <update id="updateTeam" parameterType="com.example.comma_groupware.dto.Team">
+        UPDATE team 
+        SET team_name = #{teamName}, dept_id = #{deptId} 
+        WHERE team_id = #{teamId}
+    </update>
+
+
+    <select id="getTeamsByDeptId" resultType="com.example.comma_groupware.dto.Team">
+        SELECT team_id AS teamId, team_name AS teamName, dept_id as DeptId FROM team WHERE dept_id = #{deptId}
+    </select>
 </mapper>

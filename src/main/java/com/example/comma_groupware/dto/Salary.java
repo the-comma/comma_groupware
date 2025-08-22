@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class Salary {
 	private int empId; 			//사원ID
-	private int salaryAmount; 	//급여액수
+	private long salaryAmount; 	//급여액수
 }
