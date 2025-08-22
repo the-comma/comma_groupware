@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.example.comma_groupware.mapper.ProjectMemberMapper">
+	
+	<insert id="addProjectMember" parameterType="com.example.comma_groupware.dto.ProjectMember">
+		INSERT INTO project_member(
+			project_id, emp_id, project_role
+		)
+		VALUES(
+			#{projectId}, #{empId}, #{projectRole}
+		)
+	</insert>
+</mapper>

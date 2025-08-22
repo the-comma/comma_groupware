@@ -20,7 +20,7 @@
 	<link href= "<c:url value='/HTML/Admin/dist/assets/js/config.js'/>" rel="stylesheet" type="text/css" />
 	
 <meta charset="UTF-8">
-<title>프로젝트 메인</title>
+<title>타이틀</title>
 </head>
 <body>
 	    <!-- Begin page -->
