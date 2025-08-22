@@ -18,6 +18,7 @@
    	<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.11.3/datatables.min.js"></script>
 </head>
 <body>
+<%@ include file="/HTML/Admin/src/partials/sidenav.html" %>
 <div class="page-content">
   <div class="page-container">
 
