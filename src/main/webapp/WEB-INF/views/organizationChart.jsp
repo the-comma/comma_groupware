@@ -167,9 +167,10 @@
 																	
 																	<script>
 																	function openEmpCard(empId){
-																	    // 모달 내부 내용 비우고 새로운 JSP 로드
 																	    $("#standard-modal .modal-content").load("/employeeCard?id=" + empId, function(){
-																	        $("#standard-modal").modal("show"); // 로드 끝나면 모달 띄우기
+																	        var modalEl = document.getElementById('standard-modal');
+																	        var myModal = new bootstrap.Modal(modalEl); 
+																	        myModal.show();
 																	    });
 																	}
 																	</script>

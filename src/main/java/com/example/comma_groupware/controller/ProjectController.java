@@ -67,7 +67,7 @@ public class ProjectController {
 		// service에 프로젝트랑, 멤버 넘기기
 		projectService.addProject(project, memberList);
 		
-		return "redirect:/addProjectForm";
+		return "redirect:/projectMain";
 	}
 
 	// FE, BE, PL 리스트 멤버 리스트에 넣는 메서드

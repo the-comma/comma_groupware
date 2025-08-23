@@ -128,7 +128,7 @@
             </li>
 
             <li class="side-nav-item">
-                <a href="apps-projects.html" class="side-nav-link">
+                <a href="projectMain" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-briefcase"></i></span>
                     <span class="menu-text"> 프로젝트 </span>
                 </a>

@@ -43,33 +43,79 @@
 	                            	<!-- 부가 설명 -->
                                 </p>
                                 <div class="row">
-                                    <div class="col-lg-12">
-                                        <form action="/addProject" method="post" id="project" name="project">
-											<label for="empName">PM</label>
-											<input type="text" id="empName" name="empName" value=""><br>
-											
-											<label for="projectTitle">프로젝트 명</label>
-											<input type="text" id="projectTitle" name="projectTitle" placeholder="프로젝트 명 입력.."><br>
-											
-											<label for="projectDesc">설명</label>
-											<textarea rows="10" cols="20" id="projectDesc" name="projectDesc"></textarea><br>
-											
-											<label for="projectGitUrl">Github URL</label>
-											<input type="text" id="projectGitUrl" name="projectGitUrl" placeholder="Git URL 입력.."><br>
-											
-											<label for="startDate">시작일</label>
-											<input type="date" id="startDate" name="startDate"><br>
-											
-											<label for="endDate">마감일</label>
-											<input type="date" id="endDate" name="endDate"><br>
-											
-											FE 개발자
-											<!-- 추가 버튼 -->
-						                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-						                     data-bs-target="#scrollable-modal">추가</button>	<br>
-						                     <input type="text" id="feList" readonly="readonly">
-						                     <br>
-											
+                                	<form action="/addProject" method="post" id="project" name="project">
+                                	
+                                	<div class="row g-3">
+                                        <div class="mb-3 col-md-3">
+                                            <label for="empName" class="form-label">PM</label>
+                                            <input type="text" class="form-control" id="empName" name="empName"
+                                                value="" readonly="readonly">
+                                        </div>
+                                        <div class="mb-3 col-md-9">
+                                            <label for="projectTitle" class="form-label">프로젝트명</label>
+                                            <input type="text" class="form-control" id="projectTitle" name="projectTitle"
+                                                placeholder="프로젝트명 입력..">
+                                        </div>
+                                        <div class="mb-3 col-md-12">
+                                            <label for="projectDesc" class="form-label">설명</label>
+											<textarea class="form-control" rows="10" cols="20" id="projectDesc" name="projectDesc"></textarea>
+                                        </div>
+                                        <div class="mb-3 col-md-12">
+                                            <label for="projectGitUrl" class="form-label">Github URL</label>
+											<input class="form-control" type="text" id="projectGitUrl" name="projectGitUrl" placeholder="https://github.com/..">
+                                        </div>
+                                        
+                                        <div class="mb-3 col-md-6">
+                                            <label for="startDate" class="form-label">시작일</label>
+											<input class="form-control" type="date" id="startDate" name="startDate">
+                                        </div>
+                                        
+                                        <div class="mb-3 col-md-6">
+                                            <label for="endDate" class="form-label">마감일</label>
+											<input class="form-control" type="date" id="endDate" name="endDate">
+                                        </div>
+                                        
+										<!-- 추가 버튼 -->
+					                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+					                     data-bs-target="#scrollable-modal">개발자 등록</button>	
+					                     
+					                     
+					                     <div class="choices" data-type="text">
+					                     <label for="feList" class="form-label">FE</label>
+		                                	<div class="choices__inner">
+		                                		<input readonly="readonly" class="form-control choices__input" id="choices-text-remove-button" data-choices="" data-choices-limit="3" data-choices-removeitem="" type="text" value="Task-1" hidden="" tabindex="-1" data-choice="active">
+		                                			<div id="feList" class="choices__list choices__list--multiple">
+		                                			<!-- 아이템 들어가는 영역 -->
+
+		                                			</div>
+		                                		<input type="search" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" aria-autocomplete="list" aria-label="Set limit values with remove button" style="min-width: 1ch; width: 1ch;">
+	                                		</div>
+                                		</div>
+                                        
+                                        <div class="choices" data-type="text">
+					                     <label for="feList" class="form-label">BE</label>
+		                                	<div class="choices__inner">
+		                                		<input readonly="readonly" class="form-control choices__input" id="choices-text-remove-button" data-choices="" data-choices-limit="3" data-choices-removeitem="" type="text" value="Task-1" hidden="" tabindex="-1" data-choice="active">
+		                                			<div id="beList" class="choices__list choices__list--multiple">
+		                                			<!-- 아이템 들어가는 영역 -->
+
+		                                			</div>
+		                                		<input type="search" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" aria-autocomplete="list" aria-label="Set limit values with remove button" style="min-width: 1ch; width: 1ch;">
+	                                		</div>
+                                		</div>
+                                		
+                                		<div class="choices" data-type="text">
+					                     <label for="feList" class="form-label">기획자</label>
+		                                	<div class="choices__inner">
+		                                		<input readonly="readonly" class="form-control choices__input" id="choices-text-remove-button" data-choices="" data-choices-limit="3" data-choices-removeitem="" type="text" value="Task-1" hidden="" tabindex="-1" data-choice="active">
+		                                			<div id="plList" class="choices__list choices__list--multiple">
+		                                			<!-- 아이템 들어가는 영역 -->
+
+		                                			</div>
+		                                		<input type="search" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" aria-autocomplete="list" aria-label="Set limit values with remove button" style="min-width: 1ch; width: 1ch;">
+	                                		</div>
+                                		</div>
+                                    </div>																						
 											<!-- 모달 -->
 											<div class="modal fade" id="scrollable-modal" tabindex="-1" role="dialog"
 							                    aria-labelledby="scrollableModalTitle" aria-hidden="true">
@@ -81,8 +127,8 @@
 							                                    aria-label="Close"></button>
 							                            </div>
 							                            <div class="modal-body">
-							                            	부서/팀<br>
-							                                <select id="deptTeam" name="deptTeam">
+							                            	<label for="deptTeam" class="form-label">부서/팀</label>
+							                                <select class="form-control" id="deptTeam" name="deptTeam">
 							                                	<option value="">부서/팀 선택</option>
 							                                	<c:if test="${deptTeamList != null}">
 							                                		<c:forEach items="${deptTeamList}" var="dept">
@@ -90,55 +136,53 @@
 													                </c:forEach>
 							                                	</c:if>
 							                                </select>
-							                                
-							                                <br>사원<br>
-							                                <table>
-							                                	<thead>
-							                                		<tr>
-							                                			<td>FE</td>
-							                                			<td>BE</td>
-							                                			<td>기획자</td>
-							                                		</tr>
+							                                <br>
+							                                <label for="empTable" class="form-label">사원</label>
+							                                <table id="empTable" class="form-table">
+							                                	<thead id="empTableHead">
 							                                	</thead>
 							                                	<tbody id="empList" name="empList">
 							                                	</tbody>
 							                                </table>	 
-							                                
-							                                <div id="memberList">
-							                                
-							                                </div>                               
 							                                <br>
-							                                <br>
-							                                <br>
+							                                <label for="memberList" class="form-label">참여자</label>
+							                                <div class="choices" data-type="text">
+							                                	<div class="choices__inner">
+							                                		<input readonly="readonly" class="form-control choices__input" id="choices-text-remove-button" data-choices="" data-choices-limit="3" data-choices-removeitem="" type="text" value="Task-1" hidden="" tabindex="-1" data-choice="active">
+							                                			<div id="memberList" class="choices__list choices__list--multiple">
+							                                			<!-- 아이템 들어가는 영역 -->
+
+							                                			</div>
+							                                		<input type="search" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" aria-autocomplete="list" aria-label="Set limit values with remove button" style="min-width: 1ch; width: 1ch;">
+						                                		</div>
+						                                		
+						                                		<div class="choices__list choices__list--dropdown" aria-expanded="false">
+							                                		<div class="choices__list" aria-multiselectable="true" role="listbox">
+							                                		</div>
+						                                		</div>
+					                                		</div>                           
 							                                <br>
 							                                <br>
 							                            </div>
 							                            <div class="modal-footer">
-							                                <button type="button" class="btn btn-secondary"
+							                                <button type="button" class="btn btn-outline-danger"
 							                                    data-bs-dismiss="modal">취소</button>
-							                                <button type="button" class="btn btn-primary" id="modalBtn">등록</button>
+							                                <button type="button" class="btn btn-outline-success" id="modalBtn">등록</button>
 							                            </div>
 							                        </div><!-- /.modal-content -->
 							                    </div><!-- /.modal-dialog -->
 							                </div><!-- /.modal -->
 											
-											BE 개발자<br>
-						                    <input type="text" id="beList" readonly="readonly">
-						                    <br>
-											
-											기획자<br>
-											<input type="text" id="plList" readonly="readonly">
-											<br>
 											
 											<!-- FE, BE, PL 리스트 들어갈 영역 -->
 											<div id="feListBox"></div>
 											<div id="beListBox"></div>
 											<div id="plListBox"></div>
 											
-											<button type="submit">생성</button>
-										</form>
+											<br>
+											<button class="btn btn-success" type="submit">생성</button>
+                               			 </form>                   
                                     </div> <!-- end col -->
-                                </div>
                                 <!-- end row-->
                             </div> <!-- end card-body -->
                         </div> <!-- end card -->
@@ -178,17 +222,29 @@
 			return res.json();
 		})
 		.then(function(result) {
-			document.querySelector('#empList').innerHTML = '';
+			if(result.length < 1){
+				document.querySelector('#empList').innerHTML = ``;
+				document.querySelector('#empTableHead').innerHTML = '해당 부서/팀에 사원이 없습니다.';	
+				return;
+			}
+			
+			document.querySelector('#empList').innerHTML = `<tr>
+																<td>FE</td>
+																<td>BE</td>
+																<td>PL</td>
+															</tr>`
+			document.querySelector('#empTableHead').innerHTML = '';
 			result.forEach(function(e){
 				const feChecked = [...selectedFE].some(item => item.id === String(e.empId)) ? "checked" : "";
 		        const beChecked = [...selectedBE].some(item => item.id === String(e.empId)) ? "checked" : "";
 		        const plChecked = [...selectedPL].some(item => item.id === String(e.empId)) ? "checked" : "";
-				
+
 			    document.querySelector('#empList').innerHTML += `
 			        <tr>
-			            <td><input type="checkbox" class="fe" value="\${e.empId}" data-name="\${e.empName}" \${feChecked}></td>
-			            <td><input type="checkbox" class="be" value="\${e.empId}" data-name="\${e.empName}" \${beChecked}></td>
-			            <td><input type="checkbox" class="pl" value="\${e.empId}" data-name="\${e.empName}" \${plChecked}></td>
+			            <td><input type="checkbox" class="fe form-check-input" value="\${e.empId}" data-name="\${e.empName}" \${feChecked}></td>
+			            <td><input type="checkbox" class="be form-check-input" value="\${e.empId}" data-name="\${e.empName}" \${beChecked}></td>
+			            <td><input type="checkbox" class="pl form-check-input" value="\${e.empId}" data-name="\${e.empName}" \${plChecked}></td>
+			    		<td><img src="/HTML/Admin/dist/assets/images/default_profile.png" alt="image" class="img-fluid avatar-xs rounded"></td>
 			            <td>[\${e.rankName}]</td>
 			            <td>\${e.empName}</td>
 			            <td>\${e.empExp}</td>
@@ -240,13 +296,22 @@
 		    memberList.innerHTML = "";
 		
 		    selectedFE.forEach(e => {
-		        memberList.innerHTML += `<button class="member-btn" data-role="FE" data-id="\${e.id}">\${e.name} (FE)</button>`;
+		        memberList.innerHTML += `<div class="member-btn choices__item choices__item--selectable" data-role="FE" data-id="\${e.id}">
+		        							FE \${e.name}
+								        <button type="button" class="member-btn choices__button" data-role="FE" data-id="\${e.id}" aria-label="Remove item: Task-1" data-button="">Remove item</button>
+								        </div>`;
 		    });
 		    selectedBE.forEach(e => {
-		        memberList.innerHTML += `<button class="member-btn" data-role="BE" data-id="\${e.id}">\${e.name} (BE)</button>`;
+		        memberList.innerHTML +=`<div class="member-btn choices__item choices__item--selectable" data-role="BE" data-id="\${e.id}">
+										BE \${e.name}
+								        <button type="button" class="member-btn choices__button" data-role="BE" data-id="\${e.id}" aria-label="Remove item: Task-1" data-button="">Remove item</button>
+								        </div>`;
 		    });
 		    selectedPL.forEach(e => {
-		        memberList.innerHTML += `<button class="member-btn" data-role="PL" data-id="\${e.id}">\${e.name} (PL)</button>`;
+		        memberList.innerHTML +=`<div class="member-btn choices__item choices__item--selectable" data-role="PL" data-id="\${e.id}">
+										PL \${e.name}
+								        <button type="button" class="member-btn choices__button" data-role="PL" data-id="\${e.id}" aria-label="Remove item: Task-1" data-button="">Remove item</button>
+								        </div>`;
 		    });
 		}
 		
@@ -282,9 +347,9 @@
 			const p = document.querySelector('#plList');
 			
 			// 값 초기화
-		    f.value = "";
-		    b.value = "";
-		    p.value = "";
+		    f.innerHTML = '';
+		    b.innerHTML = '';
+		    p.innerHTML = '';
 		    
 			// hidden input 영역 초기화		
 		    const fb = document.querySelector('#feListBox');
@@ -298,7 +363,9 @@
 		
 		    // FE 개발자 최종 등록
 		    selectedFE.forEach(e => {
-		        f.value += `\${e.name}(\${e.id}), `;
+		        f.innerHTML += `<div class="choices__item choices__item--selectable"">
+									\${e.name}
+						        </div>`;
 		        fb.innerHTML += `
 		            <input type="hidden" name="feList" value="\${e.id}">
 		        `;
@@ -306,7 +373,9 @@
 		    
 		    // BE 개발자 최종 등록
 		    selectedBE.forEach(e => {
-		        b.value += `\${e.name}(\${e.id}), `;
+		        b.innerHTML += `<div class="choices__item choices__item--selectable"">
+									\${e.name}
+						        </div>`;
 		        bb.innerHTML += `
 		            <input type="hidden" name="beList" value="\${e.id}">
 		        `;
@@ -314,18 +383,14 @@
 		    
 		    // PL 개발자 최종 등록
 		    selectedPL.forEach(e => {
-		        p.value += `\${e.name}(\${e.id}), `;
+		        p.innerHTML += `<div class="choices__item choices__item--selectable"">
+								\${e.name}
+						        </div>`;
 		        pb.innerHTML += `
 		            <input type="hidden" name="plList" value="\${e.id}">
 		        `;
 		    });
-		
-		    
-		    // 마지막 쉼표, 공백 제거
-		    f.value = f.value.substr(0,f.value.length - 2);
-		    b.value = b.value.substr(0,b.value.length - 2);
-		    p.value = p.value.substr(0,p.value.length - 2);
-		    
+			    
 		    // 모달 닫기
 		    const modal = bootstrap.Modal.getInstance(document.querySelector('#scrollable-modal'));
 		    modal.hide();
