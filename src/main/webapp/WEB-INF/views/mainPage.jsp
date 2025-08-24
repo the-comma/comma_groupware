@@ -7,5 +7,6 @@
 </head>
 <body>
 	<h1>메인페이지</h1>
+	<a href="updateInfo">개인정보 수정하기</a>
 </body>
 </html>

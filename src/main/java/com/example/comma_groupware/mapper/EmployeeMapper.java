@@ -15,6 +15,9 @@ public interface EmployeeMapper {
 	void updatePw(@Param("password") String password, @Param("username") String username);
 
 	int existsByEmail(String email);
+	
+	// 개인정보 업데이트
+	void updateInfo(@Param("username") String username, @Param("email") String email, @Param("phone") String phone);
 
 
 

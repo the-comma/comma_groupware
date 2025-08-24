@@ -7,7 +7,9 @@
 	SELECT 
 		username,
 		password,
-		role 
+		role ,
+		emp_phone As empPhone ,
+		emp_email As empEmail
 	FROM employee
 	WHERE username = #{username}
 	
@@ -30,4 +32,15 @@
 	WHERE emp_email = #{email}
 	
 	</select>
+	
+	<!-- 개인정보 업데이트에 사용 -->
+	<update id="updateInfo" parameterType="string">
+	UPDATE
+		employee SET
+		emp_email = #{email},
+		emp_phone = #{phone}
+	WHERE username = #{username}
+	
+	</update>
+	
 </mapper>

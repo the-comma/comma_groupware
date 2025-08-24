@@ -47,7 +47,8 @@ public class EmployeeService {
 		employeeMapper.updatePw(encodePw, username);
 		
 	}
-
+	
+	// 비밀번호 확인
 	public boolean checkPassword(String newPassword, String username) { // 비밀번호 변경
 		Employee employee = employeeMapper.selectByUserName(username);
 	
@@ -60,6 +61,7 @@ public class EmployeeService {
 		return false;
 	}
 
+	// 이메일 보내기
 	public Map<String, Object> sendEmail(String username, String email) {
 		int row =employeeMapper.existsByEmail(email);
 		if(row == 0) { // 존재하는 이메일 0개면 반환
@@ -82,7 +84,7 @@ public class EmployeeService {
 				
 				본 메일을 요청하지 않으셨다면 이 메시지를 무시하세요.
 				
-				""".formatted(username, issue.code(), issue.ttlSeconds()/60));
+				""".formatted(username, issue.code(), issue.ttlSeconds()/60));   // 메세지 내용
 		
 		 mailSender.send(msg);
 				
@@ -92,6 +94,18 @@ public class EmployeeService {
 				 );
 		
 	}
+	
+	// 사원 휴대폰, 이메일 정보 가져오기
+	public Employee selectEmpInfo(String username) {
+		Employee employee = employeeMapper.selectByUserName(username);
+		
+		return employee;
+	}
+
+	public void updateInfo(String username, String email, String phone) {
+		employeeMapper.updateInfo(username,email,phone);
+	}
+
 
 
 

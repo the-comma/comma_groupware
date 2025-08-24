@@ -1,5 +1,6 @@
 package com.example.comma_groupware.controller;
 
+import java.text.Format;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.comma_groupware.dto.Employee;
 import com.example.comma_groupware.service.EmployeeService;
 import com.example.comma_groupware.service.JwtEmailOtpService;
 import jakarta.mail.Session;
@@ -64,8 +66,36 @@ public class EmployeeController {
 		model.addAttribute("remainSeconds", remain);
 		return "login-pin";
 	}
-
-
+ 
+	@GetMapping("/updateInfo") // 이메일 페이지로 이동
+	public String updateInfo(HttpSession session, Model model) {
+		String username = (String) session.getAttribute("username");
+		Employee employee = employeeService.selectEmpInfo(username);
+		
+		log.info("email:" + employee.getEmpEmail());
+		
+		model.addAttribute("email",employee.getEmpEmail());
+		model.addAttribute("phone", employee.getEmpPhone());
+		
+		
+		
+		return "updateInfo";
+	}
+	
+	
+	
+	
+	
+	@PostMapping("/updateInfo") // 휴대폰, 이메일 재설정
+	public String updateInfo(HttpSession session, @RequestParam String email, @RequestParam String phone ) {
+		String username = (String) session.getAttribute("username");
+		employeeService.updateInfo(username, email, phone);
+		
+		return "redirect:/mainPage";
+	}
+	
+	
+	
 	
 	@PostMapping("/resetPw") // 비밀번호 재설정
 	public String resetPw(@RequestParam("new-password") String password, HttpSession session) {
