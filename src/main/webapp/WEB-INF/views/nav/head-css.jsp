@@ -18,5 +18,8 @@
 
 	<!-- Icons css -->
 	<link href="/HTML/Admin/dist/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+	
+	<!-- font css -->
+	<link href="/HTML/Admin/dist/assets/css/font.css" rel="stylesheet" type="text/css" />
 </body>
 </html>

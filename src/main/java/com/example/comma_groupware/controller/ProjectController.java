@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.comma_groupware.dto.Page;
 import com.example.comma_groupware.dto.Project;
 import com.example.comma_groupware.service.DepartmentService;
 import com.example.comma_groupware.service.ProjectService;
@@ -32,7 +33,32 @@ public class ProjectController {
 	
 	
 	@GetMapping("projectMain")
-	public String projectMain() {
+	public String projectMain(Model model,HttpSession session
+										,@RequestParam(required = false) Integer page
+										,@RequestParam(defaultValue = "") String projectName
+										,@RequestParam(defaultValue = "") String view) {
+		
+		// 현재 페이지값 없을때 defaultValue
+		if(page == null) page = 0;
+		
+		// 필터링할 param 값들
+		Map<String,Object> param = new HashMap<>();
+		param.put("projectName", projectName);
+		// param.put("empId", (Employee)session.getAttribute("loginUser").getEmpId());		
+		param.put("empId",1);
+		
+		// 전체 데이터 수 가져옴
+		int totalCount = projectService.countProjectByEmpId(param);
+		
+		// 페이징 옵션
+		Page p = new Page(10,page,totalCount,param);
+		
+		// 프로젝트 리스트 가져오기
+		List<Map<String,Object>> projectList = projectService.selectProjectByEmpId(p);
+		
+		model.addAttribute("projectList",projectList);
+		model.addAttribute("page",p);
+		model.addAttribute("view",view);
 		return "projectMain";
 	}
 	

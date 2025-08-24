@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.comma_groupware.dto.Page;
 import com.example.comma_groupware.dto.Project;
 import com.example.comma_groupware.dto.ProjectMember;
 import com.example.comma_groupware.mapper.ProjectMapper;
@@ -22,6 +23,17 @@ public class ProjectService {
 		this.projectMemberMapper = projectMemberMapper;
 	}
 	
+	/** 프로젝트 조회 **/
+	public List<Map<String, Object>> selectProjectByEmpId(Page page){
+		return projectMapper.selectProjectByEmpId(page);
+	}
+	
+	/** 프로젝트 카운트 **/
+	public int countProjectByEmpId(Map<String,Object> param){
+		return projectMapper.countProjectByEmpId(param);
+	}
+	
+	/** 프로젝트 추가 (prjectDto, memberList) **/
 	@Transactional
 	public int addProject(Project project, List<Map<String, Object>> memberList) {
 
