@@ -1,12 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
-	<title>Insert title here</title>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <meta charset="UTF-8">
+  <title>휴가신청서</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <style>
     :root{ --line:#e5e7eb; --muted:#6b7280; --paper:#fff; --bg:#f8fafc; }
     body{ margin:0; background:var(--bg); font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif; }
@@ -18,7 +19,7 @@
     .grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 18px; }
     .grid-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px 16px; }
     label{ font-size:12px; color:var(--muted); display:block; margin:0 0 6px; }
-    input[type="text"], input[type="date"], input[type="number"], select, textarea{
+    input[type="text"], input[type="date"], select, textarea{
       width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:14px; outline:none;
     }
     .inline{ display:flex; gap:10px; align-items:center; }
@@ -44,26 +45,26 @@
       </div>
     </div>
 
-    <!-- 신청자 / 잔여연차 -->
+    <!-- 신청자 / 잔여연차 (성명 제거) -->
     <div class="section">
       <div class="grid-3">
-        <div>
-          <label>부서</label>
-          <input type="text" id="dept" placeholder="예: 개발팀">
-        </div>
-        <div>
-          <label>사번</label>
-          <input type="text" id="empNo" placeholder="예: 2025-001">
-        </div>
-        <div>
-          <label>성명</label>
-          <input type="text" id="empName" placeholder="예: 홍길동">
-        </div>
-      </div>
-      <div class="hint" style="margin-top:8px;">
-        잔여연차: <strong><c:out value="${annualLeave}"/> 일</strong>
-      </div>
-    </div>
+	    <div>
+	      <label>사번</label>
+	      <input type="text" value="${empId}" disabled />
+	    </div>
+	    <div>
+	      <label>부서</label>
+	      <input type="text" value="<c:out value='${empty org.deptName ? "-" : org.deptName}'/>" disabled />
+	    </div>
+	    <div>
+	      <label>팀</label>
+	      <input type="text" value="<c:out value='${empty org.teamName ? "-" : org.teamName}'/>" disabled />
+	    </div>
+	  </div>
+	  <div class="hint" style="margin-top:8px;">
+	    잔여연차: <strong><c:out value="${annualLeave}"/> 일</strong>
+	  </div>
+	</div>
 
     <!-- 휴가 기본 정보 -->
     <div class="section">
@@ -92,10 +93,10 @@
           </select>
           <div class="hint">예: 예비군/경조사/질병/연차/반차</div>
         </div>
-        <div>
-          <label>비상연락처</label>
-          <input type="text" id="emergency" placeholder="예: 010-1234-5678">
-        </div>
+	    <div>
+	      <label>비상연락처</label>
+	      <input type="text" id="emergency" name="emergencyContact" placeholder="예: 010-1234-5678">
+	    </div>
       </div>
 
       <div class="grid">
@@ -116,19 +117,15 @@
       </div>
 
       <div class="grid">
-        <div>
-          <label>업무 인수인계(담당자/범위)</label>
-          <input type="text" id="handover" placeholder="예: 김PM에게 기능A QA 진행 인수">
-        </div>
-        <div>
-          <label>휴가 중 연락 가능 시간/채널</label>
-          <input type="text" id="contact" placeholder="예: 평일 10~12시 Slack/휴대폰">
-        </div>
+	    <div>
+	      <label>업무 인수인계(담당자/범위)</label>
+	      <input type="text" id="handover" name="handover" placeholder="예: 김PM에게 개발작업 진행 인수"> 
+	    </div>
       </div>
 
       <div>
         <label>사유(요약)</label>
-        <textarea id="reasonText" placeholder="예: 가족 경조사 참석 / 건강검진 / 개인 연차 소진 등"></textarea>
+        <textarea id="reasonText" name="vacationReason" placeholder="예: 가족 경조사 참석 / 건강검진 등"></textarea>
       </div>
     </div>
 
@@ -144,8 +141,7 @@
           <label>전자결재 서명</label>
           <div class="sigpad no-print">
             TODO: 전자서명 위젯(API) 삽입 위치<br/>
-            - 도장 이미지 업로드 또는 마우스 서명 캔버스<br/>
-            - 제출 전 파일로 업로드하여 문서에 첨부
+            - 도장 이미지 업로드 또는 마우스 서명 캔버스
           </div>
         </div>
       </div>
@@ -183,16 +179,16 @@
   const fileList  = document.getElementById('fileList');
 
   function businessDaysInclusive(s, e){
-    if (!s || !e) return 0;
-    const sd = new Date(s), ed = new Date(e);
-    if (ed < sd) return 0;
-    let days = 0;
-    for (let d = new Date(sd); d <= ed; d.setDate(d.getDate()+1)){
-      const w = d.getDay();
-      if (w !== 0 && w !== 6) days++;
-    }
-    return days;
-  }
+	    if (!s || !e) return 0;
+	    const sd = new Date(s), ed = new Date(e);
+	    if (ed < sd) return 0;
+	    let days = 0;
+	    for (let d = new Date(sd); d <= ed; d.setDate(d.getDate()+1)){
+	      const w = d.getDay();
+	      if (w !== 0 && w !== 6) days++;
+	    }
+	    return days;
+	  }
 
   function recalc(){
     const s = startDate.value, e = endDate.value;
@@ -211,42 +207,33 @@
     calcDays.textContent = days;
     document.getElementById('hiddenTotalDays').value = days;
   }
-
   [startDate, endDate, startHalf, endHalf].forEach(el=> el.addEventListener('change', recalc));
   recalc();
 
   fileInput.addEventListener('change', ()=>{
     if (!fileInput.files?.length){ fileList.textContent=''; return; }
-    fileList.innerHTML = Array.from(fileInput.files).map(f=>`• \${f.name} (\${Math.round(f.size/1024)} KB)`).join('<br>');
+    fileList.innerHTML = Array.from(fileInput.files).map(f=>`• ${f.name} (${Math.round(f.size/1024)} KB)`).join('<br>');
   });
 
   document.getElementById('vacationForm').addEventListener('submit', (e)=>{
-    if (!document.getElementById('vacationCategory').value){
-      alert('휴가 구분을 선택하세요.'); e.preventDefault(); return;
-    }
-    if (!startDate.value || !endDate.value){
-      alert('시작일과 종료일을 입력하세요.'); e.preventDefault(); return;
-    }
-    if (Number(document.getElementById('hiddenTotalDays').value || 0) <= 0){
-      alert('사용일수를 확인하세요. (주말 제외, 반차 반영)'); e.preventDefault(); return;
-    }
+	    if (!document.getElementById('vacationCategory').value){
+	      alert('휴가 구분을 선택하세요.'); e.preventDefault(); return;
+	    }
+	    if (!document.getElementById('startDate').value || !document.getElementById('endDate').value){
+	      alert('시작일과 종료일을 입력하세요.'); e.preventDefault(); return;
+	    }
+	    const days = Number(document.getElementById('hiddenTotalDays').value || 0);
+	    if (days <= 0){
+	      alert('사용일수를 확인하세요.'); e.preventDefault(); return;
+	    }
 
-    const catSel = document.getElementById('vacationCategory');
-    const catText = catSel.options[catSel.selectedIndex]?.text || '휴가';
-    const s = startDate.value, e2 = endDate.value;
-    const title = `[\${catText}] \${s} ~ \${e2} 휴가신청`;
-    const reason = [
-      `• 부서: \${document.getElementById('dept').value||'-'} / 사번: \${document.getElementById('empNo').value||'-'} / 성명: \${document.getElementById('empName').value||'-'}`,
-      `• 구분: \${catText} / 기간: \${s} ~ \${e2} / 반차: 시작 \${startHalf.checked?'Y':'N'}, 종료 \${endHalf.checked?'Y':'N'}`,
-      `• 연락: \${document.getElementById('contact').value||'-'} / 인수인계: \${document.getElementById('handover').value||'-'}`,
-      `• 비상연락처: \${document.getElementById('emergency').value||'-'}`,
-      `• 사유: \${document.getElementById('reasonText').value||'-'}`,
-      `• 계산된 사용일수: \${document.getElementById('hiddenTotalDays').value} 일`
-    ].join('\n');
-
-    document.getElementById('hiddenTitle').value  = title;
-    document.getElementById('hiddenReason').value = reason;
-  });
+	    const catSel = document.getElementById('vacationCategory');
+	    const catText = catSel.options[catSel.selectedIndex]?.text || '휴가';
+	    const s = document.getElementById('startDate').value;
+	    const e2 = document.getElementById('endDate').value;
+	    const title = `[${catText}] ${s} ~ ${e2} 휴가신청`;   // [CHANGED]
+	    document.getElementById('hiddenTitle').value = title;
+	  });
 </script>
 </body>
 </html>

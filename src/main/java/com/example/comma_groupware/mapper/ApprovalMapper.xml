@@ -3,12 +3,17 @@
 <mapper namespace="com.example.comma_groupware.mapper.ApprovalMapper">
  <!-- 공통: 로그인 사원의 현재 부서/팀 찾아오기 -->
   <select id="selectMyCurrentDeptInfo" parameterType="int" resultType="map">
-    SELECT  d.dept_id, d.dept_name, t.team_id, t.team_name
-    FROM department_history dh
+    SELECT  e.emp_id   AS empId,
+            e.emp_name AS empName,
+            d.dept_id,
+            d.dept_name AS deptName,
+            t.team_id,
+            t.team_name AS teamName
+    FROM employee e
+    JOIN department_history dh ON dh.emp_id = e.emp_id AND dh.end_date IS NULL
     JOIN team t ON t.team_id = dh.team_id
     JOIN department d ON d.dept_id = t.dept_id
-    WHERE dh.emp_id = #{empId}
-      AND dh.end_date IS NULL
+    WHERE e.emp_id = #{empId}
     LIMIT 1
   </select>
 
@@ -54,36 +59,41 @@
   </select>
 
   <!-- 결재문서 생성 -->
-  <insert id="insertApprovalDocument" parameterType="map" useGeneratedKeys="true" keyProperty="approvalDocumentId">
-    INSERT INTO approval_document
-      (emp_id, approval_title, document_type, approval_status, approval_reason, is_file, create_at)
-    VALUES
-      (#{empId}, #{title}, #{documentType}, 'IN_PROGRESS', #{reason}, #{isFile}, NOW())
-  </insert>
+<insert id="insertApprovalDocument" parameterType="map"
+        useGeneratedKeys="true" keyProperty="approvalDocumentId">
+  INSERT INTO approval_document
+    (emp_id, approval_title, document_type, approval_status, is_file, create_at)
+  VALUES
+    (#{empId}, #{title}, #{documentType}, 'IN_PROGRESS', #{isFile}, NOW())
+</insert>
 
   <!-- 휴가 신청 상세 저장 -->
   <insert id="insertRequestVacation" parameterType="map">
-    INSERT INTO request_vacation
-      (approval_document_id, vacation_id, request_reason, start_date, end_date, total_days)
-    VALUES
-      (#{approvalDocumentId}, #{vacationId}, #{requestReason}, #{startDate}, #{endDate}, #{totalDays})
-  </insert>
+	  INSERT INTO request_vacation
+	    (approval_document_id, vacation_id, start_date, end_date, total_days, emergency_contact, handover, vacation_reason)
+	  VALUES
+	    (#{approvalDocumentId}, #{vacationId}, #{startDate}, #{endDate}, #{totalDays}, #{emergencyContact}, #{handover}, #{vacationReason})
+	</insert>
 
   <!-- 지출 결의 상세 저장 -->
   <insert id="insertRequestExpense" parameterType="map">
-    INSERT INTO request_expense
-      (approval_document_id, expense_id, request_reason, request_amount, expense_date)
-    VALUES
-      (#{approvalDocumentId}, #{expenseId}, #{requestReason}, #{amount}, #{expenseDate})
-  </insert>
+	  INSERT INTO request_expense
+	    (approval_document_id, expense_id, vendor, pay_method, bank_info, total_amount, expense_date, expense_reason)
+	  VALUES
+	    (#{approvalDocumentId}, #{expenseId}, #{vendor}, #{payMethod}, #{bankInfo}, #{amount}, #{expenseDate}, #{expenseReason})
+	</insert>
 
   <!-- 결재 라인 생성(1,2차) -->
-  <insert id="insertApprovalLine" parameterType="map" useGeneratedKeys="true" keyProperty="approvalLineId">
-    INSERT INTO approval_line
-      (approval_document_id, emp_id, approval_step, approval_status, file_count)
-    VALUES
-      (#{approvalDocumentId}, #{approverEmpId}, #{step}, 'PENDING', 0)
-  </insert>
+	<insert id="insertApprovalLine"
+	        parameterType="map"
+	        useGeneratedKeys="true"
+	        keyProperty="approvalLineId"
+	        keyColumn="approval_line_id">
+	  INSERT INTO approval_line
+	    (approval_document_id, emp_id, approval_step, approval_status, file_count)
+	  VALUES
+	    (#{approvalDocumentId}, #{empId}, #{approvalStep}, 'PENDING', 0)
+	</insert>
 
   <!-- 내 문서 리스트(사원 본인) - 상태별 -->
   <select id="selectMyDocuments" parameterType="map" resultType="map">
@@ -156,41 +166,62 @@
   <!-- 문서 상세 -->
   <select id="selectDocumentDetail" parameterType="int" resultType="map">
     SELECT ad.approval_document_id AS approvalDocumentId,
-           ad.emp_id               AS writerEmpId,
+           ad.emp_id               AS writerEmpId, 
+           emp.emp_name            AS writerName, 
            ad.approval_title       AS title,
            ad.document_type        AS documentType,
            ad.approval_status      AS status,
-           ad.approval_reason      AS reason,
            ad.is_file              AS isFile,
            ad.create_at            AS createdAt,
            ad.complete_at          AS completeAt
     FROM approval_document ad
+    JOIN employee emp ON emp.emp_id = ad.emp_id
     WHERE ad.approval_document_id = #{approvalDocumentId}
   </select>
 
-  <!-- 휴가/지출 상세(있으면 가져오기) -->
-  <select id="selectVacationDetail" parameterType="int" resultType="map">
-    SELECT rv.*, v.vacation_title
-    FROM request_vacation rv
-    JOIN vacation v ON v.vacation_id = rv.vacation_id
-    WHERE rv.approval_document_id = #{approvalDocumentId}
-  </select>
+  <!-- 휴가/지출 상세 -->
+<select id="selectVacationDetail" parameterType="int" resultType="map">
+  SELECT
+    rv.approval_document_id AS approvalDocumentId,
+    rv.vacation_id          AS vacationId,
+    v.vacation_title        AS vacationTitle,  
+    rv.start_date           AS startDate,
+    rv.end_date             AS endDate,
+    rv.total_days           AS totalDays,
+    rv.emergency_contact    AS emergencyContact,
+    rv.handover             AS handover, 
+    rv.vacation_reason      AS vacationReason
+  FROM request_vacation rv
+  JOIN vacation v ON v.vacation_id = rv.vacation_id
+  WHERE rv.approval_document_id = #{approvalDocumentId}
+</select>
 
-  <select id="selectExpenseDetail" parameterType="int" resultType="map">
-    SELECT re.*, e.expense_title
-    FROM request_expense re
-    JOIN expense e ON e.expense_id = re.expense_id
-    WHERE re.approval_document_id = #{approvalDocumentId}
-  </select>
+<select id="selectExpenseDetail" parameterType="int" resultType="map">
+  SELECT
+    re.approval_document_id AS approvalDocumentId,
+    re.expense_id           AS expenseId,
+    e.expense_title         AS expenseTitle,   
+    re.vendor               AS vendor,
+    re.pay_method           AS payMethod,
+    re.bank_info            AS bankInfo,
+    re.total_amount         AS totalAmount,
+    re.expense_date         AS expenseDate, 
+    re.expense_reason       AS expenseReason 
+  FROM request_expense re
+  JOIN expense e ON e.expense_id = re.expense_id
+  WHERE re.approval_document_id = #{approvalDocumentId}
+</select>
 
   <!-- 해당 문서의 결재라인 전체 -->
   <select id="selectApprovalLinesByDoc" parameterType="int" resultType="map">
     SELECT al.approval_line_id AS approvalLineId,
            al.emp_id           AS approverEmpId,
+           emp.emp_name        AS approverName, 
            al.approval_step    AS step,
            al.approval_status  AS status,
-           al.approve_at       AS approveAt
+           al.approve_at       AS decidedAt
     FROM approval_line al
+    JOIN employee emp ON emp.emp_id = al.emp_id
     WHERE al.approval_document_id = #{approvalDocumentId}
     ORDER BY al.approval_step ASC
   </select>
@@ -245,16 +276,159 @@
       (#{size}, #{originName}, #{saveName}, 'APPROVAL', #{refId}, #{ext}, #{uploaderEmpId}, NOW())
   </insert>
 
-  <!-- 카테고리 드롭다운(휴가/지출) -->
-  <select id="selectVacationCodes" resultType="map">
-    SELECT vacation_id AS id, vacation_title AS title FROM vacation ORDER BY vacation_title
-  </select>
-  <select id="selectExpenseCodes" resultType="map">
-    SELECT expense_id  AS id, expense_title  AS title  FROM expense ORDER BY expense_title
+
+<!-- [ADDED] 문서별 첨부 목록 -->
+<select id="selectFilesByDoc" parameterType="int" resultType="map">
+  SELECT file_id        AS fileId,
+         file_origin_name AS originName,
+         file_size      AS size,
+         file_name      AS saveName,
+         file_ext       AS ext,
+         upload_at      AS uploadAt
+  FROM file_resource
+  WHERE file_ref_type = 'APPROVAL'
+    AND file_ref_id   = #{approvalDocumentId}
+  ORDER BY file_id
+</select>
+
+<!-- [ADDED] 첨부 단건 -->
+<select id="selectFileById" parameterType="int" resultType="map">
+  SELECT file_id          AS fileId,
+         file_origin_name AS originName,
+         file_name        AS saveName,
+         file_ext         AS ext,
+         file_size        AS size,
+         file_ref_id      AS refId,      -- [ADDED]
+         file_ref_type    AS refType     -- (선택) 점검용
+  FROM file_resource
+  WHERE file_id = #{fileId}
+  LIMIT 1
+</select>
+
+<!-- [ADDED] 첨부 삭제(단건) -->
+<delete id="deleteFileById" parameterType="int">
+  DELETE FROM file_resource WHERE file_id = #{fileId}
+</delete>
+
+
+  <!-- [ADDED] 진행된 라인 수 -->
+  <select id="countNonPendingLines" parameterType="int" resultType="int">
+    SELECT COUNT(*)
+    FROM approval_line
+    WHERE approval_document_id = #{approvalDocumentId}
+      AND approval_status != 'PENDING'
   </select>
 
-  <!-- 잔여연차 조회 -->
+  <!-- [CHANGED] 제목(+is_file) 갱신 -->
+  <update id="updateApprovalTitle" parameterType="map">
+    UPDATE approval_document
+    SET approval_title = #{title},
+        is_file = #{isFile}
+    WHERE approval_document_id = #{approvalDocumentId}
+  </update>
+
+  <!-- [ADDED] 휴가/지출 업데이트 -->
+  <update id="updateRequestVacation" parameterType="map">
+    UPDATE request_vacation
+    SET vacation_id       = #{vacationId},
+        start_date        = #{startDate},
+        end_date          = #{endDate},
+        total_days        = #{totalDays},
+        emergency_contact = #{emergencyContact},
+        handover          = #{handover},
+        vacation_reason   = #{vacationReason}
+    WHERE approval_document_id = #{approvalDocumentId}
+  </update>
+
+<!-- [ADDED] 지출 상세 업데이트 -->
+<update id="updateRequestExpense" parameterType="map">
+  UPDATE request_expense
+  SET expense_id     = #{expenseId},
+      vendor         = #{vendor},
+      pay_method     = #{payMethod},
+      bank_info      = #{bankInfo},
+      total_amount   = #{amount},
+      expense_date   = #{expenseDate},
+      expense_reason = #{expenseReason}
+  WHERE approval_document_id = #{approvalDocumentId}
+</update>
+
+<!-- [ADDED] 문서 삭제용(자식→부모 순) -->
+<delete id="deleteFilesByDoc" parameterType="int">
+  DELETE FROM file_resource
+  WHERE file_ref_type = 'APPROVAL'
+    AND file_ref_id   = #{approvalDocumentId}
+</delete>
+
+<delete id="deleteApprovalLinesByDoc" parameterType="int">
+  DELETE FROM approval_line WHERE approval_document_id = #{approvalDocumentId}
+</delete>
+
+<delete id="deleteRequestVacationByDoc" parameterType="int">
+  DELETE FROM request_vacation WHERE approval_document_id = #{approvalDocumentId}
+</delete>
+
+<delete id="deleteRequestExpenseByDoc" parameterType="int">
+  DELETE FROM request_expense WHERE approval_document_id = #{approvalDocumentId}
+</delete>
+
+<delete id="deleteDocument" parameterType="int">
+  DELETE FROM approval_document WHERE approval_document_id = #{approvalDocumentId}
+</delete>
+  <!-- [ADDED] 소유자/상태 -->
+  <select id="selectDocOwnerAndStatus" parameterType="int" resultType="map">
+    SELECT emp_id AS empId, approval_status AS status
+    FROM approval_document
+    WHERE approval_document_id = #{approvalDocumentId}
+  </select>
+
+  <!-- 코드/타이틀 -->
+  <select id="selectExpenseCodes" resultType="map">
+    SELECT expense_id AS expenseId, expense_title AS expenseTitle
+    FROM expense
+    ORDER BY expense_id
+  </select>
+
+  <select id="selectVacationCodes" resultType="map">
+    SELECT vacation_id AS vacationId, vacation_title AS vacationTitle
+    FROM vacation
+    ORDER BY vacation_id
+  </select>
+
   <select id="selectAnnualLeave" parameterType="int" resultType="double">
     SELECT annual_leave_count FROM annual_leave WHERE emp_id = #{empId}
   </select>
+
+  <select id="selectExpenseTitleById" parameterType="int" resultType="string">
+    SELECT expense_title FROM expense WHERE expense_id = #{expenseId}
+  </select>
+
+  <select id="selectVacationTitleById" parameterType="int" resultType="string">
+    SELECT vacation_title FROM vacation WHERE vacation_id = #{vacationId}
+  </select>
+  
+<select id="selectMyActionableLineForDoc" parameterType="map" resultType="map">
+  SELECT 
+    al.approval_line_id  AS approvalLineId,
+    al.emp_id            AS approverEmpId,
+    al.approval_step     AS step,
+    al.approval_status   AS status
+  FROM approval_line al
+  WHERE al.approval_document_id = #{docId}
+    AND al.emp_id = #{empId}
+    AND al.approval_status = 'PENDING'
+    AND (
+      al.approval_step = 1
+      OR (
+        al.approval_step = 2
+        AND EXISTS (
+          SELECT 1 FROM approval_line prev
+          WHERE prev.approval_document_id = al.approval_document_id
+            AND prev.approval_step = 1
+            AND prev.approval_status = 'APPROVED'
+        )
+      )
+    )
+  LIMIT 1
+</select>
 </mapper>
