@@ -18,13 +18,10 @@ public class EmpRest {
 		this.empSerivce = empSerivce;
 	}
 	
+	/** 팀으로 사원 리스트 조회 **/
 	@GetMapping("empListByTeam/{team}")
 	public List<Map<String, Object>> empListByTeam(@PathVariable(value="team") String team){
-		
-		for(Map<String, Object> m : empSerivce.empListByTeam(team)) {	
-			System.out.println(m.toString());
-		}
-		
+
 		return empSerivce.empListByTeam(team);
 	}
 }

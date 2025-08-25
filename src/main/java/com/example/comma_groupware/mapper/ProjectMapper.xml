@@ -5,6 +5,7 @@
 	<!-- 프로젝트 리스트 조회 -->
 	<select id="selectProjectByEmpId" parameterType="com.example.comma_groupware.dto.Page" resultType="map">
 		SELECT
+			p.project_id AS projectId,
 			p.project_title AS projectTitle,
 			e.emp_name AS empName,
 			p.project_desc AS projectDesc,

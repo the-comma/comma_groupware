@@ -7,9 +7,6 @@
 
 	<!-- CSS -->
 	<jsp:include page ="../views/nav/head-css.jsp"></jsp:include>
-	
-   	<!-- App 아이콘 -->
-	<link rel="shortcut icon" href="/HTML/Admin/dist/assets/images/favicon.ico">
 <meta charset="UTF-8">
 <title>프로젝트 메인</title>
 </head>
@@ -34,11 +31,11 @@
                     <div class=col-12>
                         <div class="card">
                             <div class="card-header justify-content-between d-sm-flex gap-2">
-                            	<a href="projectMain?view=table" class="btn btn-primary mb-sm-0 mb-2">
-                                    <i class="ti ti-circle-plus fs-20 me-2"></i>테이블 뷰
+                            	<a href="projectMain?view=table" class="btn btn-info mb-sm-0 mb-2">
+                                    <i class="ti ti-list fs-20 me-2"></i>테이블 뷰
                                 </a>
-                                <a href="projectMain?view=grid" class="btn btn-primary mb-sm-0 mb-2">
-                                    <i class="ti ti-circle-plus fs-20 me-2"></i>그리드 뷰
+                                <a href="projectMain?view=grid" class="btn btn-info mb-sm-0 mb-2">
+                                    <i class="ti ti-layout-grid fs-20 me-2"></i>그리드 뷰
                                 </a>
                                 <a href="addProject" class="btn btn-primary mb-sm-0 mb-2">
                                     <i class="ti ti-circle-plus fs-20 me-2"></i>프로젝트 생성
@@ -63,36 +60,46 @@
 							<c:if test="${projectList != null}">
 							<div class="row">
 								<c:forEach items="${projectList}" var="p">
-								<div class="col-xl-4">
+								<div class="col-xl-4" id="project-${p.projectId}">
 			                        <div class="card">
 			                            <div class="card-body">
 			                                <div class="d-flex justify-content-between">
 			                                    <div>
 			                                        <h4 class="mt-0"><a href="" class="text-dark">${p.projectTitle}</a></h4>
-			                                        <p class="text-success text-uppercase fw-semibold fs-11">Web Design</p>
+			                                        <p class="text-dark text-uppercase fw-semibold fs-11">마감일 : ${p.endDate}</p>
 			                                    </div>
 			                                    <div>
-			                                        <div class="badge badge-soft-success p-1">${p.projectStatus}</div>
-			                                    </div>
+													<c:choose>
+														<c:when test="${p.projectStatus eq 'PROGRESS'}">
+															<span class="badge badge-soft-primary p-1">진행</span>
+														</c:when>
+														<c:when test="${p.projectStatus eq 'PAUSED'}">
+															<span class="badge badge-soft-secondary p-1">대기</span>
+														</c:when>
+														<c:when test="${p.projectStatus eq 'COMPLETED'}">
+															<span class="badge badge-soft-success p-1">완료</span>
+														</c:when>
+													</c:choose>
+												</div>
 			                                </div>
 			
 			                                <p class="text-muted mb-3">${p.projectDesc}<a href="#"
-			                                        class="link-dark">View more</a>
+			                                        class="link-dark">..더보기</a>
 			                                </p>
 			
 			                                <ul class="list-inline">
 			                                    <li class="list-inline-item me-4">
 			                                        <h4 class="mb-0 lh-base">56</h4>
-			                                        <p class="text-muted">Questions</p>
+			                                        <p class="text-muted">미완료 작업</p>
 			                                    </li>
 			                                    <li class="list-inline-item">
 			                                        <h4 class="mb-0 lh-base">452</h4>
-			                                        <p class="text-muted">Comments</p>
+			                                        <p class="text-muted">완료된 작업</p>
 			                                    </li>
 			                                </ul>
 			
 			                                <div class="d-flex align-items-center mb-3">
-			                                    <h5 class="me-3 mb-0">Team :</h5>
+			                                    <h5 class="me-3 mb-0">멤버(${p.projectMemberCount}) :</h5>
 			                                    <div class="avatar-group">
 			                                        <a href="#" class="avatar" data-bs-toggle="tooltip" data-bs-placement="top"
 			                                            aria-label="Mat Helme" data-bs-original-title="Mat Helme">
@@ -118,17 +125,49 @@
 			                                                alt="friend">
 			                                        </a>
 			                                    </div>
-			                                </div>
+		                                	</div>
 			
-			                                <h5 class="mb-2">Progress <span class="text-success float-end">80%</span></h5>
 			
+											<h5 class="mb-2">진행
+											<c:choose>
+													<c:when test="${p.projectStatus eq 'PROGRESS'}">
+														<span class="text-primary float-end">80%</span>
+													</c:when>
+													<c:when test="${p.projectStatus eq 'PAUSED'}">
+														<span class="text-secondary float-end">80%</span>
+													</c:when>
+													<c:when test="${p.projectStatus eq 'COMPLETED'}">
+														<span class="text-success float-end">80%</span>
+													</c:when>
+											</c:choose>
+											</h5>
+											
 			                                <div class="progress progress-soft progress-sm">
-			                                    <div class="progress-bar bg-success" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
-			                                    </div>
+			                                	<c:choose>
+														<c:when test="${p.projectStatus eq 'PROGRESS'}">
+															<div class="progress-bar bg-primary" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+			                                    			</div>
+														</c:when>
+														<c:when test="${p.projectStatus eq 'PAUSED'}">
+															<div class="progress-bar bg-secondary" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+			                                    			</div>
+														</c:when>
+														<c:when test="${p.projectStatus eq 'COMPLETED'}">
+															<div class="progress-bar bg-success" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+			                                    			</div>
+														</c:when>
+												</c:choose>
 			                                </div>
 			                            </div>
 			                        </div>
 			                    </div><!-- end col-->
+			                    
+			                    <script>
+			                    	document.getElementById(`project-${p.projectId}`).addEventListener('click',function(){
+										location.href=`/projectDetail?id=${p.projectId}`;
+			                    	})
+			                    </script>
+			                    
                     		</c:forEach>
                     		</div>
                     	</c:if>
@@ -164,8 +203,50 @@
 								                        			<td>${p.empName}</td>
 								                        			<td>${p.startDate}</td>
 								                        			<td>${p.endDate}</td>
-								                        			<td></td>
-								                        			<td>${p.projectStatus}</td>
+								                        			<td>
+								                        				<c:choose>
+																				<c:when test="${p.projectStatus eq 'PROGRESS'}">
+																					<span class="text-primary float-end">80%</span>
+																				</c:when>
+																				<c:when test="${p.projectStatus eq 'PAUSED'}">
+																					<span class="text-secondary float-end">80%</span>
+																				</c:when>
+																				<c:when test="${p.projectStatus eq 'COMPLETED'}">
+																					<span class="text-success float-end">80%</span>
+																				</c:when>
+																		</c:choose>
+																		<div class="progress progress-soft progress-sm">
+										                                	<c:choose>
+																					<c:when test="${p.projectStatus eq 'PROGRESS'}">
+																						<div class="progress-bar bg-primary" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+										                                    			</div>
+																					</c:when>
+																					<c:when test="${p.projectStatus eq 'PAUSED'}">
+																						<div class="progress-bar bg-secondary" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+										                                    			</div>
+																					</c:when>
+																					<c:when test="${p.projectStatus eq 'COMPLETED'}">
+																						<div class="progress-bar bg-success" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+										                                    			</div>
+																					</c:when>
+																			</c:choose>
+										                                </div>
+								                        			</td>
+								                        			<td>
+								                        				<div>
+																			<c:choose>
+																				<c:when test="${p.projectStatus eq 'PROGRESS'}">
+																					<span class="badge badge-soft-primary p-1">진행</span>
+																				</c:when>
+																				<c:when test="${p.projectStatus eq 'PAUSED'}">
+																					<span class="badge badge-soft-secondary p-1">대기</span>
+																				</c:when>
+																				<c:when test="${p.projectStatus eq 'COMPLETED'}">
+																					<span class="badge badge-soft-success p-1">완료</span>
+																				</c:when>
+																			</c:choose>
+																		</div>
+								                        			</td>
 								                        		</tr>
 								                        	</c:forEach>
 								                        </tbody>

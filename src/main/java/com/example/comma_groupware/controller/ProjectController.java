@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -31,7 +32,14 @@ public class ProjectController {
 		this.deptService = deptService;
 	}
 	
+	@GetMapping("projectDetail")
+	public String projectDetail(Model model, HttpSession session
+										,@RequestParam int id) {
+		model.addAttribute("projectId", id);
+		return "projectDetail";
+	}
 	
+	// 프로젝트 메인 페이지
 	@GetMapping("projectMain")
 	public String projectMain(Model model,HttpSession session
 										,@RequestParam(required = false) Integer page

@@ -23,6 +23,20 @@ public class ProjectService {
 		this.projectMemberMapper = projectMemberMapper;
 	}
 	
+	/** 업무 조회 **/
+	
+	/** 업무 추가 **/
+	
+	/** 업무 수정 **/
+	
+	/** 업무 삭제 **/
+	
+	/** 프로젝트 참여자 조회 **/
+	public List<Map<String, Object>> selectProjectMebmerListByProjectId(Map<String, Object> param){
+		return projectMemberMapper.selectProjectMebmerListByProjectId(param);
+	}
+	
+	
 	/** 프로젝트 조회 **/
 	public List<Map<String, Object>> selectProjectByEmpId(Page page){
 		return projectMapper.selectProjectByEmpId(page);

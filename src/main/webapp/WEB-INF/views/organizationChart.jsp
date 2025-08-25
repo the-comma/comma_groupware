@@ -6,9 +6,6 @@
 <head>
 	<!-- CSS -->
 	<jsp:include page ="../views/nav/head-css.jsp"></jsp:include>
-	
-   	<!-- App 아이콘 -->
-	<link rel="shortcut icon" href="/HTML/Admin/dist/assets/images/favicon.ico">
 <meta charset="UTF-8">
 <title>조직도</title>
 </head>
