@@ -32,7 +32,7 @@ public class JwtEmailOtpService {
 	  }
 	  
 	  private String codeKey(String jti) {
-		  return "otp:code: " + jti; 
+		  return "otp:code:" + jti; 
 	  }
 	  
 	  public record IssueResult(String token, long ttlSeconds, String jti, long expEpochSec, String code) {

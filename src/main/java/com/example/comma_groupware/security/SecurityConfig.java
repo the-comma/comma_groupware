@@ -19,6 +19,8 @@ import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.w3c.dom.Node;
 
 import com.example.comma_groupware.CommaGroupwareApplication;
@@ -35,6 +37,10 @@ public class SecurityConfig {
 		return new LegacyAwarePasswordEncoder();
 	}
 	
+	
+
+	
+	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		
@@ -43,7 +49,7 @@ public class SecurityConfig {
 		
 		httpSecurity.authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
 			    .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll() //  JSP forward 허용
-			    .requestMatchers("/login", "/loginAction", "/findPw", "/login-pin/**", "/resetPw",
+			    .requestMatchers("/login", "/loginAction", "/findPw", "/login-pin/**", "/resetPw", "/stomp/chat/**",
 			                     "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/HTML/Admin/dist/assets/**" , "/static/assets/**").permitAll()
 				/* .requestMatchers("/user/**").hasRole(null)  역할부여 필요 */ 
 			    .anyRequest().authenticated()

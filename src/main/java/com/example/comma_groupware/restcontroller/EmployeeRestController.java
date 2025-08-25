@@ -43,7 +43,7 @@ public class EmployeeRestController {
 	}
 	
 	
-	@PostMapping( value =  "/findPw" ,produces = "application/json")
+	@PostMapping(value =  "/findPw" ,produces = "application/json")
 	public ResponseEntity<Map<String,Object>> findPw(@RequestParam("username") String username, @RequestParam("emp_email") String email) {
 		Map<String,Object> res = employeeService.sendEmail(username,email);
 		
