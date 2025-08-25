@@ -34,11 +34,6 @@ public class ProjectMemberRest {
     	
     	List<Map<String, Object>> memberList = projectService.selectProjectMebmerListByProjectId(param);
 
-    	log.info("시작");
-    	for(Map<String,Object> m : memberList) {
-    		log.info(m.toString());
-    	}
-    	
     	return memberList;
     }
 }

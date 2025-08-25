@@ -11,16 +11,22 @@ import com.example.comma_groupware.dto.Project;
 import com.example.comma_groupware.dto.ProjectMember;
 import com.example.comma_groupware.mapper.ProjectMapper;
 import com.example.comma_groupware.mapper.ProjectMemberMapper;
+import com.example.comma_groupware.mapper.ProjectTaskMapper;
+import com.example.comma_groupware.mapper.TaskMemberMapper;
 
 @Service
 public class ProjectService {
 
 	ProjectMapper projectMapper;
 	ProjectMemberMapper projectMemberMapper;
+	ProjectTaskMapper projectTaskMapper;
+	TaskMemberMapper taskMemberMapper;
 	
-	public ProjectService(ProjectMapper projectMapper, ProjectMemberMapper projectMemberMapper){
+	public ProjectService(ProjectMapper projectMapper, ProjectMemberMapper projectMemberMapper, ProjectTaskMapper projectTaskMapper, TaskMemberMapper taskMemberMapper){
 		this.projectMapper = projectMapper;
 		this.projectMemberMapper = projectMemberMapper;
+		this.projectTaskMapper = projectTaskMapper;
+		this.taskMemberMapper = taskMemberMapper;
 	}
 	
 	/** 업무 조회 **/

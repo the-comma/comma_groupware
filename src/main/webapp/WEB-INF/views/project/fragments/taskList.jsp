@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
-
+	
 	<a href="addTask" class="btn btn-primary mb-sm-0 mb-2" data-bs-toggle="modal" data-bs-target="#scrollable-modal">
 	    <i class="ti ti-settings fs-20 me-2"></i>업무 추가
 	</a>
@@ -17,11 +16,13 @@
 	                    aria-label="Close"></button>
 	            </div>
 	            <div class="modal-body">
-					<input type="text" class="form-control" placeholder="제목을 입력하세요.">
+	            <form action="/addTask" method="post" name="addTask" id="addTask">
+	            	<input type="hidden" name ="projectId" value="${projectId}">
+					<input type="text" class="form-control" name="taskTitle" placeholder="제목을 입력하세요.">
 					<br>					
 					<label for="taskStatus" class="form-label">상태</label>
 	                <select class="form-control" id="taskStatus" name="taskStatus">
-	                	<option value="">요청</option>
+	                	<option value="REQUEST">요청</option>
 	                	<c:if test="${deptTeamList != null}">
 	                		<c:forEach items="${deptTeamList}" var="dept">
 	                			<option value="${dept.teamName}">${dept.deptName}/${dept.teamName}</option>
@@ -29,15 +30,7 @@
 	                	</c:if>
 	                </select>
 	                <br>
-	                <label for="empTable" class="form-label">담당자</label>
-	                <input type="text" id="empName" class="form-control" placeholder="사원 이름..">
-	                <table id="empTable" class="form-table">
-	                	<tbody id="empList" name="empList">
-
-	                	</tbody>
-	                </table>	 
-	                <br>
-	                <label for="memberList" class="form-label">참여자</label>
+	                <label for="memberList" class="form-label">담당자</label>
 	                <div class="choices" data-type="text">
 	                	<div class="choices__inner">
 	                		<input readonly="readonly" class="form-control choices__input" id="choices-text-remove-button" data-choices="" data-choices-limit="3" data-choices-removeitem="" type="text" value="Task-1" hidden="" tabindex="-1" data-choice="active">
@@ -52,10 +45,39 @@
 	                		<div class="choices__list" aria-multiselectable="true" role="listbox">
 	                		</div>
 	               		</div>
-	              		</div>                           
+              		</div>      
+              		<!-- hiddenList -->
+              		<div id="hiddentList">
+              		
+              		</div>
+              		<br>
+              		<label for="empName" class="form-label">담당자 추가</label>
+              		<input type="text" id="empName" class="form-control" placeholder="사원 이름..">
+	                <table id="empTable" class="form-table">
+	                	<tbody id="empList" name="empList">
+
+	                	</tbody>
+	                </table>	 
+	                <br>         
 	                <br>
-	                <br>
-	            </div>
+					<div>
+						<label for="dueDate" class="form-label">마감일</label>
+						<input class="form-control" type="date" id="dueDate" name="dueDate">
+					</div>
+					<br>
+					<div>
+						<textarea class="form-control" rows="10" cols="20" id="taskDesc" name="taskDesc" placeholder="내용을 입력하세요."></textarea>
+					</div>			
+					
+					<div>
+                        <label for="formFileMultiple01" class="form-label">첨부파일</label>
+                        <input class="form-control" type="file" id="formFileMultiple01" multiple="">
+                    </div>
+					
+					<!-- 미리보기 영역 -->
+					<div id="filePreview" class="mt-3"></div>
+				</form>
+	            </div> <!-- modal-body -->
 	            <div class="modal-footer">
 	                <button type="button" class="btn btn-outline-danger"
 	                    data-bs-dismiss="modal">취소</button>
@@ -64,9 +86,12 @@
 	        </div><!-- /.modal-content -->
 	    </div><!-- /.modal-dialog -->
 	</div><!-- /.modal -->
-
+	
 	<script>
-	    const projectId = ${projectId};  // JSP EL → JS 변수
+	    const projectId = ${projectId};
+	    const selectedEmp = new Set();
+	    const hl = document.querySelector('#hiddentList');
+	    
 	    // 초기 호출 (검색어 없이 전체 목록)
 	    getMemberList('');
 	
@@ -89,11 +114,13 @@
 		            }
 		            document.querySelector('#empList').innerHTML = '';
 		            result.forEach(function(e){
+		            	const checked = [...selectedEmp].some(item => item.id === String(e.empId)) ? "checked" : "";
+		            	
 		            	document.querySelector('#empList').innerHTML += `
 		            		<tr>
-		            			<td><input type="checkbox" class="pl form-check-input" value="\${e.empId}" data-name="\${e.empName}"></td>
+		            			<td><input type="checkbox" class="emp form-check-input" value="\${e.empId}" data-name="\${e.empName}" \${checked}></td>
 				    			<td><img src="/HTML/Admin/dist/assets/images/default_profile.png" alt="image" class="img-fluid avatar-xs rounded"></td>
-		            			<td>\${e.projectRole}</td>
+		            			<td>[\${e.projectRole}]</td>
 		            			<td>\${e.empName}</td>
 		            			<td>\${e.rankName}</td>
 		            		</tr>
@@ -101,4 +128,97 @@
 		            });
 		        });
 		}
+	 	
+	 // 체크박스 선택 이벤트 위임
+	document.querySelector('#empList').addEventListener('change', function(e) {
+	    if(e.target.classList.contains('emp')) {
+	        if(e.target.checked){
+	        	selectedEmp.add({id: e.target.value, name: e.target.dataset.name});
+	        } else {
+	            [...selectedEmp].forEach(item => {
+	                if(item.id === e.target.value) selectedEmp.delete(item);
+	            });
+	        }
+	    }
+	    
+	 	// 현재 선택된 멤버 미리보기 (memberList에 출력)
+	    renderMemberList();
+	});
+	 
+	// memberList 영역 그리기 함수
+	function renderMemberList(){
+	    const memberList = document.querySelector('#memberList');
+	    memberList.innerHTML = "";
+	    hl.innerHTML = '';				// hidden input 영역 초기화		
+	    selectedEmp.forEach(e => {
+	    	hl.innerHTML += `
+	            <input type="hidden" name="selectedEmp" value="\${e.id}">
+	    	`
+	        memberList.innerHTML += `<div class="member-btn choices__item choices__item--selectable" data-role="FE" data-id="\${e.id}">
+	        						<img src="/HTML/Admin/dist/assets/images/default_profile.png" alt="image" class="img-fluid avatar-xs rounded">
+	        						\${e.name}
+							        <button type="button" class="member-btn choices__button" data-role="FE" data-id="\${e.id}" aria-label="Remove item: Task-1" data-button="">Remove item</button>
+							        </div>`;
+	    });
+ 	}
+ 	
+	// 버튼 클릭 → 해당 멤버 제거
+	document.querySelector('#memberList').addEventListener('click', function(e){
+	    if(e.target.classList.contains('member-btn')){
+	        const role = e.target.dataset.role;
+	        const id = e.target.dataset.id;
+	
+	        [...selectedEmp].forEach(item => { if(item.id === id) selectedEmp.delete(item); });
+	
+	        // 체크박스도 해제
+	        document.querySelectorAll(`input[value="\${id}"]`).forEach(cb => cb.checked = false);
+	
+	        // 다시 렌더링
+	        renderMemberList();
+	    }
+	});
+	
+	document.getElementById('formFileMultiple01').addEventListener('change', function (event) {
+	    const files = event.target.files;
+	    const preview = document.getElementById('filePreview');
+
+	    preview.innerHTML = ""; // 기존 미리보기 초기화
+
+	    Array.from(files).forEach(file => {
+	        const fileDiv = document.createElement("div");
+	        fileDiv.classList.add("mb-2", "p-2", "border", "rounded");
+
+	        // 파일 이름 + 크기 표시
+	        const info = document.createElement("p");
+
+	        info.textContent = `\${file.name} (\${(file.size / 1024).toFixed(1)} KB)`;
+	        
+	        fileDiv.appendChild(info);
+
+	        // 이미지 파일이면 썸네일 생성
+	        if (file.type.startsWith("image/")) {
+	            const img = document.createElement("img");
+	            img.classList.add("img-thumbnail", "mt-1");
+	            img.style.maxWidth = "150px";
+	            img.style.maxHeight = "150px";
+
+	            const reader = new FileReader();
+	            reader.onload = e => {
+	                img.src = e.target.result;
+	            };
+	            reader.readAsDataURL(file);
+
+	            fileDiv.appendChild(img);
+	        }
+	        
+	        preview.appendChild(fileDiv);
+	    });
+	});
+
+
+	
+	// 최종 등록 버튼 클릭
+	document.querySelector('#modalBtn').addEventListener('click', function() {
+		document.querySelector('#addTask').submit();
+   	});
 	</script>

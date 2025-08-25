@@ -8,12 +8,12 @@ import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.comma_groupware.dto.Page;
 import com.example.comma_groupware.dto.Project;
+import com.example.comma_groupware.dto.ProjectTask;
 import com.example.comma_groupware.service.DepartmentService;
 import com.example.comma_groupware.service.ProjectService;
 
@@ -30,6 +30,17 @@ public class ProjectController {
 	public ProjectController(ProjectService projectService, DepartmentService deptService) {
 		this.projectService = projectService;
 		this.deptService = deptService;
+	}
+	
+	@PostMapping("addTask")
+	public String addTask(ProjectTask projectTask, HttpSession session
+			, @RequestParam List<Integer> selectedEmp) {
+
+		for(Integer i : selectedEmp) {
+			System.out.println(i);
+		}
+		
+		return "redirect:/projectDetail?id=" + projectTask.getProjectId();
 	}
 	
 	@GetMapping("projectDetail")

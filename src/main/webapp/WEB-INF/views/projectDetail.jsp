@@ -6,6 +6,7 @@
 <head>
 	<!-- CSS -->
 	<jsp:include page ="../views/nav/head-css.jsp"></jsp:include>
+	
 <meta charset="UTF-8">
 <title>프로젝트 상세</title>
 </head>
@@ -123,7 +124,7 @@
        	
    <!-- 자바 스크립트 -->
    <jsp:include page ="../views/nav/javascript.jsp"></jsp:include>
-   
+	
    	<script>
 		$(function() {
 		    // 첫 탭(업무) 자동 로드
