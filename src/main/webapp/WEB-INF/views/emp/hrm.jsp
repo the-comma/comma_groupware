@@ -131,10 +131,10 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label for="empStatus" class="col-4 col-form-label">재직상태</label>
+							<label for="editStatus" class="col-4 col-form-label">재직상태</label>
 							<div class="col-8">
 								<!-- 재직 상태를 선택할 수 있는 셀렉트 박스로 변경 -->
-								<select id="empStatus" name="empStatus" class="form-control">
+								<select id="editStatus" name="empStatus" class="form-control">
 									<option value="재직">재직</option>
 									<option value="휴직">휴직</option>
 								</select>
@@ -392,8 +392,7 @@
 			</div>
 		</div>
 	</div>
-
-	<script>
+<script>
     // --- 함수 공통화 및 재정의 ---
     function closeEditModal() {
         $('#editModal').modal('hide');
@@ -425,7 +424,7 @@
         hiddenInput.value = value;
         koreanAmountSpan.textContent = toKoreanNumber(value);
     }
-    
+
     // 모달을 열 때마다 한글 금액 표시 업데이트
     $('#editModal').on('shown.bs.modal', function () {
         const salaryValue = document.getElementById('editSalary').value;
@@ -433,96 +432,108 @@
         displayKoreanAmount();
     });
     
-    // --- 기존 수정 모달 관련 함수 ---
-    function fetchEmployeeDataAndOpenModal(empId) {
-        Promise.all([
-            fetch('/hrm/api/departments').then(res => res.json()),
-            fetch('/hrm/api/ranks').then(res => res.json()),
-            fetch('/hrm/employee/' + empId).then(res => res.json())
-        ])
-        .then(([deptList, rankList, employeeData]) => {
-            const deptSelect = document.getElementById('editDept');
-            deptSelect.innerHTML = '<option value="">선택</option>';
-            deptList.forEach(dept => {
-                const option = new Option(dept, dept);
-                deptSelect.add(option);
-            });
 
-            const rankSelect = document.getElementById('editRank');
-            rankSelect.innerHTML = '<option value="">선택</option>';
-            rankList.forEach(rank => {
-                const option = new Option(rank, rank);
-                rankSelect.add(option);
-            });
-
-            // 사원 이름 표시
-            document.getElementById('editEmpName').textContent = employeeData.empName;
-
-            // 기존 데이터 세팅
-            document.getElementById('editEmpId').value = employeeData.empId;
-            document.getElementById('editSalary').value = employeeData.salaryAmount || "";
-        
-            const empStatusSelect = document.getElementById('empStatus');
-            empStatusSelect.value = employeeData.empStatus || "재직"; // 기본값 '재직'
-
-            if (employeeData.deptName) {
-                deptSelect.value = employeeData.deptName;
-            }
-            if (employeeData.rankName) {
-                rankSelect.value = employeeData.rankName;
-            }
-
-            if (employeeData.deptName) {
-                fetchAndSetTeams(employeeData.deptName, employeeData.teamName, 'editTeam');
-            }
-
-            // 모달 열기
-            $('#editModal').modal('show');
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-            alert('데이터를 불러오는 데 실패했습니다.');
+ // 직원 수정 모달 열 때
+ function fetchEmployeeDataAndOpenModal(empId) {
+    Promise.all([
+        fetch('/hrm/api/departments').then(res => res.json()),
+        fetch('/hrm/api/ranks').then(res => res.json()),
+        fetch('/hrm/employee/' + empId).then(res => res.json())
+    ])
+    .then(([deptList, rankList, employeeData]) => {
+        const deptSelect = document.getElementById('editDept');
+        deptSelect.innerHTML = '<option value="">선택</option>'; 
+        deptList.forEach(dept => {
+            const option = new Option(dept.deptName, dept.deptId);
+            deptSelect.add(option);
         });
-    }
 
-    // 부서 변경 시 팀 목록을 가져와서 셀렉트 박스를 업데이트
-    document.getElementById('editDept').addEventListener('change', (event) => {
-        const selectedDeptName = event.target.value;
-        fetchAndSetTeams(selectedDeptName, null, 'editTeam');
+        const rankSelect = document.getElementById('editRank');
+        rankSelect.innerHTML = '<option value="">선택</option>';
+        rankList.forEach(rank => {
+            const option = new Option(rank, rank);
+            rankSelect.add(option);
+        });
+
+        // 사원 데이터 세팅
+        document.getElementById('editEmpName').textContent = employeeData.empName;
+        document.getElementById('editEmpId').value = employeeData.empId;
+        document.getElementById('editSalary').value = employeeData.salaryAmount || "";
+        document.getElementById('editStatus').value = employeeData.empStatus;
+
+        if (employeeData.deptId) {
+            deptSelect.value = employeeData.deptId;
+        }
+        if (employeeData.rankName) {
+            rankSelect.value = employeeData.rankName;
+        }
+
+        //  팀 목록 세팅 (초기 세팅)
+        if (employeeData.deptId) {
+            fetchAndSetTeams(employeeData.deptId, employeeData.teamName, 'editTeam');
+        } else {
+            document.getElementById('editTeam').innerHTML = '<option value="" disabled selected>선택</option>';
+        }
+
+        //  부서 선택 이벤트 (중복 방지)
+        const newHandler = (event) => {
+            const selectedDeptId = event.target.value;
+            fetchAndSetTeams(selectedDeptId, null, 'editTeam');
+        };
+
+        // 기존 이벤트 제거 후 새로 등록
+        deptSelect.onchange = null;
+        deptSelect.addEventListener('change', newHandler);
+
+        $('#editModal').modal('show');
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+        alert('데이터를 불러오는 데 실패했습니다.');
     });
-    
-    function fetchAndSetTeams(deptName, currentTeamName = null, teamSelectId) {
-        const teamSelect = document.getElementById(teamSelectId);
-        teamSelect.innerHTML = '<option value="" disabled selected>선택</option>'; // 팀 목록 초기화
+}
 
-        if (!deptName) return;
-        
-        const processedDeptName = deptName.replace(/,/g, '');
-        fetch('/hrm/api/teams?deptName=' + encodeURIComponent(processedDeptName))
-        .then(res => {
-            if (!res.ok) {
-                throw new Error('통신 에러');
-            }
-            return res.json();
-        })
-        .then(teamList => {
-            if (!Array.isArray(teamList)) {
-                throw new Error('유효한 팀 목록 데이터가 아닙니다.');
-            }
-            teamList.forEach(team => {
-                const option = new Option(team, team);
-                teamSelect.add(option);
-            });
-            
-            if (currentTeamName) {
-                teamSelect.value = currentTeamName;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching teams:', error);
-            alert('팀 목록을 불러오는 데 실패했습니다.');
-        });
-    }
+
+//등록 모달에서 부서 선택 시 팀 목록 업데이트
+ document.getElementById('regDept').addEventListener('change', (event) => {
+     const selectedDeptId = event.target.value;
+     fetchAndSetTeams(selectedDeptId, null, 'regTeam');
+ });
+
+ // 팀 목록 불러오기 (teamName 기준)
+ function fetchAndSetTeams(deptId, currentTeamName = null, teamSelectId) {
+     const teamSelect = document.getElementById(teamSelectId);
+     teamSelect.innerHTML = '<option value="" disabled selected>선택</option>'; // 팀 목록 초기화
+
+     if (!deptId) return; // 부서 ID가 없으면 함수 종료
+
+     fetch('/hrm/api/teams/by-dept-id?deptId=' + deptId)
+     .then(res => {
+         if (!res.ok) {
+             throw new Error('통신 에러');
+         }
+         return res.json();
+     })
+     .then(teamList => {
+         if (!Array.isArray(teamList)) {
+             throw new Error('유효한 팀 목록 데이터가 아닙니다.');
+         }
+         // teamName을 value로 설정
+         teamList.forEach(team => {
+             const option = new Option(team.teamName, team.teamName);
+             teamSelect.add(option);
+         });
+
+         // 현재 팀이 있으면 선택 (teamName 기준)
+         if (currentTeamName) {
+             teamSelect.value = currentTeamName;
+         }
+     })
+     .catch(error => {
+         console.error('Error fetching teams:', error);
+         alert('팀 목록을 불러오는 데 실패했습니다.');
+     });
+ }
 
     function submitEditForm() {
         const formData = new FormData(document.getElementById('editForm'));
@@ -542,7 +553,7 @@
                 alert('수정 성공!');
                 location.reload();
             } else {
-                alert('수정 실패!');
+                alert('수정 실패: ' + result.message);
             }
         });
     }
@@ -558,123 +569,62 @@
                     alert('삭제 성공!');
                     location.reload();
                 } else {
-                    alert('삭제 실패!');
-                    console.log(empId);
+                    alert('삭제 실패: ' + result.message);
                 }
             });
         }
     }
     
-    function toKoreanNumber(number) {
-        if (number === "" || isNaN(number)) {
-            return "";
-        }
-        
-        let numStr = String(number).replace(/,/g, '');
-        if (numStr.length > 16) {
-            return "너무 큰 금액입니다.";
-        }
-        
-        const units = ["", "만", "억", "조"];
-        const numToKorean = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
-        const smallUnits = ["", "십", "백", "천"];
-        
-        let result = "";
-        let unitIndex = 0;
-        
-        while (numStr.length > 0) {
-            let chunk = "";
-            let chunkStr = "";
-            
-            if (numStr.length > 4) {
-                chunk = numStr.slice(-4);
-                numStr = numStr.slice(0, -4);
-            } else {
-                chunk = numStr;
-                numStr = "";
-            }
-            
-            const chunkArr = chunk.split("").reverse();
-            
-            for (let i = 0; i < chunkArr.length; i++) {
-                const digit = parseInt(chunkArr[i]);
-                if (digit > 0) {
-                    chunkStr = numToKorean[digit] + smallUnits[i] + chunkStr;
-                }
-            }
-            
-            if (chunkStr !== "") {
-                result = chunkStr + units[unitIndex] + result;
-            }
-            unitIndex++;
-        }
-        
-        result = result.replace(/^일만/, "만").replace(/^일십만/, "십만");
+    //---------------------------------------------------------
 
-        if (result === "") {
-            return "영원";
-        }
-        
-        return result + "원";
-    }
-
-    function displayKoreanAmount() {
-        const salaryInput = document.getElementById('editSalary');
-        const koreanAmountSpan = document.getElementById('koreanAmount');
-        const value = salaryInput.value;
-        koreanAmountSpan.textContent = toKoreanNumber(value);
-    }
-
-   	// 직원 등록 관련 함수 
+    // --- 직원 등록 관련 함수 ---
     function openRegisterModal() {
         Promise.all([
             fetch('/hrm/api/departments').then(res => res.json()),
             fetch('/hrm/api/ranks').then(res => res.json())
         ])
         .then(([deptList, rankList]) => {
+            // 부서 목록 설정
             const deptSelect = document.getElementById('regDept');
             deptSelect.innerHTML = '<option value="" disabled selected>선택</option>';
             deptList.forEach(dept => {
-                const option = new Option(dept, dept);
+                const option = new Option(dept.deptName, dept.deptId);
                 deptSelect.add(option);
             });
 
+            // 직급 목록 설정
             const rankSelect = document.getElementById('regRank');
             rankSelect.innerHTML = '<option value="" disabled selected>선택</option>';
             rankList.forEach(rank => {
                 const option = new Option(rank, rank);
                 rankSelect.add(option);
             });
+
+            // 팀 목록 초기화
+            const teamSelect = document.getElementById('regTeam');
+            teamSelect.innerHTML = '<option value="" disabled selected>선택</option>';
+
+            $('#registerModal').modal('show');
         })
         .catch(error => {
             console.error('Error fetching data:', error);
-            alert('부서 및 직급 목록을 불러오는 데 실패했습니다.');
+            alert('등록을 위한 데이터를 불러오는 데 실패했습니다.');
         });
-        
-        document.getElementById('registerForm').reset();
-        document.getElementById('regKoreanAmount').textContent = '';
-
-        $('#registerModal').modal('show');
     }
-    
-    // 등록 폼 제출 함수
-    function submitRegisterForm() {
-        const form = document.getElementById('registerForm');
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
 
-        const formData = new FormData(form);
+    // 등록 모달에서 부서 선택 시 팀 목록 업데이트
+    document.getElementById('regDept').addEventListener('change', (event) => {
+        const selectedDeptId = event.target.value;
+        fetchAndSetTeams(selectedDeptId, null, 'regTeam');
+    });
+
+    function submitRegisterForm() {
+        const formData = new FormData(document.getElementById('registerForm'));
         const data = {};
         for (let [key, value] of formData.entries()) {
             data[key] = value;
         }
-
-        if (data.salaryAmount) {
-            data.salaryAmount = data.salaryAmount.replace(/,/g, '');
-        }
-
+        
         fetch('/hrm/register', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -683,77 +633,64 @@
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                alert('사원 등록 성공!');
+                alert('등록 성공!');
                 location.reload();
             } else {
-                alert('사원 등록 실패: ' + result.message);
+                alert('등록 실패: ' + result.message);
             }
-        })
-        .catch(error => {
-            console.error('Error submitting form:', error);
-            alert('사원 등록 중 오류가 발생했습니다.');
         });
     }
-
-    // 부서 관리 관련 함수
+    
+    // --- 부서 관리 관련 함수 ---
     function openDeptManageModal() {
+        loadDeptList(); // 모달을 열기 전에 데이터를 먼저 로드
         $('#deptManageModal').modal('show');
-        renderDeptList();
     }
 
-    function renderDeptList() {
-        const deptListContainer = document.getElementById('deptList');
-        deptListContainer.innerHTML = '';
-        fetch('/hrm/api/departments/all')
-            .then(res => res.json())
-            .then(depts => {
-                if (!Array.isArray(depts)) {
-                    throw new Error('유효한 부서 목록 데이터가 아닙니다.');
-                }
-                depts.forEach(dept => {
-                	
-                    const deptItem = document.createElement('div');
-                    deptItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    deptItem.innerHTML = `
-                        <span>${dept.deptName}</span>
-                        <div class="ms-auto">
-                            <button class="btn btn-warning btn-sm me-2" onclick="openEditDeptModal('${dept.deptId}', '${dept.deptName}')">수정</button>
+    function loadDeptList() {
+        fetch('/hrm/api/departments')
+            .then(response => response.json())
+            .then(data => {
+                const deptList = $('#deptList');
+                deptList.empty(); // 목록 비우기
+                data.forEach(dept => {
+                    const item = $(`
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>${dept.deptName}</span>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="openEditDeptModal(${dept.deptId}, '${dept.deptName}')">수정</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteDept(${dept.deptId})">삭제</button>
+                            </div>
                         </div>
-                    `;
-                    deptListContainer.appendChild(deptItem);
+                    `);
+                    deptList.append(item);
                 });
             })
-            .catch(error => {
-                console.error('부서 목록을 불러오는 데 실패:', error);
-                deptListContainer.innerHTML = '<p class="text-danger">부서 목록을 불러오는 데 실패했습니다.</p>';
-            });
+            .catch(error => console.error('부서 목록 로딩 중 오류:', error));
     }
 
     function submitNewDept() {
-        const newDeptName = document.getElementById('newDeptName').value;
+        const newDeptName = $('#newDeptName').val();
         if (!newDeptName) {
-            alert('부서명을 입력하세요.');
+            alert('부서명을 입력해주세요.');
             return;
         }
-
-        fetch('/hrm/api/dept/new', {
+        fetch('/hrm/dept/add', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ deptName: newDeptName })
         })
         .then(response => {
             if (response.ok) {
-                return response.text(); // 문자열 응답 처리
+                return response.text();
             } else {
                 return response.text().then(text => { throw new Error(text || '부서 등록 실패'); });
             }
         })
         .then(message => {
             alert(message);
-            $('#deptManageModal').modal('hide');
-            location.reload();
+            $('#newDeptName').val('');
+            loadDeptList();
         })
         .catch(error => {
             console.error('부서 등록 중 오류:', error);
@@ -762,232 +699,256 @@
     }
 
     function openEditDeptModal(deptId, deptName) {
-        document.getElementById('editDeptId').value = deptId;
-        document.getElementById('editDeptNameInput').value = deptName;
+        $('#editDeptId').val(deptId);
+        $('#editDeptNameInput').val(deptName);
         $('#editDeptModal').modal('show');
     }
 
     function updateDept() {
-        const deptId = document.getElementById('editDeptId').value;
-        const newDeptName = document.getElementById('editDeptNameInput').value;
-
-        if (!newDeptName) {
-            alert('새로운 부서명을 입력하세요.');
+        const deptId = $('#editDeptId').val();
+        const deptName = $('#editDeptNameInput').val();
+        if (!deptName) {
+            alert('부서명을 입력해주세요.');
             return;
         }
-
-        fetch('/hrm/api/dept/update', {
+        fetch('/hrm/dept/update', {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ deptId: deptId, deptName: newDeptName })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deptId: deptId, deptName: deptName })
         })
         .then(response => {
             if (response.ok) {
-                return response.text(); // 문자열 응답 처리
+                return response.text();
             } else {
-                return response.text().then(text => { throw new Error(text || '부서명 수정 실패'); });
+                return response.text().then(text => { throw new Error(text || '부서 수정 실패'); });
             }
         })
         .then(message => {
             alert(message);
             $('#editDeptModal').modal('hide');
-            $('#deptManageModal').modal('hide');
-            location.reload();
+            loadDeptList();
         })
         .catch(error => {
-            console.error('부서명 수정 중 오류:', error);
-            alert('부서명 수정 실패: ' + error.message);
-        });
-    }
-    
-    // 팀 관리 관련 함수 (새로 추가)
-    function openTeamManageModal() {
-        $('#teamManageModal').modal('show');
-        fetchDepartmentsForTeamManage();
-    }
-
-    function fetchDepartmentsForTeamManage() {
-        Promise.all([
-            fetch('/hrm/api/departments/all').then(res => res.json())
-        ])
-        .then(([depts]) => {
-            const newTeamDeptSelect = document.getElementById('newTeamDeptSelect');
-            const manageTeamDeptSelect = document.getElementById('manageTeamDeptSelect');
-            
-            // 초기화
-            newTeamDeptSelect.innerHTML = '<option value="" disabled selected>선택</option>';
-            manageTeamDeptSelect.innerHTML = '<option value="" disabled selected>선택</option>';
-
-            depts.forEach(dept => {
-                const newOption = new Option(dept.deptName, dept.deptId);
-                const manageOption = new Option(dept.deptName, dept.deptId);
-                newTeamDeptSelect.add(newOption);
-                manageTeamDeptSelect.add(manageOption);
-            });
-        })
-        .catch(error => {
-             console.error('팀 관리 모달 부서 목록 불러오기 실패:', error);
-             alert('부서 목록을 불러오는 데 실패했습니다.');
+            console.error('부서 수정 중 오류:', error);
+            alert('부서 수정 실패: ' + error.message);
         });
     }
 
-    function submitNewTeam() {
-        const deptId = document.getElementById('newTeamDeptSelect').value;
-        const teamName = document.getElementById('newTeamNameInput').value;
-        if (!deptId || !teamName) {
-            alert('부서와 팀명을 모두 선택/입력하세요.');
-            return;
-        }
-
-        fetch('/hrm/api/team/new', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ deptId: deptId, teamName: teamName })
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.text();
-            } else {
-                return response.text().then(text => { throw new Error(text || '팀 등록 실패'); });
-            }
-        })
-        .then(message => {
-            alert(message);
-            $('#teamManageModal').modal('hide');
-            location.reload();
-        })
-        .catch(error => {
-            console.error('팀 등록 중 오류:', error);
-            alert('팀 등록 실패: ' + error.message);
-        });
-    }
-
-    document.getElementById('manageTeamDeptSelect').addEventListener('change', (event) => {
-        const deptId = event.target.value;
-        if (deptId) {
-             renderTeamList(deptId);
-        } else {
-             document.getElementById('teamList').innerHTML = ''; // 선택 해제 시 목록 초기화
-        }
-    });
-
-    function renderTeamList(deptId) {
-        const teamListContainer = document.getElementById('teamList');
-        teamListContainer.innerHTML = '';
-        fetch('/hrm/api/teams/by-dept-id?deptId=' + deptId)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('팀 목록 API 통신 오류');
-                }
-                return res.json();
+    function deleteDept(deptId) {
+        if (confirm('해당 부서를 삭제하시겠습니까?')) {
+            fetch('/hrm/dept/delete/' + deptId, {
+                method: 'DELETE'
             })
-            .then(teams => {
-                if (!Array.isArray(teams)) {
-                    throw new Error('유효한 팀 목록 데이터가 아닙니다.');
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return response.text().then(text => { throw new Error(text || '부서 삭제 실패'); });
                 }
-                teams.forEach(team => {
-                    const teamItem = document.createElement('div');
-                    teamItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    teamItem.innerHTML = `
-                        <span>${team.teamName}</span>
-                        <div class="ms-auto">
-                            <button class="btn btn-warning btn-sm me-2" onclick="openEditTeamModal('${team.teamId}', '${team.teamName}', '${team.deptId}')">수정</button>
-                        </div>
-                    `;
-                    teamListContainer.appendChild(teamItem);
-                });
+            })
+            .then(message => {
+                alert(message);
+                loadDeptList();
             })
             .catch(error => {
-                console.error('팀 목록을 불러오는 데 실패:', error);
-                teamListContainer.innerHTML = '<p class="text-danger">팀 목록을 불러오는 데 실패했습니다.</p>';
+                console.error('부서 삭제 중 오류:', error);
+                alert('부서 삭제 실패: ' + error.message);
             });
-    }
-
-    function openEditTeamModal(teamId, teamName, deptId) {
-        document.getElementById('editTeamId').value = teamId;
-        document.getElementById('editTeamNameInput').value = teamName;
-        
-        fetch('/hrm/api/departments/all')
-        .then(res => res.json())
-        .then(depts => {
-            const select = document.getElementById('editTeamDeptSelect');
-            select.innerHTML = '';
-            depts.forEach(dept => {
-                const option = new Option(dept.deptName, dept.deptId);
-                select.add(option);
-            });
-            // 기존 부서 선택
-            select.value = deptId;
-            $('#editTeamModal').modal('show');
-        })
-        .catch(error => {
-             console.error('팀 수정 모달 부서 목록 불러오기 실패:', error);
-             alert('부서 목록을 불러오는 데 실패했습니다.');
-        });
-    }
-
-    function updateTeam() {
-        const teamId = document.getElementById('editTeamId').value;
-        const newTeamName = document.getElementById('editTeamNameInput').value;
-        const newDeptId = document.getElementById('editTeamDeptSelect').value;
-
-        if (!newTeamName || !newDeptId) {
-            alert('모든 필드를 입력/선택하세요.');
-            return;
         }
-
-        fetch('/hrm/api/team/update', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ teamId: teamId, teamName: newTeamName, deptId: newDeptId })
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.text();
-            } else {
-                return response.text().then(text => { throw new Error(text || '팀 수정 실패'); });
-            }
-        })
-        .then(message => {
-            alert(message);
-            $('#editTeamModal').modal('hide');
-            $('#teamManageModal').modal('hide');
-            location.reload();
-        })
-        .catch(error => {
-            console.error('팀 수정 중 오류:', error);
-            alert('팀 수정 실패: ' + error.message);
-        });
     }
     
-	
-	$(document).ready(function() {
-	    // DataTable 초기화
-	    $('#empTable').DataTable({
-	        "language": {
-	            "lengthMenu": "_MENU_ 개씩 보기",
-	            "zeroRecords": "결과 없음",
-	            "info": " _PAGES_ 중 _PAGE_ 페이지",
-	            "infoEmpty": "검색 결과 없음",
-	            "infoFiltered": "(전체 _MAX_ 명 중 검색)",
-	            "search": "검색:",
-	            "paginate": {
-	                "next": "다음",
-	                "previous": "이전"
-	            }
-	        },
-	        "dom": '<"top"if>rt<"bottom"lp>',
-	    });
-	});
+    // --- 팀 관리 관련 함수 ---
+    // 팀 관리 관련 함수
+function openTeamManageModal() {
+    loadManageTeamDepts();
+    $('#teamManageModal').modal('show');
+}
 
-	// 부서 등록 모달에서 부서 셀렉트 박스 변경 시 팀 목록 업데이트
-    document.getElementById('regDept').addEventListener('change', (event) => {
-        const selectedDeptName = event.target.value;
-        fetchAndSetTeams(selectedDeptName, null, 'regTeam');
+function loadManageTeamDepts() {
+    fetch('/hrm/api/departments')
+        .then(response => response.json())
+        .then(deptList => {
+            const newTeamDeptSelect = $('#newTeamDeptSelect');
+            const manageTeamDeptSelect = $('#manageTeamDeptSelect');
+            newTeamDeptSelect.empty().append('<option value="" disabled selected>부서 선택</option>');
+            manageTeamDeptSelect.empty().append('<option value="" disabled selected>부서 선택</option>');
+
+            deptList.forEach(dept => {
+                newTeamDeptSelect.append(`<option value="${dept.deptId}">${dept.deptName}</option>`);
+                manageTeamDeptSelect.append(`<option value="${dept.deptId}">${dept.deptName}</option>`);
+            });
+            
+            // 기본적으로 첫 번째 부서의 팀 목록을 불러옴
+            if(deptList.length > 0) {
+                const firstDeptId = deptList[0].deptId;
+                manageTeamDeptSelect.val(firstDeptId);
+                loadTeamList(firstDeptId);
+            }
+        })
+        .catch(error => {
+            console.error('부서 목록 로딩 중 오류:', error);
+            showCustomAlert('부서 목록을 불러오는 데 실패했습니다.');
+        });
+}
+
+$('#manageTeamDeptSelect').on('change', function() {
+    const deptId = $(this).val();
+    loadTeamList(deptId);
+});
+
+function loadTeamList(deptId) {
+    const teamListDiv = $('#teamList');
+    teamListDiv.empty();
+
+    if (!deptId) {
+        teamListDiv.append('<div class="list-group-item">부서를 선택해주세요.</div>');
+        return;
+    }
+    
+    fetch('/hrm/api/teams/by-dept-id?deptId=' + deptId)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('통신 에러');
+            }
+            return response.json();
+        })
+        .then(teamList => {
+            if (teamList.length === 0) {
+                teamListDiv.append('<div class="list-group-item">해당 부서에 팀이 없습니다.</div>');
+                return;
+            }
+            teamList.forEach(team => {
+                const item = $(`
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>${team.teamName}</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="openEditTeamModal(${team.teamId}, '${team.teamName}', ${deptId})">수정</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTeam(${team.teamId})">삭제</button>
+                        </div>
+                    </div>
+                `);
+                teamListDiv.append(item);
+            });
+        })
+        .catch(error => {
+            console.error('팀 목록 로딩 중 오류:', error);
+            showCustomAlert('팀 목록을 불러오는 데 실패했습니다.');
+        });
+}
+
+function submitNewTeam() {
+    const deptId = $('#newTeamDeptSelect').val();
+    const teamName = $('#newTeamNameInput').val();
+    if (!deptId || !teamName) {
+        showCustomAlert('부서와 팀명을 모두 선택/입력해주세요.');
+        return;
+    }
+    fetch('/hrm/api/team/new', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deptId: deptId, teamName: teamName })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.text();
+        } else {
+            return response.text().then(text => { throw new Error(text || '팀 등록 실패'); });
+        }
+    })
+    .then(message => {
+        showCustomAlert(message);
+        $('#newTeamNameInput').val('');
+        const selectedDeptId = $('#manageTeamDeptSelect').val();
+        if (selectedDeptId) {
+            loadTeamList(selectedDeptId);
+        }
+    })
+    .catch(error => {
+        console.error('팀 등록 중 오류:', error);
+        showCustomAlert('팀 등록 실패: ' + error.message);
     });
+}
 
-	</script>
+function openEditTeamModal(teamId, teamName, deptId) {
+    $('#editTeamId').val(teamId);
+    $('#editTeamNameInput').val(teamName);
+    
+    fetch('/hrm/api/departments')
+        .then(response => response.json())
+        .then(deptList => {
+            const select = $('#editTeamDeptSelect');
+            select.empty();
+            deptList.forEach(dept => {
+                select.append(`<option value="${dept.deptId}">${dept.deptName}</option>`);
+            });
+            select.val(deptId);
+        })
+        .catch(error => console.error('부서 목록 로딩 중 오류:', error));
 
+    $('#editTeamModal').modal('show');
+}
+
+function updateTeam() {
+    const teamId = $('#editTeamId').val();
+    const newTeamName = $('#editTeamNameInput').val();
+    const newDeptId = $('#editTeamDeptSelect').val();
+
+    if (!newTeamName) {
+        showCustomAlert('팀명을 입력해주세요.');
+        return;
+    }
+
+    fetch('/hrm/api/team/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId: teamId, teamName: newTeamName, deptId: newDeptId })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.text();
+        } else {
+            return response.text().then(text => { throw new Error(text || '팀 수정 실패'); });
+        }
+    })
+    .then(message => {
+        showCustomAlert(message);
+        $('#editTeamModal').modal('hide');
+        const selectedDeptId = $('#manageTeamDeptSelect').val();
+        if (selectedDeptId) {
+            loadTeamList(selectedDeptId);
+        }
+    })
+    .catch(error => {
+        console.error('팀 수정 중 오류:', error);
+        showCustomAlert('팀 수정 실패: ' + error.message);
+    });
+}
+
+  
+
+    // DataTables 초기화 및 설정
+    $(document).ready(function() {
+        $('#empTable').DataTable({
+            "language": {
+                "lengthMenu": "_MENU_ 개씩 보기",
+                "zeroRecords": "결과 없음",
+                "info": " _PAGES_ 중 _PAGE_ 페이지",
+                "infoEmpty": "검색 결과 없음",
+                "infoFiltered": "(전체 _MAX_ 명 중 검색)",
+                "search": "검색:",
+                "paginate": {
+                    "next": "다음",
+                    "previous": "이전"
+                }
+            },
+            "dom": '<"top"if>rt<"bottom"lp>',
+            "scrollX": true,
+            "columnDefs": [
+                { "orderable": false, "targets": 10 }
+            ],
+            "responsive": true,
+        });
+    });
+</script>
 </body>
+</html>

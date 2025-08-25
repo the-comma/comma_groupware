@@ -87,7 +87,7 @@ public class EmpController {
 		return empService.getAllRanks();
 	}
 
-	// 이 API는 사용하지 않으므로 삭제
+
 	// @GetMapping("/api/departments")
 	// @ResponseBody
 	// public List<String> getDepartments() {
@@ -95,7 +95,7 @@ public class EmpController {
 	// }
 	
 	// 부서 ID와 이름 모두 가져오는 API
-    @GetMapping("/api/departments/all")
+    @GetMapping("/api/departments")
     @ResponseBody
     public List<Department> getAllDepartmentsWithId() {
         return empService.getAllDepartmentsWithId();

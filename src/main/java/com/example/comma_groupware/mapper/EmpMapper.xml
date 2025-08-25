@@ -164,20 +164,20 @@
 	
 	<!-- 부서별 팀 조회 -->
 	<select id="selectTeamsByDepartment" resultType="string">
-		SELECT team_name 
+		SELECT team_name AS teamName
 		FROM team
 		WHERE dept_id = (SELECT dept_id FROM department WHERE dept_name =
 		#{deptName})
 	</select>
 	<!-- 팀 이름으로 팀 ID 조회 -->
 	<select id="selectTeamIdByTeamName" parameterType="string" resultType="int">
-		SELECT team_id 
+		SELECT team_id AS teamId
 		FROM team 
 		WHERE team_name = #{teamName}
 	</select>
 	<!-- 직급 이름으로 직급ID 조회 -->
 	<select id="selectRankIdByRankName" resultType="int">
-	    SELECT rank_id 
+	    SELECT rank_id AS rankId
 	    FROM `rank`
 	    WHERE rank_name = #{rankName}
 	</select>
@@ -197,7 +197,7 @@
 	
 	<!-- 전체 부서 조회 (ID와 이름 모두 포함) -->
 	<select id="getAllDepartmentsWithId" resultType="com.example.comma_groupware.dto.Department">
-        SELECT dept_id AS deptId, dept_name AS deptName 
+        SELECT dept_id  AS deptId, dept_name AS deptName 
         FROM department
     </select>
 
@@ -215,6 +215,6 @@
 
 
     <select id="getTeamsByDeptId" resultType="com.example.comma_groupware.dto.Team">
-        SELECT team_id AS teamId, team_name AS teamName, dept_id as DeptId FROM team WHERE dept_id = #{deptId}
+        SELECT team_id AS teamId, team_name AS teamName, dept_id as deptId FROM team WHERE dept_id = #{deptId}
     </select>
 </mapper>
