@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.example.comma_groupware.dto.DepartmentHistory;
 import com.example.comma_groupware.dto.Department;
 import com.example.comma_groupware.dto.DepartmentHistory;
 import com.example.comma_groupware.dto.Employee;
