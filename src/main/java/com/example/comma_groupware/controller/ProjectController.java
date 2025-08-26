@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.comma_groupware.dto.Page;
 import com.example.comma_groupware.dto.Project;
@@ -32,14 +33,14 @@ public class ProjectController {
 		this.deptService = deptService;
 	}
 	
-	@PostMapping("addTask")
+	@PostMapping("/addTask")
 	public String addTask(ProjectTask projectTask, HttpSession session
-			, @RequestParam List<Integer> selectedEmp) {
+			, @RequestParam List<Integer> selectedEmp
+			, @RequestParam("file") List<MultipartFile> file) {
 
-		for(Integer i : selectedEmp) {
-			System.out.println(i);
-		}
-		
+		//	int pmId = session.getAttribute(null)
+		int pmId = 1;
+		projectService.addTask(pmId, projectTask, selectedEmp, file);
 		return "redirect:/projectDetail?id=" + projectTask.getProjectId();
 	}
 	

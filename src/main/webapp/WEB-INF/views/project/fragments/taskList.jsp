@@ -6,6 +6,7 @@
 	</a>
 
 	<!-- 모달 -->
+    <form action="/addTask" method="post" name="addTask" id="addTask" enctype="multipart/form-data">
 	<div class="modal fade" id="scrollable-modal" tabindex="-1" role="dialog"
 	    aria-labelledby="scrollableModalTitle" aria-hidden="true">
 	    <div class="modal-dialog modal-dialog-scrollable" role="document">
@@ -16,8 +17,8 @@
 	                    aria-label="Close"></button>
 	            </div>
 	            <div class="modal-body">
-	            <form action="/addTask" method="post" name="addTask" id="addTask">
 	            	<input type="hidden" name ="projectId" value="${projectId}">
+	            	
 					<input type="text" class="form-control" name="taskTitle" placeholder="제목을 입력하세요.">
 					<br>					
 					<label for="taskStatus" class="form-label">상태</label>
@@ -58,7 +59,11 @@
 
 	                	</tbody>
 	                </table>	 
-	                <br>         
+	                <br>
+	                <div>
+						<label for="startDate" class="form-label">시작일</label>
+						<input class="form-control" type="date" id="startDate" name="startDate">
+					</div>     
 	                <br>
 					<div>
 						<label for="dueDate" class="form-label">마감일</label>
@@ -71,21 +76,76 @@
 					
 					<div>
                         <label for="formFileMultiple01" class="form-label">첨부파일</label>
-                        <input class="form-control" type="file" id="formFileMultiple01" multiple="">
+                        <input class="form-control" name="file" type="file" id="formFileMultiple01" multiple>
                     </div>
 					
 					<!-- 미리보기 영역 -->
 					<div id="filePreview" class="mt-3"></div>
-				</form>
 	            </div> <!-- modal-body -->
 	            <div class="modal-footer">
 	                <button type="button" class="btn btn-outline-danger"
 	                    data-bs-dismiss="modal">취소</button>
-	                <button type="button" class="btn btn-outline-success" id="modalBtn">등록</button>
+	                <button type="submit" class="btn btn-outline-success" id="modalBtn">등록</button>
 	            </div>
 	        </div><!-- /.modal-content -->
 	    </div><!-- /.modal-dialog -->
 	</div><!-- /.modal -->
+	</form>
+	
+	<!-- 업무 리스트 -->
+	<div class="table-responsive-sm">
+		<c:if test="${taskList != null}">
+           	<table class="table table-hover mb-0">
+           		<thead>
+           			<tr>
+           				<th>업무명</th>
+           				<th>상태</th>
+           				<th>담당자</th>
+           				<th>시작일</th>
+           				<th>마감일</th>
+           				<th>진척도</th>
+           				<th>작성자</th>
+           			</tr>
+           		</thead>
+           		<tbody>
+				<c:forEach items="${taskList}" var="t">
+				    <tr 
+				        data-level="${t.level}" 
+				        data-task-id="${t.taskId}" 
+				        data-parent-id="${t.taskParent}"
+				        class="task-row <c:if test='${t.level > 0}'>child-row</c:if>">
+				        <td>
+				            <c:forEach begin="1" end="${t.level}">
+				                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				            </c:forEach>
+				            <c:if test="${t.childCount > 0}">
+				                <span class="toggle-btn" style="cursor:pointer;">[-]</span>
+				            </c:if>
+				            ${t.taskTitle} 
+				            <c:if test="${t.childCount > 0}">(${t.childCount})</c:if>
+				        </td>
+				        <td>${t.taskStatus}</td>
+				        <td>
+				            <c:choose>
+				                <c:when test="${t.memberName != null}">
+				                    ${t.memberName}<c:if test="${t.memberCount - 1 > 0}"> +${t.memberCount - 1}</c:if>
+				                </c:when>
+				                <c:when test="${t.memberName == null}">
+				                    미배정
+				                </c:when>
+				            </c:choose>
+				        </td>
+				        <td>${t.startDate}</td>
+				        <td>${t.dueDate}</td>
+				        <td></td>
+				        <td></td>
+				    </tr>
+				</c:forEach>
+				</tbody>
+			</table>
+		</c:if>
+	</div>
+	<!-- 업무 리스트 끝 -->
 	
 	<script>
 	    const projectId = ${projectId};
@@ -100,7 +160,7 @@
 	     	getMemberList(this.value); // 이벤트에서 값 바로 전달
 	 	});
 	
-	 	// 함수 정의
+	 	// 멤버 리스트 가져옴
 	 	function getMemberList(searchName) {
 		    let url = '/memberListByProjectId/' + projectId;
 		    if(searchName) url += '/' + searchName; // 비어있으면 붙이지 않음
@@ -108,11 +168,10 @@
 		    fetch(url)
 		        .then(res => res.json())
 		        .then(result => {
+	                document.querySelector('#empList').innerHTML = '';
 		            if (result.length < 1) {
-		                document.querySelector('#empList').innerHTML = '';
 		                return;
 		            }
-		            document.querySelector('#empList').innerHTML = '';
 		            result.forEach(function(e){
 		            	const checked = [...selectedEmp].some(item => item.id === String(e.empId)) ? "checked" : "";
 		            	
@@ -178,6 +237,7 @@
 	    }
 	});
 	
+	// 파일 프리뷰
 	document.getElementById('formFileMultiple01').addEventListener('change', function (event) {
 	    const files = event.target.files;
 	    const preview = document.getElementById('filePreview');
@@ -215,10 +275,38 @@
 	    });
 	});
 
+	// 상위 작업 접었다 폈다
+	document.querySelectorAll('.toggle-btn').forEach(btn => {
+	    btn.addEventListener('click', function() {
+	        const tr = btn.closest('tr');
+	        const taskId = tr.dataset.taskId;
+	        const isExpanded = btn.textContent === '[-]';
+	        btn.textContent = isExpanded ? '[+]' : '[-]';
 
+	        toggleChildren(taskId, !isExpanded);
+	    });
+	});
+
+	function toggleChildren(parentId, show) {
+	    document.querySelectorAll(`tr[data-parent-id="\${parentId}"]`).forEach(child => {
+	        child.style.display = show ? '' : 'none';
+	        
+	     	// 자식의 toggle 버튼도 함께 변경
+	        const toggleBtn = child.querySelector('.toggle-btn');
+	        if (toggleBtn) {
+	            toggleBtn.textContent = show ? '[+]' : '[-]';
+	        }
+
+	        // 부모가 접히면 자식들도 재귀적으로 접기
+	        if (!show) {
+	            const childId = child.dataset.taskId;
+	            toggleChildren(childId, false);
+	        }
+	    });
+	}
 	
 	// 최종 등록 버튼 클릭
-	document.querySelector('#modalBtn').addEventListener('click', function() {
+	/* document.querySelector('#modalBtn').addEventListener('click', function() {
 		document.querySelector('#addTask').submit();
-   	});
+   	}); */
 	</script>

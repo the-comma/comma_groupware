@@ -11,9 +11,12 @@ public class ProjectTask {
 	private int taskParent;
 	private int projectId;
 	private String taskTitle;
+	private String taskDesc;
 	private String taskStatus;
-	private int fileCount;
+	private int fileCount;	
+	private LocalDate startDate;
 	private LocalDate dueDate;
+	
 	public int getTaskId() {
 		return taskId;
 	}
@@ -57,5 +60,18 @@ public class ProjectTask {
 		this.dueDate = dueDate;
 	}
 	
+	public LocalDate getStartDate() {
+		return startDate;
+	}
+	public void setStartDate(LocalDate startDate) {
+		this.startDate = startDate;
+	}
 	
+	public String getTaskDesc() {
+		return taskDesc;
+	}
+	
+	public void setTaskDesc(String taskDesc) {
+		this.taskDesc = taskDesc;
+	}
 }

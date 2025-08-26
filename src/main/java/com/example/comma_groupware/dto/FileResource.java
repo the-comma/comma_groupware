@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class File {
+public class FileResource {
 
 	private int fileId;
 	private long fileSize;

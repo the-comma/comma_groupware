@@ -1,5 +1,6 @@
 package com.example.comma_groupware.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,14 @@ public class ProjectTabController {
 	/** 업무탭 **/
     @GetMapping("/{id}/task")
     public String getTasks(@PathVariable int id, Model model) {
+    	
+    	Map<String, Object> param = new HashMap<>();
+    	param.put("projectId", id);
+    	
+    	List<Map<String,Object>> taskList = projectService.selectTaskListByProjectId(param);
+    	
         model.addAttribute("projectId",id);
+        model.addAttribute("taskList",taskList);
         return "project/fragments/taskList"; // JSP 조각
     }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.example.comma_groupware.mapper.FileResourceMapper">
+	
+	<insert id="addFile" parameterType="com.example.comma_groupware.dto.FileResource">
+		INSERT INTO file_resource(
+			file_size, file_origin_name, file_name, file_ref_type, file_ref_id, file_ext, file_uploader
+		)
+		VALUES(
+			#{fileSize}, #{fileOriginName}, #{fileName}, #{fileRefType}, #{fileRefId}, #{fileExt}, #{fileUploader}
+		)
+	</insert>
+</mapper>
