@@ -10,4 +10,14 @@ public class ProjectMember {
 	private int projectId;
 	private String projectRole;
 	private LocalDateTime assignedAt;
+	
+	public ProjectMember() {
+		
+	}
+	
+	public ProjectMember(int empId, int projectId, String projectRole) {
+		this.empId = empId;
+		this.projectId = projectId;
+		this.projectRole = projectRole;
+	}
 }

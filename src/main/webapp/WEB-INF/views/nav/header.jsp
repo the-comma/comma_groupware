@@ -1,3 +1,12 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+</head>
+<body>
 <!-- Topbar Start -->
 <header class="app-topbar" id="header">
     <div class="page-container topbar-menu">
@@ -29,18 +38,17 @@
             <!-- Topbar Page Title -->
             <div class="topbar-item d-none d-md-flex px-2">
             
-            	<c:if test="${not empty param.topbarTitle}">
+            	<c:if test="${not empty topbarTitle}">
 				    <div>
-				        <h4 class="page-title fs-20 fw-semibold mb-0">${param.topbarTitle}</h4>
+				        <h4 class="page-title fs-20 fw-semibold mb-0">${topbarTitle}</h4>
 				    </div>
 				</c:if>
 				
-				<c:if test="${empty param.topbarTitle}">
+				<c:if test="${empty topbarTitle}">
 				    <div>
-				        <h4 class="page-title fs-20 fw-semibold mb-0">Welcome!</h4>
+				        <h4 class="page-title fs-20 fw-semibold mb-0"></h4>
 				    </div>
 				</c:if>
-				콤마
             </div>
 
         </div>
@@ -274,3 +282,5 @@
     </div>
 </header>
 <!-- Topbar End -->
+</body>
+</html>

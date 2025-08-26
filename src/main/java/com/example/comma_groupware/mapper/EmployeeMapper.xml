@@ -43,5 +43,149 @@
 	WHERE username = #{username}
 	
 	</update>
+
+	<!-- 조직도 리스트 -->
+	<select id="organizationList" parameterType="com.example.comma_groupware.dto.Page" resultType="map">
+		SELECT 
+			e.emp_id AS empId,
+			e.emp_name AS empName,
+			e.emp_email AS empEmail,
+			r.rank_name AS rankName,
+			d.dept_name AS deptName,
+			t.team_name AS teamName
+		FROM
+		(
+			SELECT * FROM employee
+			WHERE emp_status = '재직'
+			<if test="searchList.name != ''">
+			AND emp_name LIKE CONCAT('%', #{searchList.name}, '%')
+			</if>
+		) e
+		LEFT OUTER JOIN (SELECT * from department_history WHERE end_date IS NULL) dh ON e.emp_id = dh.emp_id
+		
+		<!-- 
+			만약 부서/팀 검색 옵션이 있으면 INNER JOIN 으로 해당하는 부서/팀만 나오게 하고
+			검색 옵션이 없으면 OUTER JOIN으로 부서/팀 배정 받지않은 사원도 조회되게 함
+		 -->
+		<if test="searchList.team != ''">
+		INNER JOIN (
+			SELECT * FROM team
+			WHERE team_name LIKE CONCAT('%', #{searchList.team}, '%')
+		) t ON t.team_id = dh.team_id
+		</if>
+		
+		<if test="searchList.team == ''">
+		LEFT OUTER JOIN team t ON t.team_id = dh.team_id
+		</if>
+		
+		<if test="searchList.dept != ''">
+		INNER JOIN (
+			SELECT * FROM department
+			WHERE dept_name LIKE CONCAT('%', #{searchList.dept}, '%')
+		) d ON d.dept_id = t.dept_id
+		</if>
+		
+		<if test="searchList.dept == ''">
+		LEFT OUTER JOIN department d ON d.dept_id = t.dept_id
+		</if>
+		
+		LEFT OUTER JOIN (SELECT * from rank_history WHERE end_date IS NULL) rh ON e.emp_id = rh.emp_id
+		LEFT OUTER JOIN `rank` r ON r.rank_id = rh.rank_id
+		
+		<if test="searchList.order == 'empName'">
+			ORDER BY empName
+		</if>
+		<if test="searchList.order == 'empEmail'">
+			ORDER BY empEmail
+		</if>
+		<if test="searchList.order == 'rankName'">
+			ORDER BY rankName
+		</if>
+		<if test="searchList.order == 'deptName'">
+			ORDER BY deptName
+		</if>
+		<if test="searchList.order == 'teamName'">
+			ORDER BY teamName
+		</if>
+		
+		<if test="searchList.sort == 'desc'">
+			DESC
+		</if>
+		LIMIT #{beginRow}, #{rowPerPage};
+	</select>
+
+	<!-- 조직도 리스트 전체 데이터 카운트 -->
+	<select id="organizationListCount" parameterType="map" resultType="Integer">
+		SELECT 
+			count(*) AS count
+		FROM
+		(
+			SELECT * FROM employee
+			WHERE emp_status = '재직'
+			<if test="name != ''">
+				AND emp_name LIKE CONCAT('%', #{name}, '%')
+			</if>
+		) e
+		LEFT OUTER JOIN (SELECT * from department_history WHERE end_date IS NULL) dh ON e.emp_id = dh.emp_id
+		<!-- 
+			만약 부서/팀 검색 옵션이 있으면 INNER JOIN 으로 해당하는 부서/팀만 나오게 하고
+			검색 옵션이 없으면 OUTER JOIN으로 부서/팀 배정 받지않은 사원도 조회되게 함
+		 -->
+		<if test="team != ''">
+		INNER JOIN (
+			SELECT * FROM team
+			WHERE team_name LIKE CONCAT('%', #{team}, '%')
+		) t ON t.team_id = dh.team_id
+		</if>
+		
+		<if test="team == ''">
+		LEFT OUTER JOIN team t ON t.team_id = dh.team_id
+		</if>
+		
+		<if test="dept != ''">
+		INNER JOIN (
+			SELECT * FROM department
+			WHERE dept_name LIKE CONCAT('%', #{dept}, '%')
+		) d ON d.dept_id = t.dept_id
+		</if>
+		
+		<if test="dept == ''">
+		LEFT OUTER JOIN department d ON d.dept_id = t.dept_id
+		</if>
+		LEFT OUTER JOIN (SELECT * from rank_history WHERE end_date IS NULL) rh ON e.emp_id = rh.emp_id
+		LEFT OUTER JOIN `rank` r ON r.rank_id = rh.rank_id
+	</select>
+	
+	<select id="employeeCard" parameterType="int" resultType="map">
+		SELECT 
+			e.emp_id AS empId,
+			e.emp_name AS empName,
+			d.dept_name AS deptName,
+			t.team_name AS teamName,
+			r.rank_name AS rankName,
+			e.emp_email AS empEmail
+		FROM (SELECT * FROM employee WHERE emp_id = #{empId}) e
+		LEFT OUTER JOIN (SELECT * from department_history WHERE end_date IS NULL) dh ON e.emp_id = dh.emp_id
+		LEFT OUTER JOIN team t ON t.team_id = dh.team_id
+		LEFT OUTER JOIN department d ON d.dept_id = t.dept_id
+		LEFT OUTER JOIN (SELECT * from rank_history WHERE end_date IS NULL) rh ON e.emp_id = rh.emp_id
+		LEFT OUTER JOIN `rank` r ON r.rank_id = rh.rank_id
+	</select>
+	
+	<select id="empListByTeam" parameterType="String">
+		SELECT
+			e.emp_id AS empId,
+			r.rank_name AS rankName,
+			e.emp_name AS empName,
+			CONCAT(e.emp_exp,'년차') AS empExp
+		FROM employee e
+		INNER JOIN
+		(SELECT * FROM department_history WHERE end_date IS NULL AND team_id = (
+			SELECT team_id FROM team WHERE team_name = #{team}
+		)) dh ON e.emp_id = dh.emp_id
+		INNER JOIN (SELECT * FROM rank_history WHERE end_date IS NULL) rh ON e.emp_id = rh.emp_id
+		INNER JOIN `rank` r ON rh.rank_id = r.rank_id
+		ORDER BY empExp DESC
+	</select>
 	
 </mapper>
