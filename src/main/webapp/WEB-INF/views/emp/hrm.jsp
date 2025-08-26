@@ -643,11 +643,9 @@ function fetchAndSetTeams(deptId, currentTeamName = null, teamSelectId) {
             rankList.forEach(rank => {
                 // 부서 목록처럼 'rankName'을 이름으로, 'rankId'를 ID로 사용
                 // 만약 rankName이 없다면 rank를 그대로 이름으로, rankId가 없다면 rank를 ID로 사용
-                const rankName = rank.rankName || rank;
-                const rankId = rank.rankId || rank;
-                
-                // value는 ID로, text는 이름으로 설정하여 두 문제를 모두 해결
-                const option = new Option(rankName, rankName); 
+             
+   
+                const option = new Option(rank, rank); 
                 rankSelect.add(option);
             });
 
@@ -693,9 +691,8 @@ function fetchAndSetTeams(deptId, currentTeamName = null, teamSelectId) {
     }
     
     // --- 부서 관리 관련 함수 ---
- 
 
- // 부서 목록 불러오기 및 모달 열기
+// 부서 목록 불러오기 및 모달 열기
 function loadDeptList() {
     fetch('/hrm/api/departments')
         .then(response => response.json())
@@ -704,12 +701,13 @@ function loadDeptList() {
             deptList.empty(); // 기존 목록 초기화
 
             if (Array.isArray(data) && data.length > 0) {
+                // JSP 변수가 아닌 JavaScript 변수 'data'를 사용하도록 수정
                 data.forEach(dept => {
                     const item = $(`
                         <div class="list-group-item d-flex justify-content-between align-items-center">
                             <span>${dept.deptName}</span>
                             <div>
-                                <button class="btn btn-sm btn-outline-primary me-2 edit-dept-btn" data-dept-id="${dept.deptId}" data-dept-name="${dept.deptName}">수정</button>                          
+                                <button class="btn btn-sm btn-outline-primary me-2 edit-dept-btn" data-dept-id="${dept.deptId}" data-dept-name="${dept.deptName}">수정</button>
                                 <button class="btn btn-sm btn-outline-danger delete-dept-btn" data-dept-id="${dept.deptId}">삭제</button>
                             </div>
                         </div>
@@ -723,7 +721,6 @@ function loadDeptList() {
                     const deptName = $(this).data('dept-name');
                     openEditDeptModal(deptId, deptName);
                 });
-
                 deptList.off('click', '.delete-dept-btn').on('click', '.delete-dept-btn', function() {
                     const deptId = $(this).data('dept-id');
                     deleteDept(deptId);
@@ -731,8 +728,6 @@ function loadDeptList() {
             } else {
                 deptList.append('<div class="list-group-item">부서 목록이 없습니다.</div>');
             }
-
-            // 데이터 로드 완료 후 모달 표시 (한 번만)
             $('#deptManageModal').modal('show');
         })
         .catch(error => {

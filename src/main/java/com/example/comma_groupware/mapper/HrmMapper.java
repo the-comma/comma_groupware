@@ -60,7 +60,7 @@ public interface HrmMapper {
     List<String> selectTeamsByDepartment(@Param("deptName") String deptName);
 
     // 팀명으로 팀 ID 조회
-    Integer selectTeamIdByTeamName(@Param("teamName") String teamName);
+    int selectTeamIdByTeamName(@Param("teamName") String teamName);
     
     // 모든 부서 조회 (ID와 이름 모두 포함)
     List<Department> getAllDepartmentsWithId(); 

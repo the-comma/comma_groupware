@@ -90,13 +90,6 @@ public class HrmController {
 	public List<String> getRanks() {
 		return hrmService.getAllRanks();
 	}
-
-
-	// @GetMapping("/api/departments")
-	// @ResponseBody
-	// public List<String> getDepartments() {
-	// 	return empService.getAllDepartments();
-	// }
 	
 	// 부서 ID와 이름 모두 가져오는 API
     @GetMapping("/api/departments")
