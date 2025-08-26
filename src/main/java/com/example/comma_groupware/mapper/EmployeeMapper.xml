@@ -1,15 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.comma_groupware.mapper.EmployeeMapper">
+	
+	<!-- SpringSecurity 로그인에 사용  -->
 	<select id="selectByUserName" parameterType="string" resultType="com.example.comma_groupware.dto.Employee">
 	SELECT 
-	emp_id   AS empId, 
+		emp_id AS empId, 
 		username,
 		password,
-		role 
+		role ,
+		emp_phone As empPhone ,
+		emp_email As empEmail
 	FROM employee
 	WHERE username = #{username}
 	
 	</select>
 
+	<!-- 비밀번호 업데이트에 사용 -->
+	<update id="updatePw" parameterType="string">
+	UPDATE
+		employee SET 
+	password = #{password}
+	WHERE username = #{username}
+	</update>
+	
+	
+	<!-- 이메일이 존재하는지 확인 -->
+	<select id="existsByEmail" parameterType="string">
+	SELECT
+		COUNT(*)
+	FROM employee
+	WHERE emp_email = #{email}
+	
+	</select>
+	
+	<!-- 개인정보 업데이트에 사용 -->
+	<update id="updateInfo" parameterType="string">
+	UPDATE
+		employee SET
+		emp_email = #{email},
+		emp_phone = #{phone}
+	WHERE username = #{username}
+	
+	</update>
+	
 </mapper>

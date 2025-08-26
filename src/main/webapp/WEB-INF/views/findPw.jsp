@@ -27,7 +27,7 @@
     
     <script defer src="<c:url value='/HTML/Admin/dist/assets/js/vendor.min.js'/>"></script>
 	<script defer src="<c:url value='/HTML/Admin/dist/assets/js/app.js'/>"></script>
-    
+  
 </head>
 
 <body class="h-100">
@@ -36,8 +36,8 @@
         <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
             <div class="col-xxl-3 col-lg-5 col-md-6">
                 <a href="index.html" class="auth-brand d-flex justify-content-center mb-2">
-                    <img src="assets/images/logo-dark.png" alt="dark logo" height="26" class="logo-dark">
-                    <img src="assets/images/logo.png" alt="logo light" height="26" class="logo-light">
+                    <img src="/HTML/Admin/dist/assets/images/logo-dark.png" alt="dark logo" height="26" class="logo-dark">
+                    <img src="/HTML/Admin/dist/assets/images/logo.png" alt="logo light" height="26" class="logo-light">
                 </a>
 
                 <p class="fw-semibold mb-4 text-center text-muted fs-15">Admin Panel Design by Coderthemes</p>
@@ -48,11 +48,22 @@
 
                     <p class="text-muted mb-4">Enter your email address and we'll send you an email with instructions to
                         reset your password.</p>
+                        
+                        
 
-                    <form action="index.html" class="text-start mb-3">
+                    <form action="/findPw" method="post" class="text-start mb-3">
+                        
+                        
+    	                 <div class="mb-3">
+                            <label class="form-label" for="username">사원번호</label>
+                            <input type="text" id="username" name="username" class="form-control"
+                                placeholder="사원번호를 입력해주세요.">
+                        </div> 
+                        
+                        
                         <div class="mb-3">
                             <label class="form-label" for="example-email">Email</label>
-                            <input type="email" id="example-email" name="example-email" class="form-control"
+                            <input type="email" id="example-email" name="emp_email" class="form-control"
                                 placeholder="Enter your email">
                         </div>
                         <div class="d-grid">
