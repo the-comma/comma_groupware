@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class RankHisotry {
+public class RankHistory {
 	private Long rankHistoryId;    //사원별 직급이력
 	private int empId;				 //사원ID
 	private int rankId;				 //직급ID
