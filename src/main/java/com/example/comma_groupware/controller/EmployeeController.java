@@ -113,7 +113,7 @@ public class EmployeeController {
 		String token = (String) res.get("token");
 		long ttl = (long) res.get("ttlSeconds");
 		
-		
+		session.setAttribute("username", username);
 		session.setAttribute("otpToken", token);
 		session.setAttribute("otpDeadLine", Instant.now().plusSeconds(ttl));
 		
