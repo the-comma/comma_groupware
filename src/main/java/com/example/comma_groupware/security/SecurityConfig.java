@@ -1,6 +1,7 @@
 package com.example.comma_groupware.security;
 
 import java.util.HashMap;
+import com.example.comma_groupware.controller.EmployeeController;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpSession;
@@ -29,17 +30,11 @@ import com.example.comma_groupware.CommaGroupwareApplication;
 @EnableWebSecurity
 public class SecurityConfig {
 
-
-	
 	@Bean  // 암호화 등록
 	public PasswordEncoder passwordEncoder() { 
 		
 		return new LegacyAwarePasswordEncoder();
 	}
-	
-	
-
-	
 	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -62,6 +57,7 @@ public class SecurityConfig {
 	        .successHandler((request, res, auth) ->{
 	        	CustomUserDetails userDetails =  (CustomUserDetails) auth.getPrincipal();
 	        	HttpSession session = request.getSession();
+	        	session.setAttribute("loginEmp", userDetails.getEmployee());
 	        	session.setAttribute("username", userDetails.getUsername());
 	        	if(userDetails.getUsername().equals(userDetails.getPassword())) {
 	        		res.sendRedirect("/resetPw");

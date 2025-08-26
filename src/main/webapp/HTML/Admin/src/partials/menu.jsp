@@ -2,16 +2,16 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!-- Menu -->
-<%@ include file="/WEB-INF/views/partials/sidenav.jsp" %>
+<%@ include file="sidenav.html" %>
 
 <c:choose>
   <c:when test="${not empty title}">
-    <jsp:include page="/WEB-INF/views/partials/topbar.jsp">
+    <jsp:include page="topbar.html">
       <jsp:param name="topbarTitle" value="${title}" />
     </jsp:include>
   </c:when>
   <c:otherwise>
-    <%@ include file="/WEB-INF/views/partials/topbar.jsp" %>
+    <%@ include file="topbar.html" %>
   </c:otherwise>
 </c:choose>
 

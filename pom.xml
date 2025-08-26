@@ -43,7 +43,6 @@
 		    <groupId>org.apache.tomcat.embed</groupId>
 		    <artifactId>tomcat-embed-jasper</artifactId>
 		</dependency>
-		
 		<!-- Tomcat10이상 JSTL 사용 -->
 		<dependency>
 		    <groupId>jakarta.servlet.jsp.jstl</groupId>
@@ -67,6 +66,18 @@
 			<artifactId>mybatis-spring-boot-starter</artifactId>
 			<version>3.0.5</version>
 		</dependency>
+		<!-- HTML -> PDF -->
+		  <dependency>
+		    <groupId>com.openhtmltopdf</groupId>
+		    <artifactId>openhtmltopdf-pdfbox</artifactId>
+		    <version>1.0.10</version>
+		  </dependency>
+		  <dependency>
+		    <groupId>com.openhtmltopdf</groupId>
+		    <artifactId>openhtmltopdf-slf4j</artifactId>
+		    <version>1.0.10</version>
+		  </dependency>
+		
 
 				<!-- JWT -->
 		<dependency>

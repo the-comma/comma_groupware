@@ -25,11 +25,9 @@
     <!-- Icons css -->
     <link href= "<c:url value='/HTML/Admin/dist/assets/css/icons.min.css'/>" rel="stylesheet" type="text/css" />
     
-    
     <script defer src="<c:url value='/HTML/Admin/dist/assets/js/vendor.min.js'/>"></script>
 	<script defer src="<c:url value='/HTML/Admin/dist/assets/js/app.js'/>"></script>
   
-    
 </head>
 
 <body class="h-100">
