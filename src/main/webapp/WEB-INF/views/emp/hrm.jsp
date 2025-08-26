@@ -4,12 +4,9 @@
 <html>
 <head>
 <title>인사관리</title>
-<link href="<c:url value='/HTML/Admin/dist/assets/css/vendor.min.css'/>"
-	rel="stylesheet" type="text/css" />
-<link href="<c:url value='/HTML/Admin/dist/assets/css/app.min.css'/>"
-	rel="stylesheet" type="text/css" id="app-style" />
-<link href="<c:url value='/HTML/Admin/dist/assets/css/icons.min.css'/>"
-	rel="stylesheet" type="text/css" />
+
+<!-- CSS -->
+<jsp:include page ="../../views/nav/head-css.jsp"></jsp:include>
 
 <link rel="stylesheet" type="text/css"
 	href="https://cdn.datatables.net/v/bs4/dt-1.11.3/datatables.min.css" />
@@ -19,11 +16,11 @@
 	src="/HTML/Admin/dist/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script type="text/javascript"
 	src="https://cdn.datatables.net/v/bs4/dt-1.11.3/datatables.min.js"></script>
-
 <style>
-.page-title {
-	margin-bottom: 20px;
+.sidenav-menu{
+	margin-top: 5px;
 }
+
 .modal-body .btn {
 	margin-bottom: 5px;
 }
@@ -32,26 +29,39 @@
 <body>
 
 	<div id="wrapper">
-		<%--  <%@ include file="/HTML/Admin/src/partials/sidenav.html" %> --%>
-		<div class="content-page">
-			<div class="content">
-				<div class="container-fluid">
-					<div class="row align-items-center">
-						<div class="col-6">
-							<h2 class="page-title">인사관리 페이지</h2>
-						</div>
-						<div class="col-6 text-end">
-							<button class="btn btn-info me-2" onclick="openDeptManageModal()">부서 관리</button>
-							<button class="btn btn-success me-2" onclick="openTeamManageModal()">팀 관리</button>
-							<button class="btn btn-primary" onclick="openRegisterModal()">사원 등록</button>
-						</div>
-					</div>
+		<!-- 사이드바 -->
+		<jsp:include page ="../../views/nav/sidenav.jsp"></jsp:include>
+		
+		<!-- 헤더 -->
+		<jsp:include page ="../../views/nav/header.jsp"></jsp:include>
+		
+        <div class="page-content">
 
+            <div class="page-container">
+            
+            	<div class="container">
+            	<!-- 본문 내용 -->
 					<div class="card">
+						<div class="card-header border-bottom border-dashed d-flex align-items-center">
+                                <h4 class="header-title">제목</h4>
+                                <div class="col-6 text-end">
+									<button class="btn btn-info me-2" onclick="openDeptManageModal()">부서 관리</button>
+									<button class="btn btn-success me-2" onclick="openTeamManageModal()">팀 관리</button>
+									<button class="btn btn-primary" onclick="openRegisterModal()">사원 등록</button>
+								</div>
+                        </div>
 						<div class="card-body">
-							<table id="empTable"
+						</div> <!-- cardbody -->
+                           <div class="card-body">
+                           <p class="text-muted">
+                        	<!-- 부가 설명 -->
+                           </p>
+                           <div class="row">
+                               <div class="col-lg-12">
+                                   <form>
+																	<table id="empTable"
 								class="table table-striped table-bordered nowrap"
-								style="width: 100%">
+								>
 								<thead>
 									<tr>
 										<th>사번</th>
@@ -90,9 +100,16 @@
 									</c:forEach>
 								</tbody>
 							</table>
-						</div>
-					</div>
-				</div>
+                                   </form>
+                               </div> <!-- end col -->
+                           </div>
+                           <!-- end row-->
+                       </div> <!-- end card-body -->
+					</div>	<!-- card -->
+				</div> <!-- container -->
+				
+				<!-- 푸터 -->
+            	<jsp:include page ="../../views/nav/footer.jsp"></jsp:include>
 			</div>
 		</div>
 	</div>
@@ -378,6 +395,9 @@
 			</div>
 		</div>
 	</div>
+   
+	<!-- App js -->
+	<script src="/HTML/Admin/dist/assets/js/app.js"></script>
 <script>
     // --- 함수 공통화 및 재정의 ---
     function closeEditModal() {
@@ -705,7 +725,7 @@ function loadDeptList() {
                 data.forEach(dept => {
                     const item = $(`
                         <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>${dept.deptName}</span>
+                            <span>\${dept.deptName}</span>
                             <div>
                                 <button class="btn btn-sm btn-outline-primary me-2 edit-dept-btn" data-dept-id="${dept.deptId}" data-dept-name="${dept.deptName}">수정</button>
                                 <button class="btn btn-sm btn-outline-danger delete-dept-btn" data-dept-id="${dept.deptId}">삭제</button>
