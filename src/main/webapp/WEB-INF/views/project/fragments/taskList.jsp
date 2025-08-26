@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 	
 	<a href="addTask" class="btn btn-primary mb-sm-0 mb-2" data-bs-toggle="modal" data-bs-target="#scrollable-modal">
-	    <i class="ti ti-settings fs-20 me-2"></i>업무 추가
+	    <i class="ti ti-circle-plus fs-20 me-2"></i>업무 추가
 	</a>
 
 	<!-- 모달 -->
@@ -203,7 +203,7 @@
 	 	// 현재 선택된 멤버 미리보기 (memberList에 출력)
 	    renderMemberList();
 	});
-	 
+
 	// memberList 영역 그리기 함수
 	function renderMemberList(){
 	    const memberList = document.querySelector('#memberList');

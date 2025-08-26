@@ -6,6 +6,7 @@
 	<select id="selectByUserName" parameterType="string" resultType="com.example.comma_groupware.dto.Employee">
 	SELECT 
 		emp_id AS empId, 
+		emp_name AS empName,
 		username,
 		password,
 		role ,
@@ -13,7 +14,6 @@
 		emp_email As empEmail
 	FROM employee
 	WHERE username = #{username}
-	
 	</select>
 
 	<!-- 비밀번호 업데이트에 사용 -->

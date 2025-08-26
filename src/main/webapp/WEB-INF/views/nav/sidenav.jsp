@@ -45,10 +45,10 @@
             <div class="dropdown-center text-center">
                 <a class="topbar-link dropdown-toggle text-reset drop-arrow-none px-2" data-bs-toggle="dropdown"
                     type="button" aria-haspopup="false" aria-expanded="false">
-                    <img src="/HTML/Admin/dist/assets/images//users/avatar-1.jpg" width="46" class="rounded-circle" alt="user-image">
+                    <img src="/HTML/Admin/dist/assets/images/default_profile.png" width="46" class="rounded-circle" alt="user-image">
                     <span class="d-flex justify-content-center gap-1 sidenav-user-name my-2">
                         <span>
-                            <span class="mb-0 fw-semibold lh-base fs-15">김사원</span>
+                            <span class="mb-0 fw-semibold lh-base fs-15">${loginEmp.empName}</span>
                             <p class="my-0 fs-13 text-muted">Admin Head</p>
                         </span>
 

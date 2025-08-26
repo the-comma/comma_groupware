@@ -57,6 +57,7 @@ public class SecurityConfig {
 	        .successHandler((request, res, auth) ->{
 	        	CustomUserDetails userDetails =  (CustomUserDetails) auth.getPrincipal();
 	        	HttpSession session = request.getSession();
+	        	session.setAttribute("loginEmp", userDetails.getEmployee());
 	        	session.setAttribute("username", userDetails.getUsername());
 	        	if(userDetails.getUsername().equals(userDetails.getPassword())) {
 	        		res.sendRedirect("/resetPw");
