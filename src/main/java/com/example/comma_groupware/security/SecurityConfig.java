@@ -30,12 +30,6 @@ import com.example.comma_groupware.CommaGroupwareApplication;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final EmployeeController authController;
-
-    SecurityConfig(EmployeeController authController) {
-        this.authController = authController;
-    }
-	
 	@Bean  // 암호화 등록
 	public PasswordEncoder passwordEncoder() { 
 		
