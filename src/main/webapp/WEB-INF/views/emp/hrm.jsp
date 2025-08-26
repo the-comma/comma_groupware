@@ -41,10 +41,8 @@
 							<h2 class="page-title">인사관리 페이지</h2>
 						</div>
 						<div class="col-6 text-end">
-							<!-- 부서/팀 관리 버튼 추가 -->
 							<button class="btn btn-info me-2" onclick="openDeptManageModal()">부서 관리</button>
 							<button class="btn btn-success me-2" onclick="openTeamManageModal()">팀 관리</button>
-							<!-- 사원 등록 버튼 -->
 							<button class="btn btn-primary" onclick="openRegisterModal()">사원 등록</button>
 						</div>
 					</div>
@@ -86,14 +84,12 @@
 											<td>
 												<button
 													onclick="fetchEmployeeDataAndOpenModal('${e.empId}')"
-													class="btn btn-primary btn-sm">수정</button> <%-- <button onclick="deleteEmployee('${e.empId}')" class="btn btn-danger btn-sm">삭제</button> --%>
+													class="btn btn-primary btn-sm">수정</button>
 											</td>
 										</tr>
 									</c:forEach>
 								</tbody>
 							</table>
-
-							<%-- 페이징 부분은 주석 처리된 상태로 유지 --%>
 						</div>
 					</div>
 				</div>
@@ -133,7 +129,6 @@
 						<div class="form-group row">
 							<label for="editStatus" class="col-4 col-form-label">재직상태</label>
 							<div class="col-8">
-								<!-- 재직 상태를 선택할 수 있는 셀렉트 박스로 변경 -->
 								<select id="editStatus" name="empStatus" class="form-control">
 									<option value="재직">재직</option>
 									<option value="휴직">휴직</option>
@@ -180,14 +175,12 @@
 						<div class="form-group row mb-2">
 							<label for="regEmpName" class="col-4 col-form-label">이름</label>
 							<div class="col-8">
-								<!-- '이름' 필드에 required 속성 추가 -->
 								<input type="text" id="regEmpName" name="empName" class="form-control" required>
 							</div>
 						</div>
 						<div class="form-group row mb-2">
 							<label for="regEmpEmail" class="col-4 col-form-label">이메일</label>
 							<div class="col-8">
-								<!-- '이메일' 필드에 required 속성 추가 -->
 								<input type="email" id="regEmpEmail" name="empEmail" class="form-control" required>
 							</div>
 						</div>
@@ -196,7 +189,6 @@
 						<div class="form-group row mb-2">
 							<label for="regRole" class="col-4 col-form-label">권한</label>
 							<div class="col-8">
-								<!-- '권한' 필드에 required 속성 추가 -->
 								<select id="regRole" name="role" class="form-control" required>
 									<option value="" disabled selected>선택</option>
 									<option value="USER">USER</option>
@@ -208,21 +200,18 @@
 						<div class="form-group row mb-2">
 							<label for="regEmpPhone" class="col-4 col-form-label">전화번호</label>
 							<div class="col-8">
-								<!-- '전화번호' 필드에 required 속성 추가 -->
 								<input type="tel" id="regEmpPhone" name="empPhone" class="form-control" required>
 							</div>
 						</div>
 						<div class="form-group row mb-2">
 							<label for="regEmpExp" class="col-4 col-form-label">경력(년)</label>
 							<div class="col-8">
-								<!-- '경력' 필드에 required 속성 추가 -->
 								<input type="number" id="regEmpExp" name="empExp" class="form-control" required>
 							</div>
 						</div>
 						<div class="form-group row mb-2">
 							<label for="regSalaryDisplay" class="col-4 col-form-label">급여</label>
 							<div class="col-8">
-								<!-- '급여' 필드에 required 속성 추가 -->
 								<input type="text" id="regSalaryDisplay" class="form-control" oninput="formatSalaryInput('regSalaryDisplay', 'regSalary', 'regKoreanAmount')" required>
 								<input type="hidden" id="regSalary" name="salaryAmount" required>
 								<small class="form-text text-muted" id="regKoreanAmount"></small>
@@ -231,7 +220,6 @@
 						<div class="form-group row mb-2">
 							<label for="regRank" class="col-4 col-form-label">직급</label>
 							<div class="col-8">
-								<!-- '직급' 필드에 required 속성 추가 -->
 								<select id="regRank" name="rankName" class="form-control" required>
 									<option value="" disabled selected>선택</option>
 								</select>
@@ -239,8 +227,7 @@
 						</div>
 						<div class="form-group row mb-2">
 							<label for="regDept" class="col-4 col-form-label">부서</label>
-							<div class="col-8">
-								<!-- '부서' 필드에 required 속성 추가 -->
+							<div class="col-8">				
 								<select id="regDept" name="deptName" class="form-control" required>
 									<option value="" disabled selected>선택</option>
 								</select>
@@ -249,7 +236,6 @@
 						<div class="form-group row mb-2">
 							<label for="regTeam" class="col-4 col-form-label">팀</label>
 							<div class="col-8">
-								<!-- '팀' 필드에 required 속성 추가 -->
 								<select id="regTeam" name="teamName" class="form-control" required>
 									<option value="" disabled selected>선택</option>
 								</select>
@@ -286,7 +272,7 @@
 						</div>
 					</div>
 					<hr>
-					<h6 class="mb-2">기존 부서 수정/삭제</h6>
+					<h6 class="mb-2">기존 부서 수정</h6>
 					<div id="deptList" class="list-group">
 						<!-- 부서 목록이 여기에 동적으로 추가될 예정 -->
 					</div>
@@ -431,7 +417,66 @@
         document.getElementById('editSalaryDisplay').value = formatNumberWithCommas(salaryValue);
         displayKoreanAmount();
     });
+    function toKoreanNumber(number) {
+        if (number === "" || isNaN(number)) {
+            return "";
+        }
+        
+        let numStr = String(number).replace(/,/g, '');
+        if (numStr.length > 16) {
+            return "너무 큰 금액입니다.";
+        }
+        
+        const units = ["", "만", "억", "조"];
+        const numToKorean = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
+        const smallUnits = ["", "십", "백", "천"];
+        
+        let result = "";
+        let unitIndex = 0;
+        
+        while (numStr.length > 0) {
+            let chunk = "";
+            let chunkStr = "";
+            
+            if (numStr.length > 4) {
+                chunk = numStr.slice(-4);
+                numStr = numStr.slice(0, -4);
+            } else {
+                chunk = numStr;
+                numStr = "";
+            }
+            
+            const chunkArr = chunk.split("").reverse();
+            
+            for (let i = 0; i < chunkArr.length; i++) {
+                const digit = parseInt(chunkArr[i]);
+                if (digit > 0) {
+                    chunkStr = numToKorean[digit] + smallUnits[i] + chunkStr;
+                }
+            }
+            
+            if (chunkStr !== "") {
+                result = chunkStr + units[unitIndex] + result;
+            }
+            unitIndex++;
+        }
+        
+        result = result.replace(/^일만/, "만").replace(/^일십만/, "십만");
+
+        if (result === "") {
+            return "영원";
+        }
+        
+        return result + "원";
+    }
+
     
+    function displayKoreanAmount() {
+        const salaryInput = document.getElementById('editSalary');
+        const koreanAmountSpan = document.getElementById('koreanAmount');
+        const value = salaryInput.value;
+        koreanAmountSpan.textContent = toKoreanNumber(value);
+    }
 
  // 직원 수정 모달 열 때
  function fetchEmployeeDataAndOpenModal(empId) {
@@ -501,40 +546,40 @@
  });
 
  // 팀 목록 불러오기 (teamName 기준)
- function fetchAndSetTeams(deptId, currentTeamName = null, teamSelectId) {
-     const teamSelect = document.getElementById(teamSelectId);
-     teamSelect.innerHTML = '<option value="" disabled selected>선택</option>'; // 팀 목록 초기화
+ // 팀 목록 불러오기 (teamName 기준)
+function fetchAndSetTeams(deptId, currentTeamName = null, teamSelectId) {
+    const teamSelect = document.getElementById(teamSelectId);
+    teamSelect.innerHTML = '<option value="" disabled selected>선택</option>'; // 팀 목록 초기화
 
-     if (!deptId) return; // 부서 ID가 없으면 함수 종료
+    if (!deptId) return; // 부서 ID가 없으면 함수 종료
 
-     fetch('/hrm/api/teams/by-dept-id?deptId=' + deptId)
-     .then(res => {
-         if (!res.ok) {
-             throw new Error('통신 에러');
-         }
-         return res.json();
-     })
-     .then(teamList => {
-         if (!Array.isArray(teamList)) {
-             throw new Error('유효한 팀 목록 데이터가 아닙니다.');
-         }
-         // teamName을 value로 설정
-         teamList.forEach(team => {
-             const option = new Option(team.teamName, team.teamName);
-             teamSelect.add(option);
-         });
+    fetch('/hrm/api/teams/by-dept-id?deptId=' + deptId)
+    .then(res => {
+        if (!res.ok) {
+            throw new Error('통신 에러');
+        }
+        return res.json();
+    })
+    .then(teamList => {
+        if (!Array.isArray(teamList)) {
+            throw new Error('유효한 팀 목록 데이터가 아닙니다.');
+        }
+        // ✅ value를 teamName으로 넣음
+        teamList.forEach(team => {
+            const option = new Option(team.teamName, team.teamName);
+            teamSelect.add(option);
+        });
 
-         // 현재 팀이 있으면 선택 (teamName 기준)
-         if (currentTeamName) {
-             teamSelect.value = currentTeamName;
-         }
-     })
-     .catch(error => {
-         console.error('Error fetching teams:', error);
-         alert('팀 목록을 불러오는 데 실패했습니다.');
-     });
- }
-
+        // 현재 팀이 있으면 선택 (teamName 기준)
+        if (currentTeamName) {
+            teamSelect.value = currentTeamName;
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching teams:', error);
+        alert('팀 목록을 불러오는 데 실패했습니다.');
+    });
+}
     function submitEditForm() {
         const formData = new FormData(document.getElementById('editForm'));
         const data = {};
@@ -596,7 +641,13 @@
             const rankSelect = document.getElementById('regRank');
             rankSelect.innerHTML = '<option value="" disabled selected>선택</option>';
             rankList.forEach(rank => {
-                const option = new Option(rank, rank);
+                // 부서 목록처럼 'rankName'을 이름으로, 'rankId'를 ID로 사용
+                // 만약 rankName이 없다면 rank를 그대로 이름으로, rankId가 없다면 rank를 ID로 사용
+                const rankName = rank.rankName || rank;
+                const rankId = rank.rankId || rank;
+                
+                // value는 ID로, text는 이름으로 설정하여 두 문제를 모두 해결
+                const option = new Option(rankName, rankName); 
                 rankSelect.add(option);
             });
 
@@ -615,7 +666,7 @@
     // 등록 모달에서 부서 선택 시 팀 목록 업데이트
     document.getElementById('regDept').addEventListener('change', (event) => {
         const selectedDeptId = event.target.value;
-        fetchAndSetTeams(selectedDeptId, null, 'regTeam');
+       // fetchAndSetTeams(selectedDeptId, null, 'regTeam');
     });
 
     function submitRegisterForm() {
@@ -642,33 +693,57 @@
     }
     
     // --- 부서 관리 관련 함수 ---
-    function openDeptManageModal() {
-        loadDeptList(); // 모달을 열기 전에 데이터를 먼저 로드
-        $('#deptManageModal').modal('show');
-    }
+ 
 
-    function loadDeptList() {
-        fetch('/hrm/api/departments')
-            .then(response => response.json())
-            .then(data => {
-                const deptList = $('#deptList');
-                deptList.empty(); // 목록 비우기
+ // 부서 목록 불러오기 및 모달 열기
+function loadDeptList() {
+    fetch('/hrm/api/departments')
+        .then(response => response.json())
+        .then(data => {
+            const deptList = $('#deptList');
+            deptList.empty(); // 기존 목록 초기화
+
+            if (Array.isArray(data) && data.length > 0) {
                 data.forEach(dept => {
                     const item = $(`
                         <div class="list-group-item d-flex justify-content-between align-items-center">
                             <span>${dept.deptName}</span>
                             <div>
-                                <button class="btn btn-sm btn-outline-primary me-2" onclick="openEditDeptModal(${dept.deptId}, '${dept.deptName}')">수정</button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteDept(${dept.deptId})">삭제</button>
+                                <button class="btn btn-sm btn-outline-primary me-2 edit-dept-btn" data-dept-id="${dept.deptId}" data-dept-name="${dept.deptName}">수정</button>                          
+                                <button class="btn btn-sm btn-outline-danger delete-dept-btn" data-dept-id="${dept.deptId}">삭제</button>
                             </div>
                         </div>
                     `);
                     deptList.append(item);
                 });
-            })
-            .catch(error => console.error('부서 목록 로딩 중 오류:', error));
-    }
 
+                // 이벤트 중복 방지 후 바인딩
+                deptList.off('click', '.edit-dept-btn').on('click', '.edit-dept-btn', function() {
+                    const deptId = $(this).data('dept-id');
+                    const deptName = $(this).data('dept-name');
+                    openEditDeptModal(deptId, deptName);
+                });
+
+                deptList.off('click', '.delete-dept-btn').on('click', '.delete-dept-btn', function() {
+                    const deptId = $(this).data('dept-id');
+                    deleteDept(deptId);
+                });
+            } else {
+                deptList.append('<div class="list-group-item">부서 목록이 없습니다.</div>');
+            }
+
+            // 데이터 로드 완료 후 모달 표시 (한 번만)
+            $('#deptManageModal').modal('show');
+        })
+        .catch(error => {
+            console.error('부서 목록 로딩 중 오류:', error);
+            alert('부서 목록을 불러오는 데 실패했습니다.');
+        });
+}
+function openDeptManageModal() {
+    loadDeptList();
+}
+    
     function submitNewDept() {
         const newDeptName = $('#newDeptName').val();
         if (!newDeptName) {
@@ -761,7 +836,7 @@
     // 팀 관리 관련 함수
 function openTeamManageModal() {
     loadManageTeamDepts();
-    $('#teamManageModal').modal('show');
+
 }
 
 function loadManageTeamDepts() {
@@ -777,20 +852,22 @@ function loadManageTeamDepts() {
                 newTeamDeptSelect.append(`<option value="${dept.deptId}">${dept.deptName}</option>`);
                 manageTeamDeptSelect.append(`<option value="${dept.deptId}">${dept.deptName}</option>`);
             });
-            
-            // 기본적으로 첫 번째 부서의 팀 목록을 불러옴
+
             if(deptList.length > 0) {
                 const firstDeptId = deptList[0].deptId;
                 manageTeamDeptSelect.val(firstDeptId);
                 loadTeamList(firstDeptId);
             }
+
+            // ⭐ 중요: 데이터 로드 완료 후 모달 열기
+            $('#teamManageModal').modal('show');
+
         })
         .catch(error => {
             console.error('부서 목록 로딩 중 오류:', error);
             showCustomAlert('부서 목록을 불러오는 데 실패했습니다.');
         });
 }
-
 $('#manageTeamDeptSelect').on('change', function() {
     const deptId = $(this).val();
     loadTeamList(deptId);
@@ -823,7 +900,6 @@ function loadTeamList(deptId) {
                         <span>${team.teamName}</span>
                         <div>
                             <button class="btn btn-sm btn-outline-primary me-2" onclick="openEditTeamModal(${team.teamId}, '${team.teamName}', ${deptId})">수정</button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTeam(${team.teamId})">삭제</button>
                         </div>
                     </div>
                 `);
@@ -924,8 +1000,8 @@ function updateTeam() {
     });
 }
 
-  
 
+	  
     // DataTables 초기화 및 설정
     $(document).ready(function() {
         $('#empTable').DataTable({

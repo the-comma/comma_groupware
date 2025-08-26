@@ -13,7 +13,7 @@ import com.example.comma_groupware.dto.Salary;
 import com.example.comma_groupware.dto.Team;
 
 @Mapper // MyBatis 매퍼임을 나타냅니다.
-public interface EmpMapper {
+public interface HrmMapper {
     
     // 직원 수 조회
     int selectEmployeeCount(@Param("searchWord") String searchWord);
@@ -55,14 +55,12 @@ public interface EmpMapper {
     // 모든 직급 목록
     List<String> selectAllRanks();
 
-    // 기존의 모든 부서 목록 조회 메서드는 삭제했습니다.
-    // List<String> selectAllDepartments();
 
     // 특정 부서(deptName)에 속한 모든 팀 목록
     List<String> selectTeamsByDepartment(@Param("deptName") String deptName);
 
     // 팀명으로 팀 ID 조회
-    int selectTeamIdByTeamName(@Param("teamName") String teamName);
+    Integer selectTeamIdByTeamName(@Param("teamName") String teamName);
     
     // 모든 부서 조회 (ID와 이름 모두 포함)
     List<Department> getAllDepartmentsWithId(); 
