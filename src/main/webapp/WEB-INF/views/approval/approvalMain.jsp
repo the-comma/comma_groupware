@@ -19,6 +19,7 @@
  <div>
   <a href="<c:url value='/approval?status='/>" class="btn btn-primary">전체 신청내역</a>
   <a href="<c:url value='/approval?status=IN_PROGRESS'/>" class="btn btn-secondary">진행중인결재</a>
+  <a href="<c:url value='/approval?status=REJECTED'/>" class="btn btn-secondary">반려된결재</a>
   <a href="<c:url value='/approval?status=APPROVED'/>" class="btn btn-secondary">완료된결재</a>  
 </div>
 
@@ -29,6 +30,7 @@
     <c:choose>
       <c:when test="${empty status}">전체</c:when>
       <c:when test="${status eq 'IN_PROGRESS'}">진행중</c:when>
+      <c:when test="${status eq 'REJECTED'}">반려</c:when>
       <c:when test="${status eq 'APPROVED'}">완료</c:when>
       <c:otherwise>${status}</c:otherwise>
     </c:choose>

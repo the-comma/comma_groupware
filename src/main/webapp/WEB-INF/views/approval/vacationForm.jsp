@@ -104,14 +104,13 @@
           <label>시작일</label>
           <div class="inline">
             <input type="date" name="startDate" id="startDate" required>
-            <label class="inline"><input type="checkbox" id="startHalf"> 반차</label>
           </div>
         </div>
         <div>
           <label>종료일</label>
           <div class="inline">
             <input type="date" name="endDate" id="endDate" required>
-            <label class="inline"><input type="checkbox" id="endHalf"> 반차</label>
+            <label class="inline"><input type="checkbox"> 구현되지않은 반차</label> 
           </div>
         </div>
       </div>

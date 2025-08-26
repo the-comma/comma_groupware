@@ -108,13 +108,6 @@
   <div style="color:#6b7280">첨부 없음</div>
 </c:if>
 
-<c:if test="${canEdit}">
-  <a class="btn" href="<c:url value='/approval/${doc.documentType eq "VACATION" ? "vacations" : "expenses"}/${doc.approvalDocumentId}/edit'/>">수정</a>
-  <form method="post" action="<c:url value='/approval/doc/${doc.approvalDocumentId}/delete'/>" style="display:inline">
-    <button class="btn btn-danger" onclick="return confirm('삭제할까요?')">삭제</button>
-  </form>
-</c:if>
-
 <c:if test="${not empty myLine}">
   <!-- 내 차례일 때만 승인/반려 -->
   <form method="post" action="<c:url value='/approval/line/${myLine.approvalLineId}/approve'/>" style="display:inline">
