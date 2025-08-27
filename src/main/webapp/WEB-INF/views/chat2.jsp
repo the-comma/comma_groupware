@@ -6,6 +6,10 @@
 <head>
 	<!-- CSS -->
 	<jsp:include page ="../views/nav/head-css.jsp"></jsp:include>	
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> 
+  <script defer src="<c:url value='/assets/js/chat.js'/>"></script>
 <meta charset="UTF-8">
 <title>temp 타이틀</title>
 </head>
@@ -65,7 +69,7 @@
                                                 <!-- item-->
                                                 <a href="javascript:void(0);" class="dropdown-item">
                                                     <i class="ti ti-user-plus me-1 fs-17 align-middle"></i>
-                                                    <span class="align-middle">New Contact</span>
+                                                    <span class="align-middle">1대1 채팅 생성</span>
                                                 </a>
                                                 <!-- item-->
                                                 <a href="javascript:void(0);" class="dropdown-item">
@@ -664,28 +668,36 @@
                                 </ul>
                             </div>
 
+
+
                             <div class="p-3 border-top position-sticky bottom-0 w-100 mb-0">
-                                <form class="d-flex align-items-center gap-1" name="chat-form" id="chat-form">
-
-                                    <div>
-                                        <button type="button" class="btn btn-icon btn-soft-warning">
-                                            <iconify-icon icon="solar:smile-circle-outline" class="fs-20"></iconify-icon>
-                                        </button>
-                                    </div>
-
-                                    <input type="text" name="message" id="chat-form" class="form-control" placeholder="Type Message..." required>
-
-                                    <div class="d-flex align-items-center gap-1">
-                                        <button type="submit" class="btn btn-icon btn-success chat-send"><i class='ti ti-send'></i></button>
-                                        <a href="#" class="btn btn-icon btn-soft-primary d-none d-md-inline-flex"><i class="ti ti-microphone"></i> </a>
-                                        <a href="#" class="btn btn-icon btn-soft-primary d-none d-md-inline-flex"><i class="ti ti-paperclip"></i></a>
-                                    </div>
-                                </form>
+							<!-- 로그인 사용자ID/엔드포인트/초기 방ID(없으면 공백) 전달 -->
+							<div id="chat-root"
+							     data-user-id="${loginEmp.username}"   <%-- 사원 번호 --%>
+							     data-user-name="${loginEmp.empName}"     <%-- 사원 이름 --%>
+							     data-room-id="${empty initRoomId ? 0 : initRoomId}"             <%-- 선택: 처음 열 방 --%>
+							     data-ws-endpoint="<c:url value='/stomp/chat'/>"
+							     data-pub-dest="/pub/chat/send"
+							     data-sub-prefix="/sub/room."
+							     data-avatar-me="<c:url value='/HTML/Admin/dist/assets/images/users/avatar-1.jpg'/>"
+    							 data-avatar-user="<c:url value='/HTML/Admin/dist/assets/images/users/avatar-5.jpg'/>">
+							     
+							     </div>
+							
+							<!-- 메시지 입력 -->
+							<form id="chat-form" class="d-flex align-items-center gap-1">
+							  <button type="button" class="btn btn-icon btn-soft-warning">😊</button>
+                               <input type="text" name="message" id="text" class="form-control" placeholder="Type Message..." required>
+                              
+							  <button type="submit" class="btn btn-icon btn-success chat-send"><i class='ti ti-send'></i></button>
+							</form>
+							
                             </div>
                         </div>
                     </div>
                 </div>
             </div> <!-- container -->
+											
 
                                    
                                     </div> <!-- end col -->
@@ -709,7 +721,62 @@
        	</div><!-- page-content 끝 -->
        	
    </div><!-- wrapper 끝 -->
-       	
+       												<!-- 모달 -->
+											<div class="modal fade" id="scrollable-modal" tabindex="-1" role="dialog"
+							                    aria-labelledby="scrollableModalTitle" aria-hidden="true">
+							                    <div class="modal-dialog modal-dialog-scrollable" role="document">
+							                        <div class="modal-content">
+							                            <div class="modal-header">
+							                                <h4 class="modal-title" id="scrollableModalTitle">개발자 추가</h4>
+							                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+							                                    aria-label="Close"></button>
+							                            </div>
+							                            <div class="modal-body">
+							                            	<label for="deptTeam" class="form-label">부서/팀</label>
+							                                <select class="form-control" id="deptTeam" name="deptTeam">
+							                                	<option value="">부서/팀 선택</option>
+							                                	<c:if test="${deptTeamList != null}">
+							                                		<c:forEach items="${deptTeamList}" var="dept">
+							                                			<option value="${dept.teamName}">${dept.deptName}/${dept.teamName}</option>
+													                </c:forEach>
+							                                	</c:if>
+							                                </select>
+							                                <br>
+							                                <label for="empTable" class="form-label">사원</label>
+							                                <table id="empTable" class="form-table">
+							                                	<thead id="empTableHead">
+							                                	</thead>
+							                                	<tbody id="empList" name="empList">
+							                                	</tbody>
+							                                </table>	 
+							                                <br>
+							                                <label for="memberList" class="form-label">참여자</label>
+							                                <div class="choices" data-type="text">
+							                                	<div class="choices__inner">
+							                                		<input readonly="readonly" class="form-control choices__input" id="choices-text-remove-button" data-choices="" data-choices-limit="3" data-choices-removeitem="" type="text" value="Task-1" hidden="" tabindex="-1" data-choice="active">
+							                                			<div id="memberList" class="choices__list choices__list--multiple">
+							                                			<!-- 아이템 들어가는 영역 -->
+
+							                                			</div>
+							                                		<input type="search" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" aria-autocomplete="list" aria-label="Set limit values with remove button" style="min-width: 1ch; width: 1ch;">
+						                                		</div>
+						                                		
+						                                		<div class="choices__list choices__list--dropdown" aria-expanded="false">
+							                                		<div class="choices__list" aria-multiselectable="true" role="listbox">
+							                                		</div>
+						                                		</div>
+					                                		</div>                           
+							                                <br>
+							                                <br>
+							                            </div>
+							                            <div class="modal-footer">
+							                                <button type="button" class="btn btn-outline-danger"
+							                                    data-bs-dismiss="modal">취소</button>
+							                                <button type="button" class="btn btn-outline-success" id="modalBtn">등록</button>
+							                            </div>
+							                        </div><!-- /.modal-content -->
+							                    </div><!-- /.modal-dialog -->
+							                </div><!-- /.modal -->
    <!-- 자바 스크립트 -->
    <jsp:include page ="../views/nav/javascript.jsp"></jsp:include>
 </body>

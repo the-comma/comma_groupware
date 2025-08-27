@@ -17,6 +17,6 @@ public class ChatMessage {
 	private String messageType;
 	private LocalDateTime createdAt;
 	private int isDeleted;
-	
+	private String senderName;   
 	
 }
