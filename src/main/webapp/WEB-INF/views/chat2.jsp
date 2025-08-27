@@ -10,6 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> 
   <script defer src="<c:url value='/assets/js/chat.js'/>"></script>
+  <script defer src="<c:url value='/assets/js/chatmodal.js'/>"></script>
 <meta charset="UTF-8">
 <title>temp 타이틀</title>
 </head>
@@ -67,7 +68,9 @@
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <!-- item-->
-                                                <a href="javascript:void(0);" class="dropdown-item">
+                                                <a href="javascript:void(0);" class="dropdown-item"
+                                                   data-bs-toggle="modal" 
+                                                   data-bs-target="#scrollable-modal">
                                                     <i class="ti ti-user-plus me-1 fs-17 align-middle"></i>
                                                     <span class="align-middle">1대1 채팅 생성</span>
                                                 </a>
@@ -724,10 +727,20 @@
        												<!-- 모달 -->
 											<div class="modal fade" id="scrollable-modal" tabindex="-1" role="dialog"
 							                    aria-labelledby="scrollableModalTitle" aria-hidden="true">
+							                    
+																			                    <!-- 1:1 채팅 생성 폼 (숨김) -->
+												<form id="create1to1Form" action="<c:url value='/chat/rooms/one-to-one'/>" method="post" class="d-none">
+												  <!-- 미리보기는 안 써도 되지만, 구조 유지용으로 둠 -->
+												  <div id="targetList"></div>
+												  <!-- 여기 hidden input이 들어간다 -->
+												  <div id="targetListBox"></div>
+												
+												</form>
+							                    
 							                    <div class="modal-dialog modal-dialog-scrollable" role="document">
 							                        <div class="modal-content">
 							                            <div class="modal-header">
-							                                <h4 class="modal-title" id="scrollableModalTitle">개발자 추가</h4>
+							                                <h4 class="modal-title" id="scrollableModalTitle">1대1 채팅방 생성</h4>
 							                                <button type="button" class="btn-close" data-bs-dismiss="modal"
 							                                    aria-label="Close"></button>
 							                            </div>
@@ -774,6 +787,8 @@
 							                                    data-bs-dismiss="modal">취소</button>
 							                                <button type="button" class="btn btn-outline-success" id="modalBtn">등록</button>
 							                            </div>
+							                            
+							        
 							                        </div><!-- /.modal-content -->
 							                    </div><!-- /.modal-dialog -->
 							                </div><!-- /.modal -->
