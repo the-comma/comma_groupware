@@ -62,4 +62,10 @@
           AND e.emp_status = 'ACTIVE'  -- 활성 직원만 (emp_status 컬럼이 있다고 가정)
     </select>
 
+    <select id="getDeptTeamList">
+		SELECT 
+			d.dept_name AS deptName,
+			t.team_name AS teamName
+		FROM team t INNER JOIN department d ON t.dept_id = d.dept_id;
+	</select>
 </mapper>

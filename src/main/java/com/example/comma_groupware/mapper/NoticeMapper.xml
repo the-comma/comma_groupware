@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.comma_groupware.mapper.NoticeMapper">
+  <!-- 공통 검색 where -->
+  <sql id="whereClause">
+    <where>
+      <if test="keyword != null and keyword != ''">
+        (notice_title LIKE CONCAT('%', #{keyword}, '%')
+         OR notice_content LIKE CONCAT('%', #{keyword}, '%'))
+      </if>
+    </where>
+  </sql>
+
+<!-- NoticeMapper.xml -->
+
+<!-- 목록: is_pin DESC → created_at DESC (+ file_count 같이 내려주려면 view용으로 file_count 포함해도 됨) -->
+<select id="selectNoticeList" parameterType="map"
+        resultType="com.example.comma_groupware.dto.Notice">
+  SELECT
+    n.notice_id AS noticeId,
+    n.writer_id AS writerId,
+    n.notice_title AS noticeTitle,
+    n.notice_content AS noticeContent,
+    n.is_pin AS isPin,
+    n.notice_view_count AS noticeViewCount,
+    n.created_at AS createdAt,
+    n.updated_at AS updatedAt,
+    n.is_file AS isFile,
+    n.file_count AS fileCount                <!-- ✨ changed -->
+  FROM notice n
+  <include refid="whereClause"/>
+  ORDER BY n.is_pin DESC, n.created_at DESC
+  LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<select id="selectNoticeCount" parameterType="map" resultType="int">
+  SELECT COUNT(*) FROM notice
+  <include refid="whereClause"/>
+</select>
+
+<select id="selectNoticeOne" parameterType="int"
+        resultType="com.example.comma_groupware.dto.Notice">
+  SELECT
+    notice_id AS noticeId,
+    writer_id AS writerId,
+    notice_title AS noticeTitle,
+    notice_content AS noticeContent,
+    is_pin AS isPin,
+    notice_view_count AS noticeViewCount,
+    created_at AS createdAt,
+    updated_at AS UpdatedAt,
+    is_file AS isFile,
+    file_count AS fileCount                  <!-- ✨ changed -->
+  FROM notice
+  WHERE notice_id = #{noticeId}
+</select>
+
+<update id="increaseViewCount" parameterType="int">
+  UPDATE notice
+  SET notice_view_count = notice_view_count + 1
+  WHERE notice_id = #{noticeId}
+</update>
+
+<insert id="insertNotice"
+        parameterType="com.example.comma_groupware.dto.Notice"
+        useGeneratedKeys="true" keyProperty="noticeId" keyColumn="notice_id">
+  INSERT INTO notice (writer_id, notice_title, notice_content, is_pin, is_file)
+  VALUES (#{writerId}, #{noticeTitle}, #{noticeContent}, #{isPin}, #{isFile})
+</insert>
+
+<update id="updateNotice">
+  UPDATE notice
+  SET notice_title = #{noticeTitle},
+      notice_content = #{noticeContent},
+      is_pin = #{isPin},
+      is_file = #{isFile},           
+      file_count = #{fileCount}, 
+      updated_at     = NOW()       
+  WHERE notice_id = #{noticeId}
+</update>
+
+<!-- ✨ changed: 파일 플래그/카운트만 갱신할 때 -->
+<update id="updateNoticeFileFlags" parameterType="com.example.comma_groupware.dto.Notice">
+  UPDATE notice
+  SET is_file = #{isFile},
+      file_count = #{fileCount}, 
+      updated_at = NOW() 
+  WHERE notice_id = #{noticeId}
+</update>
+
+<delete id="deleteNotice" parameterType="int">
+  DELETE FROM notice WHERE notice_id = #{noticeId}
+</delete>
+
+<!-- File 공통 -->
+<insert id="insertFile" parameterType="com.example.comma_groupware.dto.FileResource"
+        useGeneratedKeys="true" keyProperty="fileId">
+  INSERT INTO file_resource(file_size, file_origin_name, file_name, file_ref_type, file_ref_id, file_ext, file_uploader, upload_at)
+  VALUES (#{fileSize}, #{fileOriginName}, #{fileName}, #{fileRefType}, #{fileRefId}, #{fileExt}, #{fileUploader}, NOW())
+</insert>
+
+<select id="selectFilesByRef" resultType="com.example.comma_groupware.dto.FileResource">
+  SELECT file_id AS fileId, file_size AS fileSize, file_origin_name AS fileOriginName,
+         file_name AS fileName, file_ref_type AS fileRefType, file_ref_id AS fileRefId,
+         file_ext AS fileExt, file_uploader AS fileUploader, upload_at AS uploadAt
+  FROM file_resource
+  WHERE file_ref_type = #{refType} AND file_ref_id = #{refId}
+  ORDER BY file_id ASC
+</select>
+
+<select id="selectFileOne" parameterType="int" resultType="com.example.comma_groupware.dto.FileResource">
+  SELECT file_id AS fileId, file_size AS fileSize, file_origin_name AS fileOriginName,
+         file_name AS fileName, file_ref_type AS fileRefType, file_ref_id AS fileRefId,
+         file_ext AS fileExt, file_uploader AS fileUploader, upload_at AS uploadAt
+  FROM file_resource WHERE file_id = #{fileId}
+</select>
+
+<delete id="deleteFile" parameterType="int">
+  DELETE FROM file_resource WHERE file_id = #{fileId}
+</delete>
+
+<delete id="deleteFilesByRef">
+  DELETE FROM file_resource WHERE file_ref_type = #{refType} AND file_ref_id = #{refId}
+</delete>
+
+<!-- ✨ changed: 파일 개수 / 첫 파일 id -->
+<select id="countFilesByRef" resultType="int">
+  SELECT COUNT(*) FROM file_resource
+  WHERE file_ref_type = #{refType} AND file_ref_id = #{refId}
+</select>
+
+<select id="selectFirstFileIdByNotice" parameterType="int" resultType="int">
+  SELECT file_id
+  FROM file_resource
+  WHERE file_ref_type = 'NOTICE' AND file_ref_id = #{refId}
+  ORDER BY file_id ASC
+  LIMIT 1
+</select>
+
+<!-- 권한 체크 동일 -->
+<select id="isSupportDeptNow" resultType="int">
+  SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+  FROM department_history dh
+  JOIN team t ON t.team_id = dh.team_id
+  JOIN department d ON d.dept_id = t.dept_id
+  WHERE dh.emp_id = #{empId}
+    AND d.dept_name = #{deptName}
+    AND (dh.end_date IS NULL OR dh.end_date >= CURRENT_DATE)
+</select>
+
+  <!-- empId로 deptName 조회 -->
+  <select id="selectDeptNameByEmpId" parameterType="int" resultType="string">
+    SELECT d.dept_name
+    FROM employee e
+    JOIN department_history dh ON e.emp_id = dh.emp_id
+    JOIN team t ON dh.team_id = t.team_id
+    JOIN department d ON t.dept_id = d.dept_id
+    WHERE e.emp_id = #{empId}
+      AND dh.end_date IS NULL
+  </select>
+
+</mapper>

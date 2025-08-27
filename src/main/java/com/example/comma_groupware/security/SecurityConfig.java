@@ -13,12 +13,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.w3c.dom.Node;
 
 import com.example.comma_groupware.CommaGroupwareApplication;
@@ -27,12 +30,6 @@ import com.example.comma_groupware.CommaGroupwareApplication;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final EmployeeController authController;
-
-    SecurityConfig(EmployeeController authController) {
-        this.authController = authController;
-    }
-	
 	@Bean  // 암호화 등록
 	public PasswordEncoder passwordEncoder() { 
 		
@@ -47,20 +44,25 @@ public class SecurityConfig {
 		
 		httpSecurity.authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
 			    .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll() //  JSP forward 허용
-			    .requestMatchers("/login", "/loginAction",
-			                     "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/HTML/Admin/dist/assets/**").permitAll()
+			    .requestMatchers("/login", "/loginAction", "/findPw", "/login-pin/**", "/resetPw", "/stomp/chat/**",
+			                     "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/HTML/Admin/dist/assets/**" , "/static/assets/**").permitAll()
 				/* .requestMatchers("/user/**").hasRole(null)  역할부여 필요 */ 
 			    .anyRequest().authenticated()
 			);
 		
 		
 		httpSecurity.formLogin(form ->
-	    form.loginPage("/login")              // 로그인 페이지
-	        .loginProcessingUrl("/loginAction") 
+	    form.loginPage("/login")             // 로그인 페이지
+	        .loginProcessingUrl("/loginAction")  
 	        .successHandler((request, res, auth) ->{
 	        	CustomUserDetails userDetails =  (CustomUserDetails) auth.getPrincipal();
 	        	HttpSession session = request.getSession();
+	        	session.setAttribute("loginEmp", userDetails.getEmployee());
 	        	session.setAttribute("username", userDetails.getUsername());
+	        	if(userDetails.getUsername().equals(userDetails.getPassword())) {
+	        		res.sendRedirect("/resetPw");
+	        		return;
+	        	}
 	        	res.sendRedirect("/mainPage");
 	        })
 	        .failureHandler((req, res, ex) -> {

@@ -8,13 +8,19 @@ import com.example.comma_groupware.dto.Department;
 import com.example.comma_groupware.mapper.DepartmentMapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class DepartmentService {
 
-    private final DepartmentMapper departmentMapper;
+    DepartmentMapper departmentMapper;
+
+	public DepartmentService(DepartmentMapper departmentMapper) {
+		this.departmentMapper = departmentMapper;
+	}
+	
 
     /**
      * 모든 부서 조회
@@ -112,4 +118,8 @@ public class DepartmentService {
     public int getEmployeeCount(int deptId) {
         return departmentMapper.countEmployees(deptId);
     }
+
+    public List<Map<String,Object>> getDeptTeamList(){
+		return departmentMapper.getDeptTeamList();
+	}
 }

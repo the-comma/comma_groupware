@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import com.example.comma_groupware.dto.Department;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DepartmentMapper {
@@ -48,4 +49,7 @@ public interface DepartmentMapper {
      * 부서별 직원 수 조회
      */
     int countEmployees(@Param("deptId") int deptId);
+
+    // SELECT
+	List<Map<String,Object>> getDeptTeamList();	// 부서/팀 가져오기
 }

@@ -11,7 +11,6 @@ public class ApprovalDocument {
 	private String approvalTitle;
 	private String documentType;
 	private String approvalStatus;
-	private String approvalReason;
 	private Integer isFile;
 	private LocalDateTime createAt;	
 	private LocalDateTime completeAt;

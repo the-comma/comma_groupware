@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.example.comma_groupware.mapper.ProjectMemberMapper">
+	
+	<!-- 프로젝트 아이디로 참여자 리스트 조회 -->
+	<select id="selectProjectMebmerListByProjectId" parameterType="map">
+		SELECT
+			pm.project_role AS projectRole,
+			e.emp_id AS empId,
+			e.emp_name AS empName,
+			r.rank_name AS rankName
+		FROM
+		(SELECT * FROM project_member WHERE project_id = #{projectId}) pm
+		INNER JOIN
+		<if test="searchName == ''">
+			employee
+		</if>
+		<if test="searchName != ''">
+			(SELECT * FROM employee WHERE emp_name LIKE CONCAT('%', #{searchName}, '%'))
+		</if>
+		 e ON pm.emp_id = e.emp_id
+		INNER JOIN (SELECT * FROM rank_history WHERE end_date IS NULL) rh ON pm.emp_id = rh.emp_id
+		INNER JOIN `rank` r ON rh.rank_id = r.rank_id
+	</select>
+	
+	<!-- 프로젝트 멤버 추가 -->
+	<insert id="addProjectMember" parameterType="com.example.comma_groupware.dto.ProjectMember">
+		INSERT INTO project_member(
+			project_id, emp_id, project_role
+		)
+		VALUES(
+			#{projectId}, #{empId}, #{projectRole}
+		)
+	</insert>
+</mapper>
