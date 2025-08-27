@@ -10,6 +10,7 @@ public class ProjectTask {
 	private int taskId;
 	private int taskParent;
 	private int projectId;
+	private int writerId;
 	private String taskTitle;
 	private String taskDesc;
 	private String taskStatus;

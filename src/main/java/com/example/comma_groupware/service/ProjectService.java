@@ -42,6 +42,16 @@ public class ProjectService {
 	/** 업무 조회 **/
 	public List<Map<String,Object>> selectTaskListByProjectId(Map<String, Object> param){
 		return projectTaskMapper.selectTaskListByProjectId(param);
+	}	
+	
+	/** 업무 상세 조회 **/
+	public ProjectTask selectTaskByTaskId(int taskId){
+		return projectTaskMapper.selectTaskByTaskId(taskId);
+	}
+	
+	/** 업무 참여자 조회 **/
+	public List<Map<String, Object>> selectTaskMemberByTaskId(int taskId) {
+		return taskMemberMapper.selectTaskMemberByTaskId(taskId);
 	}
 	
 	/** 업무 추가 **/
@@ -60,9 +70,11 @@ public class ProjectService {
 		
 		// 2. 해당 업무에 담당자 추가
 		
-		for(Integer empId : empList) {
-			TaskMember taskMember = new TaskMember(taskId, empId);
-			taskMemberMapper.addTaskMember(taskMember);
+		if(empList != null) {			
+			for(Integer empId : empList) {
+				TaskMember taskMember = new TaskMember(taskId, empId);
+				taskMemberMapper.addTaskMember(taskMember);
+			}
 		}
 		
 		// 3. 멀티 파일 있으면 추가

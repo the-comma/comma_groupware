@@ -3,6 +3,7 @@
 <mapper
 	namespace="com.example.comma_groupware.mapper.TaskMemberMapper">
 	
+	<!-- 작엄 멤버 추가 -->
 	<insert id="addTaskMember" parameterType="com.example.comma_groupware.dto.TaskMember">
 		INSERT INTO task_member(
 			task_id, emp_id
@@ -11,4 +12,14 @@
 			#{taskId}, #{empId}
 		)		
 	</insert>
+	
+	<!-- 작업 아이디로 참여자 조회 -->
+	<select id="selectTaskMemberByTaskId" parameterType="int" resultType="map">
+		SELECT
+			tm.task_id AS taskId,
+			tm.emp_id AS empId,
+			e.emp_name AS empName
+		FROM (SELECT * FROM task_member WHERE task_id = #{taskId}) tm
+		INNER JOIN employee e ON e.emp_id = tm.emp_id
+	</select>
 </mapper>

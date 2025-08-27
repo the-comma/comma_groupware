@@ -1,96 +1,37 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 	
-	<a href="addTask" class="btn btn-primary mb-sm-0 mb-2" data-bs-toggle="modal" data-bs-target="#scrollable-modal">
-	    <i class="ti ti-circle-plus fs-20 me-2"></i>업무 추가
-	</a>
 
-	<!-- 모달 -->
-    <form action="/addTask" method="post" name="addTask" id="addTask" enctype="multipart/form-data">
+	<!-- 업무 작성, 수정 모달 -->
 	<div class="modal fade" id="scrollable-modal" tabindex="-1" role="dialog"
 	    aria-labelledby="scrollableModalTitle" aria-hidden="true">
 	    <div class="modal-dialog modal-dialog-scrollable" role="document">
 	        <div class="modal-content">
-	            <div class="modal-header">
-	                <h4 class="modal-title" id="scrollableModalTitle">업무 작성</h4>
-	                <button type="button" class="btn-close" data-bs-dismiss="modal"
-	                    aria-label="Close"></button>
-	            </div>
-	            <div class="modal-body">
-	            	<input type="hidden" name ="projectId" value="${projectId}">
-	            	
-					<input type="text" class="form-control" name="taskTitle" placeholder="제목을 입력하세요.">
-					<br>					
-					<label for="taskStatus" class="form-label">상태</label>
-	                <select class="form-control" id="taskStatus" name="taskStatus">
-	                	<option value="REQUEST">요청</option>
-	                	<c:if test="${deptTeamList != null}">
-	                		<c:forEach items="${deptTeamList}" var="dept">
-	                			<option value="${dept.teamName}">${dept.deptName}/${dept.teamName}</option>
-	      					</c:forEach>
-	                	</c:if>
-	                </select>
-	                <br>
-	                <label for="memberList" class="form-label">담당자</label>
-	                <div class="choices" data-type="text">
-	                	<div class="choices__inner">
-	                		<input readonly="readonly" class="form-control choices__input" id="choices-text-remove-button" data-choices="" data-choices-limit="3" data-choices-removeitem="" type="text" value="Task-1" hidden="" tabindex="-1" data-choice="active">
-	                			<div id="memberList" class="choices__list choices__list--multiple">
-	                			<!-- 아이템 들어가는 영역 -->
-									
-	                			</div>
-	                		<input type="search" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" aria-autocomplete="list" aria-label="Set limit values with remove button" style="min-width: 1ch; width: 1ch;">
-	               		</div>
-	               		
-	               		<div class="choices__list choices__list--dropdown" aria-expanded="false">
-	                		<div class="choices__list" aria-multiselectable="true" role="listbox">
-	                		</div>
-	               		</div>
-              		</div>      
-              		<!-- hiddenList -->
-              		<div id="hiddentList">
-              		
-              		</div>
-              		<br>
-              		<label for="empName" class="form-label">담당자 추가</label>
-              		<input type="text" id="empName" class="form-control" placeholder="사원 이름..">
-	                <table id="empTable" class="form-table">
-	                	<tbody id="empList" name="empList">
-
-	                	</tbody>
-	                </table>	 
-	                <br>
-	                <div>
-						<label for="startDate" class="form-label">시작일</label>
-						<input class="form-control" type="date" id="startDate" name="startDate">
-					</div>     
-	                <br>
-					<div>
-						<label for="dueDate" class="form-label">마감일</label>
-						<input class="form-control" type="date" id="dueDate" name="dueDate">
-					</div>
-					<br>
-					<div>
-						<textarea class="form-control" rows="10" cols="20" id="taskDesc" name="taskDesc" placeholder="내용을 입력하세요."></textarea>
-					</div>			
-					
-					<div>
-                        <label for="formFileMultiple01" class="form-label">첨부파일</label>
-                        <input class="form-control" name="file" type="file" id="formFileMultiple01" multiple>
-                    </div>
-					
-					<!-- 미리보기 영역 -->
-					<div id="filePreview" class="mt-3"></div>
-	            </div> <!-- modal-body -->
-	            <div class="modal-footer">
-	                <button type="button" class="btn btn-outline-danger"
-	                    data-bs-dismiss="modal">취소</button>
-	                <button type="submit" class="btn btn-outline-success" id="modalBtn">등록</button>
-	            </div>
+	            
 	        </div><!-- /.modal-content -->
 	    </div><!-- /.modal-dialog -->
 	</div><!-- /.modal -->
-	</form>
+	
+	<a href="javascript:void(0)" 
+	   onclick="openAddTaskModal()" 
+	   class="btn btn-primary mb-sm-0 mb-2">
+	    <i class="ti ti-circle-plus fs-20 me-2"></i>업무 추가
+	</a>
+
+	<script src="${pageContext.request.contextPath}/resources/js/taskModal.js"></script>
+	<script>
+	function openAddTaskModal() {
+	    $("#scrollable-modal .modal-content").load("/addTask", function() {
+	        var modalEl = document.getElementById('scrollable-modal');
+	        var myModal = new bootstrap.Modal(modalEl); 
+	        myModal.show();
+	
+	        // 모달 로드 후 JS 초기화
+	        initTaskModalJS(${projectId});
+	    });
+	}
+	</script>
+
 	
 	<!-- 업무 리스트 -->
 	<div class="table-responsive-sm">
@@ -111,7 +52,13 @@
 				<c:forEach items="${taskList}" var="t">
 				    <tr 
 				        data-level="${t.level}" 
-				        data-task-id="${t.taskId}" 
+				        data-task-id="${t.taskId}"
+				        data-task-writer="${t.writerName}"
+				        data-task-title="${t.taskTitle}"
+				        data-task-desc="${t.taskDesc}"
+				        data-task-status="${t.taskStatus}"
+				        data-task-start-date="${t.startDate}"
+				        data-task-due-date="${t.dueDate}"
 				        data-parent-id="${t.taskParent}"
 				        class="task-row <c:if test='${t.level > 0}'>child-row</c:if>">
 				        <td>
@@ -121,10 +68,25 @@
 				            <c:if test="${t.childCount > 0}">
 				                <span class="toggle-btn" style="cursor:pointer;">[-]</span>
 				            </c:if>
-				            ${t.taskTitle} 
+				            <a href="#" class="link-dark" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">${t.taskTitle}</a>
 				            <c:if test="${t.childCount > 0}">(${t.childCount})</c:if>
 				        </td>
-				        <td>${t.taskStatus}</td>
+				        <td>
+       						<c:choose>
+								<c:when test="${t.taskStatus eq 'REQUEST'}">
+									<span class="badge badge-soft-primary p-1">요청</span>
+								</c:when>
+								<c:when test="${t.taskStatus eq 'PROGRESS'}">
+									<span class="badge badge-soft-success p-1">진행</span>
+								</c:when>
+								<c:when test="${t.taskStatus eq 'FEEDBACK'}">
+									<span class="badge badge-soft-danger p-1">피드백</span>
+								</c:when>
+								<c:when test="${t.taskStatus eq 'COMPLETED'}">
+									<span class="badge badge-soft-secondary p-1">완료</span>
+								</c:when>
+							</c:choose>
+				        </td>
 				        <td>
 				            <c:choose>
 				                <c:when test="${t.memberName != null}">
@@ -138,7 +100,7 @@
 				        <td>${t.startDate}</td>
 				        <td>${t.dueDate}</td>
 				        <td></td>
-				        <td></td>
+				        <td>${t.writerName}</td>
 				    </tr>
 				</c:forEach>
 				</tbody>
@@ -147,133 +109,108 @@
 	</div>
 	<!-- 업무 리스트 끝 -->
 	
-	<script>
-	    const projectId = ${projectId};
-	    const selectedEmp = new Set();
-	    const hl = document.querySelector('#hiddentList');
-	    
-	    // 초기 호출 (검색어 없이 전체 목록)
-	    getMemberList('');
-	
-	 	// input 이벤트
-	 	document.querySelector('#empName').addEventListener('keyup', function() {			
-	     	getMemberList(this.value); // 이벤트에서 값 바로 전달
-	 	});
-	
-	 	// 멤버 리스트 가져옴
-	 	function getMemberList(searchName) {
-		    let url = '/memberListByProjectId/' + projectId;
-		    if(searchName) url += '/' + searchName; // 비어있으면 붙이지 않음
+	<!-- 업무 상세 -->
+	<div class="offcanvas offcanvas-end border" style="width:33%" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel" aria-modal="true" role="dialog">
+		<div class="offcanvas-header border" style="height:3%">
+		    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		</div> <!-- end offcanvas-header-->
+		<div class="offcanvas-body">
+			<div class="row">
+				<div class="col-lg-2">
+					<img src="/HTML/Admin/dist/assets/images/default_profile.png" alt="image" class="img-fluid avatar-lg rounded">
+				</div>
+				<div class="col-lg-6">
+					<span id="detail-writer">이름</span>
+				</div>
+				<div class="col-lg-2">
+					<button class="btn btn-primary mt-2 mt-md-0" id="modifyBtn" onclick="openModifyTaskModal()">업무 수정</button>
+				</div>
+					<!-- 업무 수정 버튼 클릭하고 모달창 생성 -->
+					<script>
+						function openModifyTaskModal(taskId) {
+						    $("#scrollable-modal .modal-content").load("/modifyTask?id=" + taskId, function() {
+						        var modalEl = document.getElementById('scrollable-modal');
+						        var myModal = new bootstrap.Modal(modalEl); 
+						        myModal.show();
+						        
+						     	// 모달 로드 후 JS 초기화
+						        initTaskModalJS(${projectId});
+						    });
+						}
+					</script>
+				<div class="col-lg-2">
+		    		<button class="btn btn-danger mt-2 mt-md-0">업무 삭제</button>
+				</div>
+			</div>
+		    <h4 class="mt-3" id="detail-title">업무 제목</h4>
+		    <hr>
+		    
+		    <div class="row">
+		    	<label for="detail-member" class="form-label">담당자</label>
+				<div class="choices" data-type="text">
+                	<div class="choices__inner">
+                		<input readonly="readonly" class="form-control choices__input" id="choices-text-remove-button" data-choices="" data-choices-limit="3" data-choices-removeitem="" type="text" value="Task-1" hidden="" tabindex="-1" data-choice="active">
+                			<div id="detail-member" class="choices__list choices__list--multiple">
+                			
+                			</div>
+                		<input type="search" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" aria-autocomplete="list" aria-label="Set limit values with remove button" style="min-width: 1ch; width: 1ch;">
+               		</div>
+           		</div>		    	
+					    
+				<div class="col-lg-3">
+					상태
+				</div>
+				<div class="col-lg-6">
+					<span id="detail-status"></span>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-lg-3">
+					시작일
+				</div>
+				<div class="col-lg-6">
+					<span id="detail-startDate"></span>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-lg-3">
+					마감일
+				</div>
+				<div class="col-lg-6">
+					<span id="detail-dueDate"></span>		
+				</div>
+			</div>
+			
+			<hr>
+			
+			<div>
+				<span id="detail-desc"></span>
+			</div>
+			<hr>
+			<div class="border bg-light">
+				댓글
+			</div>
+		</div> <!-- end offcanvas-body-->
 		
-		    fetch(url)
-		        .then(res => res.json())
-		        .then(result => {
-	                document.querySelector('#empList').innerHTML = '';
-		            if (result.length < 1) {
-		                return;
-		            }
-		            result.forEach(function(e){
-		            	const checked = [...selectedEmp].some(item => item.id === String(e.empId)) ? "checked" : "";
-		            	
-		            	document.querySelector('#empList').innerHTML += `
-		            		<tr>
-		            			<td><input type="checkbox" class="emp form-check-input" value="\${e.empId}" data-name="\${e.empName}" \${checked}></td>
-				    			<td><img src="/HTML/Admin/dist/assets/images/default_profile.png" alt="image" class="img-fluid avatar-xs rounded"></td>
-		            			<td>[\${e.projectRole}]</td>
-		            			<td>\${e.empName}</td>
-		            			<td>\${e.rankName}</td>
-		            		</tr>
-		            	`
-		            });
-		        });
-		}
-	 	
-	 // 체크박스 선택 이벤트 위임
-	document.querySelector('#empList').addEventListener('change', function(e) {
-	    if(e.target.classList.contains('emp')) {
-	        if(e.target.checked){
-	        	selectedEmp.add({id: e.target.value, name: e.target.dataset.name});
-	        } else {
-	            [...selectedEmp].forEach(item => {
-	                if(item.id === e.target.value) selectedEmp.delete(item);
-	            });
-	        }
-	    }
-	    
-	 	// 현재 선택된 멤버 미리보기 (memberList에 출력)
-	    renderMemberList();
-	});
-
-	// memberList 영역 그리기 함수
-	function renderMemberList(){
-	    const memberList = document.querySelector('#memberList');
-	    memberList.innerHTML = "";
-	    hl.innerHTML = '';				// hidden input 영역 초기화		
-	    selectedEmp.forEach(e => {
-	    	hl.innerHTML += `
-	            <input type="hidden" name="selectedEmp" value="\${e.id}">
-	    	`
-	        memberList.innerHTML += `<div class="member-btn choices__item choices__item--selectable" data-role="FE" data-id="\${e.id}">
-	        						<img src="/HTML/Admin/dist/assets/images/default_profile.png" alt="image" class="img-fluid avatar-xs rounded">
-	        						\${e.name}
-							        <button type="button" class="member-btn choices__button" data-role="FE" data-id="\${e.id}" aria-label="Remove item: Task-1" data-button="">Remove item</button>
-							        </div>`;
-	    });
- 	}
- 	
-	// 버튼 클릭 → 해당 멤버 제거
-	document.querySelector('#memberList').addEventListener('click', function(e){
-	    if(e.target.classList.contains('member-btn')){
-	        const role = e.target.dataset.role;
-	        const id = e.target.dataset.id;
+		<div class="offcanvas-footer border" style="height:10%">
+			<div class="row">
+				<div class="col-lg-3">
+					<img src="/HTML/Admin/dist/assets/images/default_profile.png" alt="image" class="img-fluid avatar-lg rounded">
+				</div>
+				<div class="col-lg-9">
+					<input type="text" class="form-control" placeholder="댓글 입력.">
+				</div>
+			</div>
+		</div>
+	</div>
 	
-	        [...selectedEmp].forEach(item => { if(item.id === id) selectedEmp.delete(item); });
+	<!-- 스크립트 -->
+	<script src="${pageContext.request.contextPath}/resources/js/getTask.js"></script>
 	
-	        // 체크박스도 해제
-	        document.querySelectorAll(`input[value="\${id}"]`).forEach(cb => cb.checked = false);
-	
-	        // 다시 렌더링
-	        renderMemberList();
-	    }
-	});
-	
-	// 파일 프리뷰
-	document.getElementById('formFileMultiple01').addEventListener('change', function (event) {
-	    const files = event.target.files;
-	    const preview = document.getElementById('filePreview');
-
-	    preview.innerHTML = ""; // 기존 미리보기 초기화
-
-	    Array.from(files).forEach(file => {
-	        const fileDiv = document.createElement("div");
-	        fileDiv.classList.add("mb-2", "p-2", "border", "rounded");
-
-	        // 파일 이름 + 크기 표시
-	        const info = document.createElement("p");
-
-	        info.textContent = `\${file.name} (\${(file.size / 1024).toFixed(1)} KB)`;
-	        
-	        fileDiv.appendChild(info);
-
-	        // 이미지 파일이면 썸네일 생성
-	        if (file.type.startsWith("image/")) {
-	            const img = document.createElement("img");
-	            img.classList.add("img-thumbnail", "mt-1");
-	            img.style.maxWidth = "150px";
-	            img.style.maxHeight = "150px";
-
-	            const reader = new FileReader();
-	            reader.onload = e => {
-	                img.src = e.target.result;
-	            };
-	            reader.readAsDataURL(file);
-
-	            fileDiv.appendChild(img);
-	        }
-	        
-	        preview.appendChild(fileDiv);
-	    });
-	});
+	<script>
+    const projectId = ${projectId};
 
 	// 상위 작업 접었다 폈다
 	document.querySelectorAll('.toggle-btn').forEach(btn => {
@@ -304,9 +241,4 @@
 	        }
 	    });
 	}
-	
-	// 최종 등록 버튼 클릭
-	/* document.querySelector('#modalBtn').addEventListener('click', function() {
-		document.querySelector('#addTask').submit();
-   	}); */
 	</script>

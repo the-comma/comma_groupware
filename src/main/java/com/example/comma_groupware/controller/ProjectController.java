@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.comma_groupware.dto.Page;
 import com.example.comma_groupware.dto.Project;
 import com.example.comma_groupware.dto.ProjectTask;
+import com.example.comma_groupware.dto.TaskMember;
 import com.example.comma_groupware.service.DepartmentService;
 import com.example.comma_groupware.service.ProjectService;
 
@@ -33,9 +34,27 @@ public class ProjectController {
 		this.deptService = deptService;
 	}
 	
+	// 업무 수정 폼
+	@GetMapping("/modifyTask")
+	public String modifyTask(@RequestParam int id, Model model) {
+	    ProjectTask task = projectService.selectTaskByTaskId(id);
+	    List<Map<String, Object>> taskMember = projectService.selectTaskMemberByTaskId(id);
+	    
+	    model.addAttribute("task", task);
+	    model.addAttribute("taskMember", taskMember);
+	    
+	    return "modifyTask"; // modifyTask.jsp
+	}
+	
+	// 업무 추가 폼
+	@GetMapping("/addTask")
+	public String addTask() {
+		return "addTask";
+	}
+		
 	@PostMapping("/addTask")
 	public String addTask(ProjectTask projectTask, HttpSession session
-			, @RequestParam List<Integer> selectedEmp
+			, @RequestParam(required = false) List<Integer> selectedEmp
 			, @RequestParam("file") List<MultipartFile> file) {
 
 		//	int pmId = session.getAttribute(null)

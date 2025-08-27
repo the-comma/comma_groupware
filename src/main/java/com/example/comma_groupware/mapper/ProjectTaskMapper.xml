@@ -3,67 +3,95 @@
 <mapper
 	namespace="com.example.comma_groupware.mapper.ProjectTaskMapper">
 	
+	<!-- 작업 추가 -->
 	<insert id="addProjectTask" parameterType="com.example.comma_groupware.dto.ProjectTask"
 		useGeneratedKeys="true" keyProperty="taskId">
 		
 		INSERT INTO project_task(
-			task_parent, project_id, task_title, task_status, file_count, due_date
+			task_parent, project_id, writer_id, task_title, task_desc, task_status, file_count, start_date, due_date
 		) VALUES(
-			#{taskParent}, #{projectId}, #{taskTitle}, #{taskStatus}, #{fileCount}, #{dueDate}
+			#{taskParent}, #{projectId}, #{writerId}, #{taskTitle}, #{taskDesc}, #{taskStatus}, #{fileCount}, #{startDate}, #{dueDate}
 		)
 	</insert>
 	
+	<!-- 프로젝트 아이디로 작업 리스트 조회 -->
 	<select id="selectTaskListByProjectId" parameterType="map">
 		WITH RECURSIVE task_tree AS (
-	    <!-- 1. 최상위 업무부터 시작 -->
-	    SELECT
-	        pt.task_id AS taskId,
-	        pt.task_title AS taskTitle,
-	        pt.task_status AS taskStatus,
-	        pt.start_date AS startDate,
-	        pt.due_date AS dueDate,
-	        pt.task_parent AS taskParent,
-	        0 AS level,
-	        CAST(pt.task_id AS CHAR(200)) AS sort_path
-	    FROM project_task pt
-	    WHERE pt.project_id = #{projectId}
-	      AND (pt.task_parent IS NULL OR pt.task_parent = 0)
-	
-	    UNION ALL
-	
-	    <!-- 2. 하위 업무를 재귀적으로 가져오기 -->
-	    SELECT 
-	        pt.task_id,
-	        pt.task_title,
-	        pt.task_status,
-	        pt.start_date,
-	        pt.due_date,
-	        pt.task_parent,
-	        tt.level + 1 AS level,
-	        CONCAT(tt.sort_path, '-', pt.task_id) AS sort_path
-	    FROM project_task pt
-	    INNER JOIN task_tree tt ON pt.task_parent = tt.taskId
-	)
-	SELECT 
-	    tt.*,
-	    m.memberCount,
-	    m.first_emp_id AS firstEmpId,
-	    e.emp_name AS memberName,
-	    (SELECT COUNT(*) FROM project_task WHERE task_parent = tt.taskId) AS childCount
-	FROM task_tree tt
-	LEFT JOIN (
-	    SELECT 
-	        tm.task_id, 
-	        COUNT(*) AS memberCount,
-	        (SELECT tm2.emp_id
-	         FROM task_member tm2
-	         WHERE tm2.task_id = tm.task_id
-	         ORDER BY tm2.assigned_at ASC
-	         LIMIT 1) AS first_emp_id
-	    FROM task_member tm
-	    GROUP BY tm.task_id
-	) m ON tt.taskId = m.task_id
-	LEFT JOIN employee e ON e.emp_id = m.first_emp_id
-	ORDER BY tt.sort_path;
+		    -- 1. 최상위 업무부터 시작
+		    SELECT 
+		        pt.task_id AS taskId,
+		        pt.task_title AS taskTitle,
+		        pt.writer_id AS writerId,
+		        pt.task_desc AS taskDesc,
+		        pt.task_status AS taskStatus,
+		        pt.start_date AS startDate,
+		        pt.due_date AS dueDate,
+		        pt.task_parent AS taskParent,
+		        0 AS level,
+		        CAST(pt.task_id AS CHAR(200)) AS sort_path
+		    FROM project_task pt
+		    WHERE pt.project_id = #{projectId}
+		      AND (pt.task_parent IS NULL OR pt.task_parent = 0)
+		
+		    UNION ALL
+		
+		    -- 2. 하위 업무를 재귀적으로 가져오기
+		    SELECT 
+		        pt.task_id,
+		        pt.task_title,
+		        pt.writer_id,
+		        pt.task_desc,
+		        pt.task_status,
+		        pt.start_date,
+		        pt.due_date,
+		        pt.task_parent,
+		        tt.level + 1 AS level,
+		        CONCAT(tt.sort_path, '-', pt.task_id) AS sort_path
+		    FROM project_task pt
+		    INNER JOIN task_tree tt ON pt.task_parent = tt.taskId
+		)
+		SELECT 
+		    tt.*,
+		    w.emp_name AS writerName,
+		    m.memberCount,
+		    m.first_emp_id AS firstEmpId,
+		    e.emp_name AS memberName,
+		    (SELECT COUNT(*) FROM project_task WHERE task_parent = tt.taskId) AS childCount
+		FROM task_tree tt
+		LEFT JOIN (
+		    SELECT 
+		        tm.task_id, 
+		        COUNT(*) AS memberCount,
+		        (SELECT tm2.emp_id
+		         FROM task_member tm2
+		         WHERE tm2.task_id = tm.task_id
+		         ORDER BY tm2.assigned_at ASC
+		         LIMIT 1) AS first_emp_id
+		    FROM task_member tm
+		    GROUP BY tm.task_id
+		) m ON tt.taskId = m.task_id
+		LEFT JOIN employee e ON e.emp_id = m.first_emp_id
+		LEFT JOIN employee w ON w.emp_id = tt.writerId
+		ORDER BY tt.sort_path;
+
 	</select>
+	
+	<!-- 작업 아이디로 작업 상세 조회 -->
+	<select id="selectTaskByTaskId" parameterType="int" resultType="com.example.comma_groupware.dto.ProjectTask">
+		SELECT
+			task_id AS taskId,
+			project_id AS projectId,
+			task_status AS taskStatus,
+			task_title AS taskTitle,
+			task_desc AS taskDesc,
+			file_count AS fileCount,
+			start_date AS startDate,
+			due_date AS dueDate
+		FROM
+		project_task WHERE task_id = #{id}
+	</select>
+	
+	
+	
+	
 </mapper>
