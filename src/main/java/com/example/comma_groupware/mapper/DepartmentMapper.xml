@@ -5,41 +5,41 @@
 <mapper namespace="com.example.comma_groupware.mapper.DepartmentMapper">
 
     <!-- 모든 부서 조회 -->
-    <select id="selectAll" resultType="Department">
+    <select id="selectAll" resultType="com.example.comma_groupware.dto.Department">
         SELECT dept_id, dept_name as dateName
         FROM department
         ORDER BY dept_name ASC
     </select>
 
     <!-- 부서 ID로 조회 -->
-    <select id="selectById" resultType="Department">
+    <select id="selectById" resultType="com.example.comma_groupware.dto.Department">
         SELECT dept_id, dept_name as dateName
         FROM department
         WHERE dept_id = #{deptId}
     </select>
 
     <!-- 부서명으로 조회 -->
-    <select id="selectByName" resultType="Department">
+    <select id="selectByName" resultType="com.example.comma_groupware.dto.Department">
         SELECT dept_id, dept_name as dateName
         FROM department
         WHERE dept_name = #{deptName}
     </select>
 
     <!-- 활성 부서만 조회 (만약 status 컬럼이 있다면) -->
-    <select id="selectActiveDepartments" resultType="Department">
+    <select id="selectActiveDepartments" resultType="com.example.comma_groupware.dto.Department">
         SELECT dept_id, dept_name as dateName
         FROM department
         ORDER BY dept_name ASC
     </select>
 
     <!-- 부서 생성 -->
-    <insert id="insert" parameterType="Department" useGeneratedKeys="true" keyProperty="deptId">
+    <insert id="insert" parameterType="com.example.comma_groupware.dto.Department" useGeneratedKeys="true" keyProperty="deptId">
         INSERT INTO department (dept_name)
         VALUES (#{dateName})
     </insert>
 
     <!-- 부서 수정 -->
-    <update id="update" parameterType="Department">
+    <update id="update" parameterType="com.example.comma_groupware.dto.Department">
         UPDATE department
         SET dept_name = #{dateName}
         WHERE dept_id = #{deptId}

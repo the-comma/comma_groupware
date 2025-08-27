@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.comma_groupware.mapper.EmployeeMapper">
-	
+	<!-- 조서진 전부 수정 -->
 	<!-- SpringSecurity 로그인에 사용  -->
 	<select id="selectByUserName" parameterType="string"
           resultType="com.example.comma_groupware.dto.Employee">
@@ -326,5 +326,238 @@
 		INNER JOIN `rank` r ON rh.rank_id = r.rank_id
 		ORDER BY empExp DESC
 	</select>
+	
+  <!-- 조서진 추가 -->
+  <!-- 사원의 완전한 정보 조회 (부서, 팀, 직급 포함) -->
+  <select id="selectEmployeeFullInfo" parameterType="int" resultType="com.example.comma_groupware.dto.EmployeeFullInfo">
+    SELECT
+      e.emp_id        AS empId,
+      e.emp_name      AS empName,
+      e.role          AS role,
+      d.dept_id       AS deptId,
+      d.dept_name     AS deptName,
+      t.team_id       AS teamId,
+      t.team_name     AS teamName,
+      r.rank_id       AS rankId,
+      r.rank_name     AS rankName,
+      dh.start_date   AS deptStartDate,
+      rh.start_date   AS rankStartDate
+    FROM employee e
+    LEFT JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    LEFT JOIN team t
+      ON t.team_id = dh.team_id
+    LEFT JOIN department d
+      ON d.dept_id = t.dept_id
+    LEFT JOIN rank_history rh
+      ON rh.emp_id = e.emp_id
+     AND rh.end_date IS NULL
+    LEFT JOIN `rank` r
+      ON r.rank_id = rh.rank_id
+    WHERE e.emp_id = #{empId}
+  </select>
+
+  <!-- 특정 부서의 부서장 권한자 조회 -->
+  <select id="selectDepartmentManagers" parameterType="int" resultType="map">
+    SELECT
+      e.emp_id        AS empId,
+      e.emp_name      AS empName,
+      e.role          AS role,
+      r.rank_name     AS rankName,
+      d.dept_name     AS deptName
+    FROM employee e
+    JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    JOIN team t
+      ON t.team_id = dh.team_id
+    JOIN department d
+      ON d.dept_id = t.dept_id
+    LEFT JOIN rank_history rh
+      ON rh.emp_id = e.emp_id
+     AND rh.end_date IS NULL
+    LEFT JOIN `rank` r
+      ON r.rank_id = rh.rank_id
+    WHERE d.dept_id = #{deptId}
+      AND e.emp_status = '재직'
+      AND (
+        r.rank_name LIKE '%부장%' 
+        OR r.rank_name LIKE '%팀장%' 
+        OR e.role LIKE '%부장%'
+        OR e.role LIKE '%MANAGER%'
+        OR e.role LIKE '%매니저%'
+      )
+  </select>
+
+  <!-- 특정 사원이 특정 부서의 부서장인지 확인 -->
+  <select id="countDepartmentManagerRole" parameterType="map" resultType="int">
+    SELECT COUNT(*)
+    FROM employee e
+    JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    JOIN team t
+      ON t.team_id = dh.team_id
+    JOIN department d
+      ON d.dept_id = t.dept_id
+    LEFT JOIN rank_history rh
+      ON rh.emp_id = e.emp_id
+     AND rh.end_date IS NULL
+    LEFT JOIN `rank` r
+      ON r.rank_id = rh.rank_id
+    WHERE e.emp_id = #{empId}
+      AND d.dept_id = #{deptId}
+      AND e.emp_status = '재직'
+      AND (
+        r.rank_name LIKE '%부장%' 
+        OR r.rank_name LIKE '%팀장%' 
+        OR e.role LIKE '%부장%'
+        OR e.role LIKE '%MANAGER%'
+        OR e.role LIKE '%매니저%'
+      )
+  </select>
+
+  <!-- 부서장 권한 체크 (본인의 현재 부서에서) -->
+  <select id="checkManagerAuthority" parameterType="int" resultType="int">
+    SELECT COUNT(*)
+    FROM employee e
+    JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    LEFT JOIN rank_history rh
+      ON rh.emp_id = e.emp_id
+     AND rh.end_date IS NULL
+    LEFT JOIN `rank` r
+      ON r.rank_id = rh.rank_id
+    WHERE e.emp_id = #{empId}
+      AND e.emp_status = '재직'
+      AND (
+        r.rank_name LIKE '%부장%' 
+        OR r.rank_name LIKE '%팀장%' 
+        OR e.role LIKE '%부장%'
+        OR e.role LIKE '%MANAGER%'
+        OR e.role LIKE '%매니저%'
+      )
+  </select>
+
+  <!-- 경영지원부장 권한 체크 -->
+  <select id="checkManagementSupportManager" parameterType="int" resultType="int">
+    SELECT COUNT(*)
+    FROM employee e
+    JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    JOIN team t
+      ON t.team_id = dh.team_id
+    JOIN department d
+      ON d.dept_id = t.dept_id
+    LEFT JOIN rank_history rh
+      ON rh.emp_id = e.emp_id
+     AND rh.end_date IS NULL
+    LEFT JOIN `rank` r
+      ON r.rank_id = rh.rank_id
+    WHERE e.emp_id = #{empId}
+      AND d.dept_name = '경영지원부'
+      AND e.emp_status = '재직'
+      AND (
+        r.rank_name LIKE '%부장%' 
+        OR e.role LIKE '%부장%'
+        OR e.role LIKE '%MANAGER%'
+        OR e.role LIKE '%매니저%'
+      )
+  </select>
+
+  <!-- PM 권한 체크 (기획부/개발팀/기술팀 소속 + PM 역할) -->
+  <select id="checkProjectManagerAuthority" parameterType="int" resultType="int">
+    SELECT COUNT(*)
+    FROM employee e
+    JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    JOIN team t
+      ON t.team_id = dh.team_id
+    JOIN department d
+      ON d.dept_id = t.dept_id
+    WHERE e.emp_id = #{empId}
+      AND e.emp_status = '재직'
+      AND (d.dept_name IN ('기획부', '개발팀', '기술팀'))
+      AND (
+        e.role LIKE '%PM%'
+        OR e.role LIKE '%프로젝트%'
+        OR e.role LIKE '%매니저%'
+        OR e.role LIKE '%MANAGER%'
+      )
+  </select>
+
+  <!-- 같은 부서 사원들 조회 (휴가 일정 조회용) -->
+  <select id="selectDepartmentMembers" parameterType="int" resultType="com.example.comma_groupware.dto.Employee">
+    SELECT
+      e.emp_id        AS empId,
+      e.emp_name      AS empName,
+      e.role          AS role,
+      d.dept_name     AS deptName
+    FROM employee e
+    JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    JOIN team t
+      ON t.team_id = dh.team_id
+    JOIN department d
+      ON d.dept_id = t.dept_id
+    WHERE d.dept_id = #{deptId}
+      AND e.emp_status = '재직'
+    ORDER BY e.emp_name
+  </select>
+
+  <!-- 부서 일정 조회 권한 체크를 위한 사용자 부서 확인 -->
+  <select id="getUserDeptIdForCalendar" parameterType="int" resultType="int">
+    SELECT d.dept_id
+    FROM employee e
+    JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    JOIN team t
+      ON t.team_id = dh.team_id
+    JOIN department d
+      ON d.dept_id = t.dept_id
+    WHERE e.emp_id = #{empId}
+      AND e.emp_status = '재직'
+  </select>
+
+  <!-- 사용자 권한 정보 한번에 조회 (캘린더 권한 체크용) -->
+  <select id="selectUserPermissionInfo" parameterType="int" resultType="map">
+    SELECT
+      e.emp_id                    AS empId,
+      e.emp_name                  AS empName,
+      e.role                      AS role,
+      d.dept_id                   AS deptId,
+      d.dept_name                 AS deptName,
+      t.team_id                   AS teamId,
+      t.team_name                 AS teamName,
+      r.rank_name                 AS rankName,
+      -- 권한 플래그들
+      CASE WHEN (r.rank_name LIKE '%부장%' OR r.rank_name LIKE '%팀장%' OR e.role LIKE '%부장%' OR e.role LIKE '%MANAGER%') 
+           THEN 1 ELSE 0 END      AS isDeptManager,
+      CASE WHEN (d.dept_name = '경영지원부' AND (r.rank_name LIKE '%부장%' OR e.role LIKE '%부장%' OR e.role LIKE '%MANAGER%')) 
+           THEN 1 ELSE 0 END      AS isManagementSupportManager,
+      CASE WHEN (d.dept_name IN ('기획부', '개발팀', '기술팀') AND (e.role LIKE '%PM%' OR e.role LIKE '%프로젝트%' OR e.role LIKE '%MANAGER%')) 
+           THEN 1 ELSE 0 END      AS isProjectManager
+    FROM employee e
+    LEFT JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    LEFT JOIN team t
+      ON t.team_id = dh.team_id
+    LEFT JOIN department d
+      ON d.dept_id = t.dept_id
+    LEFT JOIN rank_history rh
+      ON rh.emp_id = e.emp_id
+     AND rh.end_date IS NULL
+    LEFT JOIN `rank` r
+      ON r.rank_id = rh.rank_id
+    WHERE e.emp_id = #{empId}
+      AND e.emp_status = '재직'
+  </select>
 	
 </mapper>

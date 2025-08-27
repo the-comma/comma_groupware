@@ -23,13 +23,17 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Controller
-@RequiredArgsConstructor
 public class CalendarEventController {
 
     private final EmployeeService employeeService;
     private final DepartmentService departmentService;
     private final CalendarEventService calendarService;
-    private final EmployeeMapper employeeMapper;
+    
+    public CalendarEventController(EmployeeService employeeService, DepartmentService departmentService, CalendarEventService calendarService) {
+    	this.employeeService = employeeService;
+    	this.departmentService = departmentService;
+    	this.calendarService = calendarService;
+    }
     
     // ====== 메인 캘린더 페이지 ======
     @GetMapping("/calendar")
@@ -40,7 +44,7 @@ public class CalendarEventController {
         
         // 사용자 권한 정보를 모델에 추가
         model.addAttribute("currentUser", currentUser);
-        model.addAttribute("userDepartment", userDept != null ? userDept.getDateName() : "");
+        model.addAttribute("userDepartment", userDept != null ? userDept.getDeptName() : "");
         model.addAttribute("isManagementSupportManager", hasManagementSupportRole(currentUser, userDept));
         model.addAttribute("isDepartmentManager", isDepartmentManager(currentUser));
         model.addAttribute("isProjectManager", isProjectManager(currentUser, userDept));
@@ -165,7 +169,7 @@ public class CalendarEventController {
     // ====== 헬퍼 메서드 ======
     private Employee getCurrentEmployee(Authentication auth) {
         String username = auth.getName();
-        Employee emp = employeeMapper.selectByUserName(username);
+        Employee emp = employeeService.findByUsername(username);
         if (emp == null) {
             throw new IllegalStateException("사용자 정보를 찾을 수 없습니다: " + username);
         }
@@ -180,7 +184,7 @@ public class CalendarEventController {
     private boolean hasManagementSupportRole(Employee employee, Department userDept) {
         // 경영지원부장 권한 체크
         return userDept != null && 
-               "경영지원부".equals(userDept.getDateName()) &&
+               "경영지원부".equals(userDept.getDeptName()) &&
                employee.getRole() != null && 
                (employee.getRole().contains("부장") || employee.getRole().contains("MANAGER"));
     }
@@ -197,9 +201,9 @@ public class CalendarEventController {
     private boolean isProjectManager(Employee employee, Department userDept) {
         // PM 권한 체크 (기획부 소속 + PM 직책)
         return userDept != null &&
-               ("기획부".equals(userDept.getDateName()) || 
-                "개발팀".equals(userDept.getDateName()) ||
-                "기술팀".equals(userDept.getDateName())) &&
+               ("기획부".equals(userDept.getDeptName()) || 
+                "개발팀".equals(userDept.getDeptName()) ||
+                "기술팀".equals(userDept.getDeptName())) &&
                (employee.getRole() != null && 
                 (employee.getRole().contains("PM") || 
                  employee.getRole().contains("프로젝트") ||

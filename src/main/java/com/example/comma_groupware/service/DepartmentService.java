@@ -11,11 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class DepartmentService {
 
-    DepartmentMapper departmentMapper;
+    private final DepartmentMapper departmentMapper;
 
 	public DepartmentService(DepartmentMapper departmentMapper) {
 		this.departmentMapper = departmentMapper;
@@ -58,12 +57,12 @@ public class DepartmentService {
      * 부서 생성
      */
     public void create(Department department) {
-        if (department.getDateName() == null || department.getDateName().trim().isEmpty()) {
+        if (department.getDeptName() == null || department.getDeptName().trim().isEmpty()) {
             throw new IllegalArgumentException("부서명은 필수입니다.");
         }
         
         // 중복 부서명 체크
-        if (findByName(department.getDateName()) != null) {
+        if (findByName(department.getDeptName()) != null) {
             throw new IllegalStateException("이미 존재하는 부서명입니다.");
         }
         

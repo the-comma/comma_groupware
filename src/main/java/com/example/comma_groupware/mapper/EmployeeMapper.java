@@ -58,4 +58,53 @@ public interface EmployeeMapper {
 	Map<String, Object> employeeCard(int empId);
 	
 	List<Map<String,Object>> empListByTeam(String team);
+
+	// 조서진추가
+	
+	/**
+     * 사원의 완전한 정보 조회 (부서, 팀, 직급 포함)
+     */
+    Map<String, Object> selectEmployeeFullInfo(int empId);
+    
+    /**
+     * 특정 부서의 부서장 권한자 조회
+     */
+    List<Map<String, Object>> selectDepartmentManagers(int deptId);
+    
+    /**
+     * 특정 사원이 특정 부서의 부서장인지 확인
+     */
+    int countDepartmentManagerRole(@Param("empId") int empId, @Param("deptId") int deptId);
+    
+    /**
+     * 부서장 권한 체크 (본인의 현재 부서에서)
+     */
+    int checkManagerAuthority(int empId);
+    
+    /**
+     * 경영지원부장 권한 체크
+     */
+    int checkManagementSupportManager(int empId);
+    
+    /**
+     * PM 권한 체크
+     */
+    int checkProjectManagerAuthority(int empId);
+    
+    /**
+     * 같은 부서 사원들 조회
+     */
+    List<Map<String, Object>> selectDepartmentMembers(int deptId);
+    
+    /**
+     * 사용자 부서 ID 조회 (캘린더용)
+     */
+    Integer getUserDeptIdForCalendar(int empId);
+    
+    /**
+     * 사용자 권한 정보 한번에 조회 (성능 최적화용)
+     */
+    Map<String, Object> selectUserPermissionInfo(int empId);
 }
+	
+

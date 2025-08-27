@@ -57,7 +57,7 @@
     </delete>
 
 <!-- 권한별 조회 -->
-<select id="findEventsByRangeAndUser" resultType="com.example.comma_groupware.dto.CalendarEvent">
+<select id="findEventsByRangeAndUser" resultMap="CalendarEventMap">
     SELECT ce.*
     FROM calendar_event ce
     WHERE ce.start_datetime BETWEEN #{start} AND #{end}

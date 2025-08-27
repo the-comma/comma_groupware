@@ -26,11 +26,10 @@ import com.example.comma_groupware.dto.Page;
 import com.example.comma_groupware.mapper.EmployeeMapper;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class EmployeeService {
 
-    private final EmployeeMapper employeeMapper;
+    EmployeeMapper employeeMapper;
 	private final PasswordEncoder passwordEncoder;
 	private final JavaMailSender mailSender;
 	private final JwtEmailOtpService otpService;
@@ -45,8 +44,6 @@ public class EmployeeService {
 		this.passwordEncoder = passwordEncoder;
 		this.mailSender = mailSender;
 		this.otpService = otpService;
-		
-
 	}
 
     /**
@@ -165,4 +162,217 @@ public class EmployeeService {
 	public List<Map<String,Object>> empListByTeam(String team){
 		return employeeMapper.empListByTeam(team);
 	}
+	
+	// 조서진 추가
+    /**
+     * 사원의 완전한 정보 조회 (부서, 팀, 직급 포함)
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getEmployeeFullInfo(int empId) {
+        Map<String, Object> info = employeeMapper.selectEmployeeFullInfo(empId);
+        if (info == null) {
+            throw new IllegalArgumentException("사원 정보를 찾을 수 없습니다: " + empId);
+        }
+        return info;
+    }
+    
+    /**
+     * 부서장 권한 확인 (DB 기반)
+     */
+    @Transactional(readOnly = true)
+    public boolean isDepartmentManager(int empId) {
+        return employeeMapper.checkManagerAuthority(empId) > 0;
+    }
+    
+    /**
+     * 특정 부서의 부서장인지 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isDepartmentManagerOf(int empId, int deptId) {
+        return employeeMapper.countDepartmentManagerRole(empId, deptId) > 0;
+    }
+    
+    /**
+     * 특정 부서를 관리할 수 있는지 확인 (같은 부서 + 부서장 권한)
+     */
+    @Transactional(readOnly = true)
+    public boolean canManageDepartment(int empId, Integer deptId) {
+        if (deptId == null) return false;
+        
+        // 1. 부서장 권한 확인
+        if (!isDepartmentManager(empId)) return false;
+        
+        // 2. 사용자의 현재 부서 확인
+        Map<String, Object> userInfo = getEmployeeFullInfo(empId);
+        Integer userDeptId = (Integer) userInfo.get("deptId");
+        
+        // 3. 같은 부서인지 확인
+        return userDeptId != null && userDeptId.equals(deptId);
+    }
+    
+    /**
+     * 경영지원부장 권한 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isManagementSupportManager(int empId) {
+        return employeeMapper.checkManagementSupportManager(empId) > 0;
+    }
+    
+    /**
+     * PM 권한 확인 (기획부/개발팀/기술팀 소속 + PM 역할)
+     */
+    @Transactional(readOnly = true)
+    public boolean isProjectManager(int empId) {
+        return employeeMapper.checkProjectManagerAuthority(empId) > 0;
+    }
+    
+    /**
+     * 사용자 권한 정보 한번에 조회 (성능 최적화)
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getUserPermissionInfo(int empId) {
+        Map<String, Object> info = employeeMapper.selectUserPermissionInfo(empId);
+        if (info == null) {
+            throw new IllegalArgumentException("사원 정보를 찾을 수 없습니다: " + empId);
+        }
+        return info;
+    }
+    
+    /**
+     * 같은 부서 사원들 조회
+     */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getDepartmentMembers(int deptId) {
+        return employeeMapper.selectDepartmentMembers(deptId);
+    }
+    
+    /**
+     * 사용자의 부서 ID 조회 (캘린더용)
+     */
+    @Transactional(readOnly = true)
+    public Integer getUserDepartmentId(int empId) {
+        return employeeMapper.getUserDeptIdForCalendar(empId);
+    }
+    
+    /**
+     * 특정 부서의 부서장들 조회
+     */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getDepartmentManagers(int deptId) {
+        return employeeMapper.selectDepartmentManagers(deptId);
+    }
+    
+    // ====== 캘린더 Controller에서 사용할 편의 메서드들 ======
+    
+    /**
+     * 부서 일정 등록 권한 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean canCreateDepartmentEvent(int empId, Integer targetDeptId) {
+        try {
+            // 1. 부서장 권한 확인
+            if (!isDepartmentManager(empId)) {
+                System.out.println("부서 일정 등록 권한 없음 - 부서장 아님: empId=" + empId);
+                return false;
+            }
+            
+            // 2. 사용자의 현재 부서 확인
+            Map<String, Object> userInfo = getEmployeeFullInfo(empId);
+            Integer userDeptId = (Integer) userInfo.get("deptId");
+            
+            if (userDeptId == null) {
+                System.out.println("부서 일정 등록 권한 없음 - 부서 소속 없음: empId=" + empId);
+                return false;
+            }
+            
+            // 3. 타겟 부서가 지정되었다면 자신의 부서와 일치하는지 확인
+            if (targetDeptId != null && !userDeptId.equals(targetDeptId)) {
+                System.out.println("부서 일정 등록 권한 없음 - 다른 부서: userDept=" + userDeptId + ", targetDept=" + targetDeptId);
+                return false;
+            }
+            
+            System.out.println("부서 일정 등록 권한 확인: empId=" + empId + ", deptId=" + userDeptId + ", 권한=TRUE");
+            return true;
+            
+        } catch (Exception e) {
+            System.out.println("부서 일정 등록 권한 확인 중 오류: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * 부서 일정 수정/삭제 권한 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean canModifyDepartmentEvent(int empId, Integer eventDeptId, int creatorId) {
+        try {
+            // 1. 본인이 작성한 일정인지 확인
+            if (empId != creatorId) {
+                System.out.println("부서 일정 수정 권한 없음 - 작성자 아님: empId=" + empId + ", creatorId=" + creatorId);
+                return false;
+            }
+            
+            // 2. 해당 부서를 관리할 수 있는지 확인
+            if (!canManageDepartment(empId, eventDeptId)) {
+                System.out.println("부서 일정 수정 권한 없음 - 부서 관리 권한 없음: empId=" + empId + ", eventDeptId=" + eventDeptId);
+                return false;
+            }
+            
+            System.out.println("부서 일정 수정 권한 확인: empId=" + empId + ", eventDeptId=" + eventDeptId + ", 권한=TRUE");
+            return true;
+            
+        } catch (Exception e) {
+            System.out.println("부서 일정 수정 권한 확인 중 오류: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * 부서 일정 조회 권한 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean canViewDepartmentEvent(int empId, Integer eventDeptId) {
+        try {
+            if (eventDeptId == null) return false;
+            
+            // 같은 부서 소속인지 확인
+            Integer userDeptId = getUserDepartmentId(empId);
+            boolean canView = userDeptId != null && userDeptId.equals(eventDeptId);
+            
+            System.out.println("부서 일정 조회 권한 확인: empId=" + empId + 
+                             ", userDeptId=" + userDeptId + 
+                             ", eventDeptId=" + eventDeptId + 
+                             ", 권한=" + canView);
+            
+            return canView;
+            
+        } catch (Exception e) {
+            System.out.println("부서 일정 조회 권한 확인 중 오류: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * 디버깅용 - 사용자의 권한 정보 출력
+     */
+    @Transactional(readOnly = true)
+    public void printUserAuthorities(int empId) {
+        try {
+            Map<String, Object> info = getUserPermissionInfo(empId);
+            System.out.println("=== 사용자 권한 정보 ===");
+            System.out.println("사원ID: " + info.get("empId"));
+            System.out.println("이름: " + info.get("empName"));
+            System.out.println("역할: " + info.get("role"));
+            System.out.println("부서: " + info.get("deptName") + " (ID: " + info.get("deptId") + ")");
+            System.out.println("팀: " + info.get("teamName") + " (ID: " + info.get("teamId") + ")");
+            System.out.println("직급: " + info.get("rankName"));
+            System.out.println("부서장 권한: " + info.get("isDeptManager"));
+            System.out.println("경영지원부장 권한: " + info.get("isManagementSupportManager"));
+            System.out.println("PM 권한: " + info.get("isProjectManager"));
+            System.out.println("======================");
+        } catch (Exception e) {
+            System.out.println("권한 정보 출력 중 오류: " + e.getMessage());
+        }
+    }
 }
+	
