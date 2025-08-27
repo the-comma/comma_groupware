@@ -1,65 +1,345 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.comma_groupware.mapper.CalendarEventMapper">
 
-  <!-- INSERT -->
-  <insert id="insert"
-          parameterType="com.example.comma_groupware.dto.CalendarEvent"
-          useGeneratedKeys="true" keyProperty="eventId">
-    <![CDATA[
-      INSERT INTO calendar_event
-        (event_title, event_desc, start_datetime, end_datetime, is_all_day,
-         event_type, dept_id, project_id, created_by, created_at, updated_at)
-      VALUES
-        (#{eventTitle}, #{eventDesc}, #{startDatetime}, #{endDatetime}, #{isAllDay},
-         #{eventType}, NULLIF(#{deptId}, 0), NULLIF(#{projectId}, 0), #{createdBy}, NOW(), NOW())
-    ]]>
-  </insert>
+    <!-- ResultMap 정의 -->
+    <resultMap id="CalendarEventMap" type="com.example.comma_groupware.dto.CalendarEvent">
+        <id property="eventId" column="event_id" />
+        <result property="eventTitle" column="event_title" />
+        <result property="eventDesc" column="event_desc" />
+        <result property="startDatetime" column="start_datetime" />
+        <result property="endDatetime" column="end_datetime" />
+        <result property="isAllDay" column="is_all_day" />
+        <result property="eventType" column="event_type" />
+        <result property="deptId" column="dept_id" />
+        <result property="projectId" column="project_id" />
+        <result property="createdBy" column="created_by" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
 
-  <!-- 기간 조회 -->
-  <select id="selectByRange" resultType="com.example.comma_groupware.dto.CalendarEvent">
-  <![CDATA[
-    SELECT
-      event_id        AS eventId,
-      event_title     AS eventTitle,
-      event_desc      AS eventDesc,
-      start_datetime  AS startDatetime,
-      end_datetime    AS endDatetime,
-      is_all_day      AS isAllDay,
-      event_type      AS eventType,
-      dept_id         AS deptId,
-      project_id      AS projectId,
-      created_by      AS createdBy,
-      created_at      AS createdAt,
-      updated_at      AS updatedAt
-    FROM calendar_event
-    WHERE
-      start_datetime < #{end}
-      AND COALESCE(end_datetime, start_datetime) > #{start}
-    ORDER BY start_datetime ASC
-  ]]>
+    <!-- 기본 CRUD -->
+    <insert id="insert" parameterType="com.example.comma_groupware.dto.CalendarEvent" useGeneratedKeys="true" keyProperty="eventId">
+        INSERT INTO calendar_event (
+            event_title, event_desc, start_datetime, end_datetime, 
+            is_all_day, event_type, dept_id, project_id, created_by
+        ) VALUES (
+            #{eventTitle}, #{eventDesc}, #{startDatetime}, #{endDatetime},
+            #{isAllDay}, #{eventType}, #{deptId}, #{projectId}, #{createdBy}
+        )
+    </insert>
+
+    <select id="selectById" resultMap="CalendarEventMap">
+        SELECT * FROM calendar_event WHERE event_id = #{eventId}
+    </select>
+
+    <select id="selectByRange" resultMap="CalendarEventMap">
+        SELECT * FROM calendar_event 
+        WHERE start_datetime &lt;= #{end} AND end_datetime &gt;= #{start}
+        ORDER BY start_datetime
+    </select>
+
+    <update id="updatePartial" parameterType="com.example.comma_groupware.dto.CalendarEvent">
+        UPDATE calendar_event 
+        <set>
+            <if test="eventTitle != null">event_title = #{eventTitle},</if>
+            <if test="eventDesc != null">event_desc = #{eventDesc},</if>
+            <if test="startDatetime != null">start_datetime = #{startDatetime},</if>
+            <if test="endDatetime != null">end_datetime = #{endDatetime},</if>
+            <if test="isAllDay != null">is_all_day = #{isAllDay},</if>
+            updated_at = NOW()
+        </set>
+        WHERE event_id = #{eventId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM calendar_event WHERE event_id = #{eventId}
+    </delete>
+
+<!-- 권한별 조회 -->
+<select id="findEventsByRangeAndUser" resultType="com.example.comma_groupware.dto.CalendarEvent">
+    SELECT ce.*
+    FROM calendar_event ce
+    WHERE ce.start_datetime BETWEEN #{start} AND #{end}
+      AND (
+            -- 회사 전체 일정
+            ce.event_type = 'COMPANY'
+            OR
+            -- 부서 일정 (같은 부서만)
+            (ce.event_type = 'DEPARTMENT' AND ce.dept_id = #{deptId})
+            OR
+            -- 휴가 일정 (같은 부서만)
+            (ce.event_type = 'VACATION' AND ce.dept_id = #{deptId})
+            OR
+            -- 개인 일정 (본인만)
+            (ce.event_type = 'PERSONAL' AND ce.created_by = #{empId})
+            OR
+            -- 프로젝트 일정 (프로젝트 멤버만)
+            (ce.event_type = 'PROJECT' AND EXISTS (
+                SELECT 1 FROM project_member pm
+                WHERE pm.project_id = ce.project_id
+                  AND pm.emp_id = #{empId}
+            ))
+      )
 </select>
 
-<!-- 부분 업데이트 (NULL은 건너뛰기) -->
-<update id="updatePartial" parameterType="com.example.comma_groupware.dto.CalendarEvent">
-  UPDATE calendar_event
-  <set>
-    <if test="eventTitle != null"> event_title = #{eventTitle}, </if>
-    <if test="eventDesc  != null"> event_desc  = #{eventDesc},  </if>
-    <if test="startDatetime != null"> start_datetime = #{startDatetime}, </if>
-    <if test="endDatetime   != null"> end_datetime   = #{endDatetime},   </if>
-    <if test="eventType     != null"> event_type     = #{eventType},     </if>
-    <if test="deptId        != null"> dept_id        = NULLIF(#{deptId},0), </if>
-    <if test="projectId     != null"> project_id     = NULLIF(#{projectId},0), </if>
-    updated_at = NOW()
-  </set>
-  WHERE event_id = #{eventId}
-</update>
 
-<delete id="delete" parameterType="int">
-  DELETE FROM calendar_event WHERE event_id = #{eventId}
-</delete>
 
+   <!-- 오늘의 일정 조회 -->
+<select id="findTodayScheduleForUser" resultMap="CalendarEventMap">
+    SELECT ce.* 
+    FROM calendar_event ce
+    WHERE ce.start_datetime &lt;= #{endOfDay} 
+      AND ce.end_datetime &gt;= #{startOfDay}
+      AND (
+          ce.event_type = 'COMPANY'
+          OR (ce.event_type = 'DEPARTMENT' AND ce.dept_id = #{deptId})
+          OR ce.event_type = 'PROJECT'
+          OR (ce.event_type = 'VACATION' AND (ce.dept_id IS NULL OR ce.dept_id = #{deptId} OR ce.created_by = #{empId}))
+          OR (ce.event_type = 'PERSONAL' AND ce.created_by = #{empId})
+      )
+    ORDER BY ce.is_all_day DESC, ce.start_datetime
+</select>
+
+    <!-- 권한 체크 포함 상세 조회 -->
+		<select id="findByIdWithPermissionCheck" resultType="map">
+		    SELECT 
+		        ce.event_id,
+		        ce.event_title,
+		        ce.event_desc,
+		        ce.start_datetime,
+		        ce.end_datetime,
+		        ce.is_all_day,
+		        ce.event_type,
+		        ce.dept_id,
+		        ce.project_id,
+		        ce.created_by,
+		        ce.created_at,
+		        ce.updated_at,
+		        e.emp_name as creator_name,
+		        d.dept_name as creator_dept
+		    FROM calendar_event ce
+		    JOIN employee e ON e.emp_id = ce.created_by
+		    LEFT JOIN department_history dh ON dh.emp_id = e.emp_id AND dh.end_date IS NULL
+		    LEFT JOIN team t ON t.team_id = dh.team_id
+		    LEFT JOIN department d ON d.dept_id = t.dept_id
+		    WHERE ce.event_id = #{eventId}
+		</select>
+
+    <!-- 통계 관련 -->
+    <select id="getTodayScheduleStats" resultType="map">
+        SELECT 
+            COUNT(CASE WHEN event_type = 'COMPANY' THEN 1 END) as company,
+            COUNT(CASE WHEN event_type = 'DEPARTMENT' THEN 1 END) as department,
+            COUNT(CASE WHEN event_type = 'PROJECT' THEN 1 END) as project,
+            COUNT(CASE WHEN event_type = 'VACATION' THEN 1 END) as vacation,
+            COUNT(CASE WHEN event_type = 'PERSONAL' THEN 1 END) as personal,
+            COUNT(*) as total
+        FROM calendar_event ce
+        WHERE ce.start_datetime &lt;= #{endOfDay} AND ce.end_datetime &gt;= #{startOfDay}
+        AND (
+            ce.event_type = 'COMPANY'
+            OR (ce.event_type = 'DEPARTMENT' AND (ce.dept_id = 0 OR ce.dept_id = #{deptId}))
+            OR ce.event_type = 'PROJECT'
+            OR (ce.event_type = 'VACATION' AND (ce.dept_id = 0 OR ce.dept_id = #{deptId} OR ce.created_by = #{empId}))
+            OR (ce.event_type = 'PERSONAL' AND ce.created_by = #{empId})
+        )
+    </select>
+
+    <!-- 기타 필요한 쿼리들 (간단 버전) -->
+    <select id="getDepartmentScheduleStats" resultType="map">
+        SELECT COUNT(*) as total FROM calendar_event WHERE dept_id = #{deptId}
+    </select>
+
+    <select id="getProjectScheduleStats" resultType="map">
+        SELECT COUNT(*) as total FROM calendar_event WHERE event_type = 'PROJECT'
+    </select>
+
+    <select id="getPersonalScheduleMonthlyStats" resultType="map">
+        SELECT 
+            MONTH(start_datetime) as month,
+            COUNT(*) as count
+        FROM calendar_event 
+        WHERE created_by = #{empId} 
+        AND YEAR(start_datetime) = #{year}
+        AND event_type = 'PERSONAL'
+        GROUP BY MONTH(start_datetime)
+    </select>
+
+<!-- 휴가 관련 -->
+<select id="findDepartmentVacations" resultMap="CalendarEventMap">
+    SELECT ce.* 
+    FROM calendar_event ce
+    WHERE ce.event_type = 'VACATION'
+      AND ce.start_datetime &lt;= #{end} 
+      AND ce.end_datetime &gt;= #{start}
+      AND (ce.dept_id IS NULL OR ce.dept_id = #{deptId})
+    ORDER BY ce.start_datetime
+</select>
+
+    <select id="findDepartmentVacationsByRange" resultType="map">
+        SELECT 
+            ce.event_id,
+            ce.event_title,
+            ce.start_datetime,
+            ce.end_datetime,
+            e.emp_name
+        FROM calendar_event ce
+        JOIN employee e ON e.emp_id = ce.created_by
+        WHERE ce.event_type = 'VACATION'
+        AND ce.start_datetime &lt;= #{end} AND ce.end_datetime &gt;= #{start}
+        AND (ce.dept_id = 0 OR ce.dept_id = #{deptId})
+        ORDER BY ce.start_datetime
+    </select>
+
+    <select id="getDepartmentVacationSummary" resultType="map">
+        SELECT 
+            e.emp_id,
+            e.emp_name,
+            COUNT(ce.event_id) as vacation_count,
+            COALESCE(SUM(DATEDIFF(ce.end_datetime, ce.start_datetime) + 1), 0) as total_vacation_days
+        FROM employee e
+        LEFT JOIN calendar_event ce ON e.emp_id = ce.created_by 
+            AND ce.event_type = 'VACATION' 
+            AND YEAR(ce.start_datetime) = #{year}
+        WHERE e.emp_id IN (
+            SELECT DISTINCT dh.emp_id 
+            FROM department_history dh 
+            JOIN team t ON t.team_id = dh.team_id 
+            WHERE t.dept_id = #{deptId} AND dh.end_date IS NULL
+        )
+        GROUP BY e.emp_id, e.emp_name
+    </select>
+
+    <!-- 나머지 메서드들에 대한 기본 구현 -->
+    <select id="getMonthlyDepartmentVacations" resultType="map">
+        SELECT * FROM calendar_event 
+        WHERE event_type = 'VACATION' AND dept_id = #{deptId}
+        AND YEAR(start_datetime) = #{year} AND MONTH(start_datetime) = #{month}
+    </select>
+
+    <insert id="insertVacationFromApproval">
+        INSERT INTO calendar_event (
+            event_title, event_desc, start_datetime, end_datetime,
+            is_all_day, event_type, dept_id, project_id, created_by
+        ) VALUES (
+            #{title}, #{vacationType}, #{startDate}, #{endDate},
+            1, 'VACATION', 0, 0, #{empId}
+        )
+    </insert>
+
+    <select id="checkVacationConflicts" resultType="map">
+        SELECT 
+            e.emp_name,
+            ce.start_datetime,
+            ce.end_datetime
+        FROM calendar_event ce
+        JOIN employee e ON e.emp_id = ce.created_by
+        WHERE ce.event_type = 'VACATION'
+        AND ce.created_by != #{excludeEmpId}
+        AND ce.start_datetime &lt;= #{endDate} AND ce.end_datetime &gt;= #{startDate}
+        AND ce.created_by IN (
+            SELECT DISTINCT dh.emp_id 
+            FROM department_history dh 
+            JOIN team t ON t.team_id = dh.team_id 
+            WHERE t.dept_id = #{deptId} AND dh.end_date IS NULL
+        )
+    </select>
+
+    <!-- 기타 필요한 메서드들 (기본 구현) -->
+    <select id="findUpcomingImportantEvents" resultType="map">
+        SELECT event_id, event_title, start_datetime 
+        FROM calendar_event 
+        WHERE start_datetime > NOW() 
+        AND start_datetime &lt; DATE_ADD(NOW(), INTERVAL 7 DAY)
+        ORDER BY start_datetime LIMIT 5
+    </select>
+
+    <select id="getThisWeekDepartmentMeetings" resultType="map">
+        SELECT * FROM calendar_event 
+        WHERE event_type = 'DEPARTMENT' AND dept_id = #{deptId}
+        AND start_datetime >= CURDATE() 
+        AND start_datetime &lt; DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+    </select>
+
+    <select id="getProjectDeadlineAlerts" resultType="map">
+        SELECT * FROM calendar_event 
+        WHERE event_type = 'PROJECT'
+        AND start_datetime > NOW() 
+        AND start_datetime &lt; DATE_ADD(NOW(), INTERVAL 3 DAY)
+    </select>
+
+    <select id="searchEvents" resultMap="CalendarEventMap">
+        SELECT * FROM calendar_event
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (event_title LIKE CONCAT('%', #{keyword}, '%') 
+                OR event_desc LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="eventType != null and eventType != ''">
+                AND event_type = #{eventType}
+            </if>
+            <if test="startDate != null">
+                AND DATE(start_datetime) >= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND DATE(end_datetime) &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY start_datetime DESC
+        <if test="limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <select id="checkConflictingEvents" resultType="int">
+        SELECT COUNT(*) FROM calendar_event
+        WHERE created_by = #{empId}
+        AND event_type = #{eventType}
+        AND start_datetime &lt;= #{endDatetime} 
+        AND end_datetime &gt;= #{startDatetime}
+        <if test="excludeEventId != null">
+            AND event_id != #{excludeEventId}
+        </if>
+    </select>
+	
+    <select id="isProjectMember" parameterType="map" resultType="boolean">
+    SELECT COUNT(*) > 0
+    FROM project_member
+    WHERE project_id = #{projectId}
+      AND emp_id = #{empId}
+	</select>
+
+    <delete id="deleteExpiredEvents">
+        DELETE FROM calendar_event 
+        WHERE end_datetime &lt; #{beforeDate}
+    </delete>
+
+    <insert id="insertRecurringEvents">
+        <!-- 반복 일정 생성 로직 - 필요시 구현 -->
+        INSERT INTO calendar_event SELECT * FROM calendar_event WHERE event_id = #{baseEvent.eventId}
+    </insert>
+    
+    <!-- 작성자 정보 포함 조회 -->
+	<select id="findEventWithCreatorById" resultType="map">
+	    SELECT 
+	        ce.event_id,
+	        ce.event_title,
+	        ce.event_desc,
+	        ce.start_datetime,
+	        ce.end_datetime,
+	        ce.is_all_day,
+	        ce.event_type,
+	        ce.dept_id,
+	        ce.project_id,
+	        ce.created_by,
+	        ce.created_at,
+	        ce.updated_at,
+	        e.emp_name as creator_name
+	    FROM calendar_event ce
+	    LEFT JOIN employee e ON e.emp_id = ce.created_by
+	    WHERE ce.event_id = #{eventId}
+	</select>
+	
 
 </mapper>

@@ -13,9 +13,9 @@ public class CalendarEvent {
 	private LocalDateTime endDatetime;
 	private int isAllDay;
 	private String eventType;
-	private int deptId;
-	private int projectId;
-	private int createdBy;
+	private Integer deptId;
+	private Integer projectId;
+	private Integer createdBy;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 }

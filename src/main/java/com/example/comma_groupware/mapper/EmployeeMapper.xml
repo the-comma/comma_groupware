@@ -1,15 +1,161 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.example.comma_groupware.mapper.EmployeeMapper">
-	<select id="selectByUserName" parameterType="string" resultType="com.example.comma_groupware.dto.Employee">
-	SELECT 
-		emp_id     AS empId,
-		username,
-		password,
-		role 
-	FROM employee
-	WHERE username = #{username}
-	
-	</select>
+
+  <!-- 로그인용 -->
+  <select id="selectByUserName" parameterType="string"
+          resultType="com.example.comma_groupware.dto.Employee">
+    SELECT
+      e.emp_id        AS empId,
+      e.username,
+      e.password,
+      e.emp_email     AS empEmail,
+      e.emp_name      AS empName,
+      e.emp_status    AS empStatus,
+      e.emp_phone     AS empPhone,
+      e.emp_exp       AS empExp,
+      e.`role`        AS role,
+      e.created_at    AS createdAt,
+      e.updated_at    AS updatedAt
+    FROM employee e
+    WHERE e.username = #{username}
+    LIMIT 1
+  </select>
+
+  <!-- 사원 ID로 조회 -->
+  <select id="selectById" parameterType="int"
+          resultType="com.example.comma_groupware.dto.Employee">
+    SELECT
+      e.emp_id        AS empId,
+      e.username,
+      e.password,
+      e.emp_email     AS empEmail,
+      e.emp_name      AS empName,
+      e.emp_status    AS empStatus,
+      e.emp_phone     AS empPhone,
+      e.emp_exp       AS empExp,
+      e.`role`        AS role,
+      e.created_at    AS createdAt,
+      e.updated_at    AS updatedAt
+    FROM employee e
+    WHERE e.emp_id = #{empId}
+  </select>
+
+  <!-- 부서별 조회: department_history → team → department -->
+  <select id="selectByDeptId" parameterType="int"
+          resultType="com.example.comma_groupware.dto.Employee">
+    SELECT
+      e.emp_id        AS empId,
+      e.username,
+      e.emp_name      AS empName,
+      t.dept_id       AS deptId,
+      e.`role`        AS role,
+      e.emp_status    AS empStatus
+    FROM employee e
+    JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    JOIN team t
+      ON t.team_id = dh.team_id
+    WHERE t.dept_id = #{deptId}
+  </select>
+
+  <!-- 팀별 조회: department_history 사용 -->
+  <select id="selectByTeamId" parameterType="int"
+          resultType="com.example.comma_groupware.dto.Employee">
+    SELECT
+      e.emp_id        AS empId,
+      e.username,
+      e.emp_name      AS empName,
+      dh.team_id      AS teamId,
+      e.`role`        AS role,
+      e.emp_status    AS empStatus
+    FROM employee e
+    JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    WHERE dh.team_id = #{teamId}
+  </select>
+
+  <!-- 직급별 조회: rank_history 사용 -->
+  <select id="selectByRankId" parameterType="int"
+          resultType="com.example.comma_groupware.dto.Employee">
+    SELECT
+      e.emp_id        AS empId,
+      e.username,
+      e.emp_name      AS empName,
+      rh.rank_id      AS rankId,
+      e.`role`        AS role,
+      e.emp_status    AS empStatus
+    FROM employee e
+    JOIN rank_history rh
+      ON rh.emp_id = e.emp_id
+     AND rh.end_date IS NULL
+    WHERE rh.rank_id = #{rankId}
+  </select>
+
+  <!-- 키워드 검색 -->
+  <select id="searchEmployees" parameterType="string"
+          resultType="com.example.comma_groupware.dto.Employee">
+    SELECT
+      e.emp_id        AS empId,
+      e.username,
+      e.emp_name      AS empName,
+      e.emp_email     AS empEmail,
+      e.emp_status    AS empStatus,
+      e.`role`        AS role
+    FROM employee e
+    WHERE e.username LIKE CONCAT('%', #{keyword}, '%')
+       OR e.emp_name LIKE CONCAT('%', #{keyword}, '%')
+  </select>
+
+  <!-- 상태별 조회 -->
+  <select id="selectByStatus" parameterType="string"
+          resultType="com.example.comma_groupware.dto.Employee">
+    SELECT
+      e.emp_id        AS empId,
+      e.username,
+      e.emp_name      AS empName,
+      e.emp_status    AS empStatus,
+      e.`role`        AS role
+    FROM employee e
+    WHERE e.emp_status = #{status}
+  </select>
+
+  <!-- 현재 부서 조회: employee → department_history → team → department -->
+  <select id="getCurrentDepartment" parameterType="int"
+          resultType="com.example.comma_groupware.dto.Department">
+    SELECT
+      d.dept_id       AS deptId,
+      d.dept_name     AS deptName
+    FROM employee e
+    JOIN department_history dh
+      ON dh.emp_id = e.emp_id
+     AND dh.end_date IS NULL
+    JOIN team t
+      ON t.team_id = dh.team_id
+    JOIN department d
+      ON d.dept_id = t.dept_id
+    WHERE e.emp_id = #{empId}
+  </select>
+
+  <!-- 현재 직급 조회 -->
+  <select id="getCurrentRank" parameterType="int"
+          resultType="com.example.comma_groupware.dto.RankHistory">
+    SELECT
+      rh.rank_history_id,
+      rh.emp_id,
+      rh.rank_id,
+      rh.start_date,
+      rh.end_date
+    FROM rank_history rh
+    WHERE rh.emp_id = #{empId}
+      AND rh.end_date IS NULL
+    ORDER BY rh.start_date DESC
+    LIMIT 1
+  </select>
 
 </mapper>

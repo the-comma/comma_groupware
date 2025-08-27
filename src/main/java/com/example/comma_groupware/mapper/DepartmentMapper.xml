@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.comma_groupware.mapper.DepartmentMapper">
+
+    <!-- 모든 부서 조회 -->
+    <select id="selectAll" resultType="Department">
+        SELECT dept_id, dept_name as dateName
+        FROM department
+        ORDER BY dept_name ASC
+    </select>
+
+    <!-- 부서 ID로 조회 -->
+    <select id="selectById" resultType="Department">
+        SELECT dept_id, dept_name as dateName
+        FROM department
+        WHERE dept_id = #{deptId}
+    </select>
+
+    <!-- 부서명으로 조회 -->
+    <select id="selectByName" resultType="Department">
+        SELECT dept_id, dept_name as dateName
+        FROM department
+        WHERE dept_name = #{deptName}
+    </select>
+
+    <!-- 활성 부서만 조회 (만약 status 컬럼이 있다면) -->
+    <select id="selectActiveDepartments" resultType="Department">
+        SELECT dept_id, dept_name as dateName
+        FROM department
+        ORDER BY dept_name ASC
+    </select>
+
+    <!-- 부서 생성 -->
+    <insert id="insert" parameterType="Department" useGeneratedKeys="true" keyProperty="deptId">
+        INSERT INTO department (dept_name)
+        VALUES (#{dateName})
+    </insert>
+
+    <!-- 부서 수정 -->
+    <update id="update" parameterType="Department">
+        UPDATE department
+        SET dept_name = #{dateName}
+        WHERE dept_id = #{deptId}
+    </update>
+
+    <!-- 부서 삭제 -->
+    <delete id="delete">
+        DELETE FROM department
+        WHERE dept_id = #{deptId}
+    </delete>
+
+    <!-- 부서별 직원 수 조회 (현재 활성 직원만) -->
+    <select id="countEmployees" resultType="int">
+        SELECT COUNT(DISTINCT e.emp_id)
+        FROM employee e
+        INNER JOIN department_history dh ON e.emp_id = dh.emp_id
+        INNER JOIN team t ON dh.team_id = t.team_id
+        WHERE t.dept_id = #{deptId}
+          AND dh.end_date IS NULL  -- 현재 활성 상태만
+          AND e.emp_status = 'ACTIVE'  -- 활성 직원만 (emp_status 컬럼이 있다고 가정)
+    </select>
+
+</mapper>
