@@ -37,5 +37,5 @@ public class ChatController {
     }
 
     @GetMapping("/chat")
-    public String chat() { return "chat"; }
+    public String chat() { return "chat2"; }
 }
