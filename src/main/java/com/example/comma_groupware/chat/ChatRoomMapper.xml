@@ -11,4 +11,81 @@
     VALUES (#{chatRoomType})
   </insert>
 
+
+<select id="chatRoomList"
+        parameterType="int"
+        resultType="map">
+  <![CDATA[
+  SELECT
+    r.chat_room_id,
+
+    CASE
+      WHEN r.chat_room_type = 'DIRECT' THEN (
+        SELECT e.emp_name
+        FROM chat_room_user u2
+        JOIN employee e ON e.emp_id = u2.emp_id
+        WHERE u2.chat_room_id = r.chat_room_id
+          AND u2.emp_id <> #{username}
+          AND u2.chat_room_is_active = 1
+          AND u2.exited_at IS NULL
+        LIMIT 1
+      )
+      ELSE r.chat_room_title
+    END AS display_name,
+
+    CASE
+      WHEN r.chat_room_type <> 'DIRECT' THEN (
+        SELECT GROUP_CONCAT(e.emp_name ORDER BY e.emp_name SEPARATOR ', ')
+        FROM chat_room_user u3
+        JOIN employee e ON e.emp_id = u3.emp_id
+        WHERE u3.chat_room_id = r.chat_room_id
+          AND u3.emp_id <> #{username}
+          AND u3.chat_room_is_active = 1
+          AND u3.exited_at IS NULL
+        LIMIT 3
+      )
+    END AS members_preview,
+
+    lm.chat_content   AS last_message,
+    CASE
+      WHEN DATE(lm.created_at) = CURRENT_DATE() THEN
+        LOWER(DATE_FORMAT(lm.created_at, '%l:%i%p'))           -- 2:33am
+      WHEN YEARWEEK(lm.created_at, 1) = YEARWEEK(CURRENT_DATE(), 1) THEN
+        DATE_FORMAT(lm.created_at, '%a')                       -- Tue
+      ELSE
+        DATE_FORMAT(lm.created_at, '%Y-%m-%d')                 -- 2025-08-28
+    END AS last_time,
+    lm.sender_id      AS last_sender_id,
+    snd.emp_name      AS last_sender_name
+
+  FROM chat_room r
+  JOIN chat_room_user me
+    ON me.chat_room_id = r.chat_room_id
+   AND me.emp_id = #{username}
+   AND me.chat_room_is_active = 1
+   AND me.exited_at IS NULL
+
+  /* 방별 최신 메시지 1건 붙이기 (MAX-조인 방식) */
+  LEFT JOIN (
+    SELECT m1.chat_room_id, m1.chat_content, m1.created_at, m1.sender_id
+    FROM chat_message m1
+    JOIN (
+      SELECT chat_room_id, MAX(created_at) AS last_time
+      FROM chat_message
+      GROUP BY chat_room_id
+    ) x ON x.chat_room_id = m1.chat_room_id
+       AND x.last_time = m1.created_at
+  ) lm ON lm.chat_room_id = r.chat_room_id
+
+  LEFT JOIN employee snd
+    ON snd.emp_id = lm.sender_id
+
+  WHERE r.chat_room_type IN ('DIRECT', 'GROUP')
+
+  ORDER BY COALESCE(lm.created_at, '1970-01-01 00:00:00') DESC
+  ]]>
+</select>
+
+  
+ 
 </mapper>

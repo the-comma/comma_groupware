@@ -11,6 +11,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> 
   <script defer src="<c:url value='/assets/js/chat.js'/>"></script>
   <script defer src="<c:url value='/assets/js/chatmodal.js'/>"></script>
+  
 <meta charset="UTF-8">
 <title>temp 타이틀</title>
 </head>
@@ -189,7 +190,7 @@
                                         </a><!-- end chat-user -->
 
 									
-								<%-- 		<c:forEach var="" > --%>
+										<c:forEach var="chatList" items="${chatRoomList}"> 
 
                                         <div class="d-flex align-items-center px-3 py-2 bg-body-secondary position-sticky top-0 z-1">
                                             <iconify-icon icon="solar:chat-line-bold-duotone" class="fs-18 text-muted"></iconify-icon>
@@ -203,98 +204,20 @@
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="m-0">
-                                                        <span class="float-end text-muted fs-12">3:40am</span>
-                                                        Eunice Bennett
+                                                        <span class="float-end text-muted fs-12">${chatList.last_time}</span>
+                                                        ${chatList.display_name}
                                                     </h5>
                                                     <p class="mt-1 mb-0 text-muted lh-1">
-                                                        <span class="w-75 d-inline-block text-truncate overflow-hidden fs-13">Please
-                                                            check these design assets</span>
+                                                        <span class="w-75 d-inline-block text-truncate overflow-hidden fs-13">${chatList.last_message}</span>
                                                     </p>
                                                 </div>
                                             </div>
                                         </a><!-- end chat-user -->
                                         
-                                    <%--     </c:forEach> --%>
+                                         </c:forEach> 
                                         
 
-                                        <a href="javascript:void(0);" class="text-body d-block">
-                                            <div class="chat-users">
-                                                <div class="avatar-md chat-avatar-offline">
-                                                    <div class="h-100 w-100 rounded-circle bg-warning text-white d-flex align-items-center justify-content-center">
-                                                        <i class="ti ti-brand-javascript fs-20"></i>
-                                                    </div>
-                                                </div>
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <h5 class="m-0">
-                                                        <span class="float-end text-muted fs-12">3:30am</span>
-                                                        Javascript Team
-                                                    </h5>
-                                                    <p class="mt-1 mb-0 text-muted lh-1">
-                                                        <span class="w-25 text-end float-end text-muted"><i class="ti ti-check"></i></span>
-                                                        <span class="w-75 d-inline-block text-truncate overflow-hidden fs-13">New
-                                                            Project?</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </a><!-- end chat-user -->
-
-                                        <a href="javascript:void(0);" class="text-body d-block">
-                                            <div class="chat-users">
-                                                <div class="avatar-md chat-avatar-offline">
-                                                    <div class="h-100 w-100 rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center">
-                                                        <i class="ti ti-brand-figma fs-20"></i>
-                                                    </div>
-                                                </div>
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <h5 class="m-0">
-                                                        <span class="float-end text-muted fs-12">3:30am</span>
-                                                        UI Team
-                                                    </h5>
-                                                    <p class="mt-1 mb-0 text-muted lh-1">
-                                                        <span class="w-25 text-end float-end text-muted"><i class="ti ti-checks"></i></span>
-                                                        <span class="w-75 d-inline-block text-truncate overflow-hidden fs-13">Project
-                                                            Completed</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </a><!-- end chat-user -->
-
-                                        <a href="javascript:void(0);" class="text-body d-block">
-                                            <div class="chat-users">
-                                                <div class="avatar-md chat-avatar-offline">
-                                                    <img src="HTML/Admin/dist/assets/images/users/avatar-4.jpg" class="img-fluid rounded-circle" alt="Brandon Smith" />
-                                                </div>
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <h5 class="m-0">
-                                                        <span class="float-end text-muted fs-12">2:33am</span>
-                                                        Hoyt Bahe
-                                                    </h5>
-                                                    <p class="mt-1 mb-0 text-muted lh-1">
-                                                        <span class="w-25 text-end float-end text-success"><i class="ti ti-checks"></i></span>
-                                                        <span class="w-75 d-inline-block text-primary fs-12 fw-semibold"><i class="ti ti-microphone"></i> Voice Message</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </a><!-- end chat-user -->
-
-                                        <a href="javascript:void(0);" class="text-body d-block">
-                                            <div class="chat-users">
-                                                <div class="avatar-md chat-avatar-online">
-                                                    <img src="HTML/Admin/dist/assets/images/users/avatar-9.jpg" class="img-fluid rounded-circle" alt="James Zavel" />
-                                                </div>
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <h5 class="m-0">
-                                                        <span class="float-end text-muted fs-12">4:35am</span>
-                                                        John Otta
-                                                    </h5>
-                                                    <p class="mt-1 mb-0 text-muted lh-1">
-                                                        <span class="w-25 text-end float-end text-success"><i class="ti ti-checks"></i></span>
-                                                        <span class="w-75 d-inline-block fs-13">What next plan ?</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </a><!-- end chat-user -->
-
+                                        
                                         <a href="javascript:void(0);" class="text-body d-block">
                                             <div class="chat-users">
                                                 <div class="avatar-md chat-avatar-online">
@@ -314,63 +237,7 @@
                                             </div>
                                         </a><!-- end chat-user -->
 
-                                        <a href="javascript:void(0);" class="text-body d-block">
-                                            <div class="chat-users">
-                                                <div class="avatar-md chat-avatar-offline">
-                                                    <img src="HTML/Admin/dist/assets/images/users/avatar-7.jpg" class="img-fluid rounded-circle" alt="Brandon Smith" />
-                                                </div>
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <h5 class="m-0">
-                                                        <span class="float-end text-muted fs-12">Tue</span>
-                                                        David Callan
-                                                    </h5>
-                                                    <p class="mt-1 mb-0 text-muted lh-1">
-                                                        <span class="w-25 float-end text-end"><span class="badge bg-danger-subtle text-danger">3</span></span>
-                                                        <span class="w-75 d-inline-block text-truncate overflow-hidden fs-13">Are
-                                                            you interested in learning?</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </a><!-- end chat-user -->
 
-                                        <a href="javascript:void(0);" class="text-body d-block">
-                                            <div class="chat-users">
-                                                <div class="avatar-md chat-avatar-online">
-                                                    <img src="HTML/Admin/dist/assets/images/users/avatar-9.jpg" class="img-fluid rounded-circle" alt="Brandon Smith" />
-                                                </div>
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <h5 class="m-0">
-                                                        <span class="float-end text-muted fs-12">Fri</span>
-                                                        Sean Lee
-                                                    </h5>
-                                                    <p class="mt-1 mb-0 text-muted lh-1">
-                                                        <span class="w-25 text-end float-end text-muted"><i class="ti ti-checks"></i></span>
-                                                        <span class="w-75 d-inline-block text-truncate overflow-hidden fs-13">Howdy?</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </a><!-- end chat-user -->
-
-                                        <a href="javascript:void(0);" class="text-body d-block">
-                                            <div class="chat-users">
-                                                <div class="avatar-md chat-avatar-offline">
-                                                    <div class="h-100 w-100 rounded-circle bg-primary text-white d-flex align-items-center justify-content-center">
-                                                        <i class="ti ti-brand-react fs-20"></i>
-                                                    </div>
-                                                </div>
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <h5 class="m-0">
-                                                        <span class="float-end text-muted fs-12">Sat</span>
-                                                        React Team
-                                                    </h5>
-                                                    <p class="mt-1 mb-0 text-muted lh-1">
-                                                        <span class="w-25 text-end float-end text-success"><i class="ti ti-checks"></i></span>
-                                                        <span class="w-75 d-inline-block text-truncate overflow-hidden fs-13">@jamesZavel
-                                                            Is new React employee</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </a><!-- end chat-user -->
                                     </div>
                                 </div>
                                 <!-- End Contact list -->
@@ -801,4 +668,8 @@
    <!-- 자바 스크립트 -->
    <jsp:include page ="../views/nav/javascript.jsp"></jsp:include>
 </body>
+<script type="text/javascript">
+
+
+</script>
 </html>

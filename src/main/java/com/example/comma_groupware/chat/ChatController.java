@@ -31,6 +31,7 @@ public class ChatController {
     private final ObjectMapper objectMapper;   // 🔸 주입
     private final DepartmentService departmentService;
     private final ChatRoomUserService chatRoomUserService;
+    private final ChatRoomService chatRoomService;
     
     
     @MessageMapping("/chat/send") // 클라에서 /pub/chat/send 로 보냄
@@ -50,11 +51,17 @@ public class ChatController {
     @GetMapping("/chat")
     public String chat(Model model, HttpSession session) { 
         List<Map<String,Object>> deptTeamList = departmentService.getDeptTeamList();
+        String sessionUsername = (String) session.getAttribute("username");
+        int username = Integer.parseInt(sessionUsername);
+        
+        List<Map<String,Object>> chatRoomList =  chatRoomService.chatRoomList(username);									
         
         
     	
         model.addAttribute("deptTeamList", deptTeamList);
-    	return "chat2"; 
+        model.addAttribute("chatRoomList", chatRoomList);
+    	
+        return "chat2"; 
     	}
     
     @PostMapping("/chat/rooms/one-to-one")
