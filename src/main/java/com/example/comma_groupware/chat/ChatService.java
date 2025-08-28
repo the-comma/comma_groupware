@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class ChatService {
 	
 	private final ChatRoomMapper chatRoomMapper;
@@ -19,11 +20,19 @@ public class ChatService {
 	
 	
 	public long createRoom(int chatTargetId, int username) {
+		
+		int existChatRoom = chatRoomUserMapper.existChatRoom(chatTargetId, username);
+		
+		if(existChatRoom >= 1) {
+			return 0;
+		}
+		
 		ChatRoom room = new ChatRoom();
 		room.setChatRoomType("DIRECT");
 		 
 		chatRoomMapper.createRoom(room);
 		Long roomId =	room.getChatRoomId();
+		
 		
 		log.info("방생성 방번호:"+ roomId);
 		

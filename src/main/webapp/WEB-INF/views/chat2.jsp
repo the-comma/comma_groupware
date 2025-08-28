@@ -188,6 +188,9 @@
                                             </div>
                                         </a><!-- end chat-user -->
 
+									
+								<%-- 		<c:forEach var="" > --%>
+
                                         <div class="d-flex align-items-center px-3 py-2 bg-body-secondary position-sticky top-0 z-1">
                                             <iconify-icon icon="solar:chat-line-bold-duotone" class="fs-18 text-muted"></iconify-icon>
                                             <h5 class="mb-0 ms-1 fw-semibold fs-14">All Messages</h5>
@@ -210,6 +213,9 @@
                                                 </div>
                                             </div>
                                         </a><!-- end chat-user -->
+                                        
+                                    <%--     </c:forEach> --%>
+                                        
 
                                         <a href="javascript:void(0);" class="text-body d-block">
                                             <div class="chat-users">

@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.comma_groupware.chat.ChatRoomUserMapper">
+	
+	<!-- 같은 방이 존재하는지 확인 -->
+	<select id="existChatRoom" parameterType="map">   
+		SELECT COUNT(*) AS same_room_cnt
+		FROM chat_room_user u1
+		JOIN chat_room_user u2
+		  ON u1.chat_room_id = u2.chat_room_id
+		WHERE u1.emp_id = #{chatTargetId}
+		  AND u2.emp_id = #{username}
+		  AND u1.chat_room_is_active = 1 AND u1.exited_at IS NULL
+		  AND u2.chat_room_is_active = 1 AND u2.exited_at IS NULL;
+			
+	</select>
+	
 	<insert id="insertUser" parameterType="map" >
 		INSERT INTO chat_room_user(chat_room_id,emp_id)VALUES (#{roomId},#{username});
 	</insert>

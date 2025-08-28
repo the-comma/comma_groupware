@@ -48,22 +48,28 @@ public class ChatController {
     }
 
     @GetMapping("/chat")
-    public String chat(Model model) { 
+    public String chat(Model model, HttpSession session) { 
         List<Map<String,Object>> deptTeamList = departmentService.getDeptTeamList();
+        
+        
     	
         model.addAttribute("deptTeamList", deptTeamList);
     	return "chat2"; 
     	}
     
     @PostMapping("/chat/rooms/one-to-one")
-    public void createPersonalRoom(@RequestParam int chatTargetId, HttpSession session) {
+    public String createPersonalRoom(@RequestParam int chatTargetId, HttpSession session) {
     	log.info("값이 넘어옴." + chatTargetId);
     	String sessionUsername = (String) session.getAttribute("username");
     	int username = Integer.parseInt(sessionUsername);
     	long roomId = chatService.createRoom(chatTargetId, username);
-    	
+    
+    	if(roomId == 0) {
+    		return "redirect:/chat";
+    	}
+    		
     	int result = chatRoomUserService.insertUser(roomId, chatTargetId, username);
-    	
+    	return "redirect:/chat";
     }
     
 }
