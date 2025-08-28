@@ -63,7 +63,8 @@ public class SecurityConfig {
 	        		res.sendRedirect("/resetPw");
 	        		return;
 	        	}
-	        	res.sendRedirect("/mainPage");
+	        	// res.sendRedirect("/mainPage");
+	        	res.sendRedirect("/projectMain");	// 성권
 	        })
 	        .failureHandler((req, res, ex) -> {
 	            ex.printStackTrace();                     

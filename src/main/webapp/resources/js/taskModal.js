@@ -2,19 +2,25 @@
 // modifyTask.jsp 에서 사용
 
 // 모달 로드 후 실행할 초기화 함수
-function initTaskModalJS(projectId) {
+function initTaskModalJS(projectId, parentId) {	
     const selectedEmp = new Set();
-    const hl = document.querySelector('#hiddentList');
+	const existingFiles = new Set(); // 기존 파일 ID 관리
     
+    const hl = document.querySelector('#hiddentList');
     const empNameInput = document.querySelector('#empName');
     const empList = document.querySelector('#empList');
     const memberList = document.querySelector('#memberList');
     const fileInput = document.getElementById('formFileMultiple01');
     const filePreview = document.getElementById('filePreview');
+	const newFilePreview = document.getElementById('newFilePreview');
 	const taskStatusSelect = document.getElementById('taskStatus');
 	
-	document.querySelector('#projectId').value = projectId;
-
+	if(projectId != null){	
+		document.querySelector('#projectId').value = projectId;
+	}	
+	if(parentId != null){		
+		document.querySelector('#parentId').value = parentId;
+	}
 	
     // 프로젝트 참여자 리스트 ('') => 전체
     getMemberList('');
@@ -105,40 +111,68 @@ function initTaskModalJS(projectId) {
 
         renderMemberList();
     });
+	
+	// 초기 기존 파일 Set에 추가
+	document.querySelectorAll('.existing-file').forEach(div => {
+	    existingFiles.add(div.dataset.fileid);
+	});
+	
 
-    // 파일 프리뷰
-    if(fileInput && filePreview){
-        fileInput.addEventListener('change', function(event) {
-            const files = event.target.files;
-            filePreview.innerHTML = "";
+	// 새 파일 선택 시 프리뷰
+	if(fileInput && filePreview){
+	    fileInput.addEventListener('change', function(event){
+	        const files = event.target.files;
+			newFilePreview.innerHTML = '';
+			
+	        // 새 파일 전용 프리뷰 영역
+	        Array.from(files).forEach(file => {
+	            const sizeKB = (file.size / 1024).toFixed(1);
 
-            Array.from(files).forEach(file => {
-                const fileDiv = document.createElement("div");
-                fileDiv.classList.add("mb-2", "p-2", "border", "rounded");
+	            let previewHTML = `
+	                <div class="mb-2 p-2 border rounded new-file">
+	                    <p>${file.name} (${sizeKB} KB)
+	                    </p>
+	            `;
 
-                // 파일 이름 + 크기 표시
-                const info = document.createElement("p");
-                info.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-                fileDiv.appendChild(info);
+	            // 이미지일 경우 썸네일
+	            if(file.type.startsWith("image/")){
+	                const reader = new FileReader();
+	                reader.onload = e => {
+	                    previewHTML += `<img src="${e.target.result}" class="img-thumbnail mt-1" style="max-width:150px; max-height:150px;"></div>`;
+	                    newFilePreview.innerHTML += previewHTML;
+	                };
+	                reader.readAsDataURL(file);
+	            } else {
+	                previewHTML += `</div>`;
+	                newFilePreview.innerHTML += previewHTML;
+	            }
+	        });
+	    });
+	}
 
-                // 이미지 파일이면 썸네일
-                if (file.type.startsWith("image/")) {
-                    const img = document.createElement("img");
-                    img.classList.add("img-thumbnail", "mt-1");
-                    img.style.maxWidth = "150px";
-                    img.style.maxHeight = "150px";
+	// 기존 파일 삭제 버튼
+	document.getElementById("filePreview").addEventListener("click", function(e){	
+	    if (e.target.closest('.remove-existing-file')) {
+			if (!confirm("정말 삭제하시겠습니까?")) return;
+			
+			// 삭제할 div는 무조건 .existing-file
+	        const fileDiv = e.target.closest('.existing-file');
+	        const fileId = fileDiv.dataset.fileid;
 
-                    const reader = new FileReader();
-                    reader.onload = e => { img.src = e.target.result; };
-                    reader.readAsDataURL(file);
+			fetch('/deleteTaskFileByFileId/'+fileId)
+		    .then(res => res.json())
+		    .then(result => {
+		        if(result){
+					existingFiles.delete(fileId); // Set에서 제거
+			        fileDiv.remove();
+				}
+				else{
+					alert('파일 삭제에 실패 했습니다.');	
+				}
+		    });
+	    }
+	});
 
-                    fileDiv.appendChild(img);
-                }
-
-                filePreview.appendChild(fileDiv);
-            });
-        });
-    }
 	
     // taskStatus 색깔 적용
     function updateStatusColor() {
@@ -157,4 +191,23 @@ function initTaskModalJS(projectId) {
     updateStatusColor();
     // 상태 변경 이벤트
     taskStatusSelect.addEventListener('change', updateStatusColor);
+}
+
+// task 삭제
+function deleteTask(taskId){
+	if(!confirm("작업을 삭제 하시겠습니까? 하위 작업도 함께 삭제 됩니다.")){
+		return;
+	}
+	
+	fetch('/deleteTaskByTaskId/'+taskId)
+    .then(res => res.json())
+    .then(result => {
+        if(result){
+			
+		}
+		else{
+			alert('작업 삭제에 실패 했습니다.');	
+		}
+    });
+	
 }

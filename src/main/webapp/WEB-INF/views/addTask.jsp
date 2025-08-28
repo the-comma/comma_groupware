@@ -15,6 +15,8 @@
 	            <div class="modal-body">
 				<form action="/addTask" method="post" name="addTask" id="addTask" enctype="multipart/form-data">
 	            	<input type="hidden" id="projectId" name ="projectId" value="${projectId}">
+	            	<input type="hidden" id="parentId" name ="parentId" value="">
+	            	
 	            	<input type="hidden" name ="writerId" value="${loginEmp.empId}">
 	            	
 					<input type="text" class="form-control" name="taskTitle" placeholder="제목을 입력하세요.">
@@ -77,6 +79,11 @@
 					
 					<!-- 미리보기 영역 -->
 					<div id="filePreview" class="mt-3"></div>
+					
+					<!-- 새로운 추가 파일 -->
+					<div id="newFilePreview">
+					
+					</div>
 				</form>
 	            </div> <!-- modal-body -->
 	            <div class="modal-footer">

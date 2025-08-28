@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.comma_groupware.dto.FileResource;
 import com.example.comma_groupware.service.ProjectService;
 
 @RestController
@@ -37,5 +38,23 @@ public class TaskRest {
 	@GetMapping("selectTaskMemberByTaskId/{id}")
 	public List<Map<String,Object>> selectTaskMemberByTaskId(@PathVariable int id){		
 		return projectService.selectTaskMemberByTaskId(id);
+	}
+	
+	/** 작업 아이디로 첨부 파일 리스트 조회 **/
+	@GetMapping("selectTaskFileByTaskId/{id}")
+	public  List<FileResource> selectTaskFileByTaskId(@PathVariable int id){		
+		return projectService.selectTaskFileByTaskId(id);
+	}
+	
+	/** 파일 아이디로 첨부 파일 삭제 **/
+	@GetMapping("deleteTaskFileByFileId/{id}")
+	public  boolean deleteTaskFileByFileId(@PathVariable int id){		
+		return projectService.deleteTaskFileByFileId(id);
+	}
+	
+	/** 작업 아이디로 작업 삭제 **/
+	@GetMapping("deleteTaskByTaskId/{id}")
+	public boolean deleteTaskByTaskId(@PathVariable int id) {
+		return projectService.deleteTaskByTaskId(id);
 	}
 }

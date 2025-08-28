@@ -13,6 +13,12 @@
 		)		
 	</insert>
 	
+	<!-- 작업 멤버 삭제 -->
+	<delete id="deleteTaskMember">
+		DELETE FROM task_member
+		WHERE task_id = #{taskId} AND emp_id = #{empId}
+	</delete>
+	
 	<!-- 작업 아이디로 참여자 조회 -->
 	<select id="selectTaskMemberByTaskId" parameterType="int" resultType="map">
 		SELECT

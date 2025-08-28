@@ -91,7 +91,29 @@
 		project_task WHERE task_id = #{id}
 	</select>
 	
+	<!-- 작업 수정 -->
+	<update id="modifyProjectTask" parameterType="com.example.comma_groupware.dto.ProjectTask">
+		UPDATE project_task 
+		<set>
+			<if test="taskStatus != ''">task_status = #{taskStatus},</if>
+			<if test="taskTitle != ''">task_title = #{taskTitle},</if>
+			<if test="taskDesc != ''">task_desc = #{taskDesc},</if>
+			<if test="fileCount != null">file_count = #{fileCount},</if>			
+			<if test="startDate != null">start_date = #{startDate},</if>
+			<if test="dueDate != null">due_date = #{dueDate}</if>
+		</set>
+		WHERE task_id = #{taskId}
+	</update>
 	
+	<!-- 파일 삭제 -->
+	<delete id="deleteTaskFileByFileId" parameterType="int">
+		DELETE FROM file_resource WHERE file_id = #{fileId};
+	</delete>
+	
+	<!-- 작업 삭제 -->
+	<delete id="deleteTaskByTaskId" parameterType="int">
+		DELETE FROM project_task WHERE task_id = #{taskId};
+	</delete>
 	
 	
 </mapper>

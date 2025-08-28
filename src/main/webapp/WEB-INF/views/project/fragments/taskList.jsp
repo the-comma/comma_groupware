@@ -13,21 +13,21 @@
 	</div><!-- /.modal -->
 	
 	<a href="javascript:void(0)" 
-	   onclick="openAddTaskModal()" 
+	   onclick="openAddTaskModal(0)" 
 	   class="btn btn-primary mb-sm-0 mb-2">
 	    <i class="ti ti-circle-plus fs-20 me-2"></i>업무 추가
 	</a>
 
 	<script src="${pageContext.request.contextPath}/resources/js/taskModal.js"></script>
 	<script>
-	function openAddTaskModal() {
+	function openAddTaskModal(parentId) {
 	    $("#scrollable-modal .modal-content").load("/addTask", function() {
 	        var modalEl = document.getElementById('scrollable-modal');
 	        var myModal = new bootstrap.Modal(modalEl); 
 	        myModal.show();
 	
 	        // 모달 로드 후 JS 초기화
-	        initTaskModalJS(${projectId});
+	        initTaskModalJS(${projectId},parentId);
 	    });
 	}
 	</script>
@@ -68,7 +68,16 @@
 				            <c:if test="${t.childCount > 0}">
 				                <span class="toggle-btn" style="cursor:pointer;">[-]</span>
 				            </c:if>
-				            <a href="#" class="link-dark" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">${t.taskTitle}</a>
+				            
+				            <!-- 작업 타이틀 -->
+				            <a href="#" 
+				            	class="link-dark" 
+			            		data-bs-target="#offcanvasScrolling" 
+			            		aria-controls="offcanvasScrolling">
+			            		${t.taskTitle}
+		            		</a>
+		            		
+		            		<!-- 자식 작업 수 -->
 				            <c:if test="${t.childCount > 0}">(${t.childCount})</c:if>
 				        </td>
 				        <td>
@@ -119,11 +128,12 @@
 				<div class="col-lg-2">
 					<img src="/HTML/Admin/dist/assets/images/default_profile.png" alt="image" class="img-fluid avatar-lg rounded">
 				</div>
-				<div class="col-lg-6">
+				<div class="col-lg-4">
 					<span id="detail-writer">이름</span>
 				</div>
+				<!-- 업무 수정 버튼 -->
 				<div class="col-lg-2">
-					<button class="btn btn-primary mt-2 mt-md-0" id="modifyBtn" onclick="openModifyTaskModal()">업무 수정</button>
+					<button class="btn btn-primary mt-2 mt-md-0" id="modifyBtn" onclick="openModifyTaskModal()" data-bs-dismiss="offcanvas" aria-label="Close">업무 수정</button>
 				</div>
 					<!-- 업무 수정 버튼 클릭하고 모달창 생성 -->
 					<script>
@@ -138,8 +148,21 @@
 						    });
 						}
 					</script>
+				<!-- 하위 업무 등록 버튼 -->
 				<div class="col-lg-2">
-		    		<button class="btn btn-danger mt-2 mt-md-0">업무 삭제</button>
+					<a href="javascript:void(0)"
+					   id="addChildTaskBtn"
+					   onclick="openAddTaskModal()"
+					   class="btn btn-primary mb-sm-0 mb-2">
+					    하위 업무
+					</a>
+				</div>
+				<!-- 업무 삭제 버튼 -->
+				<div class="col-lg-2">
+		    		<button class="btn btn-danger mt-2 mt-md-0"
+		    				id="deleteTaskBtn"
+		    				onclick="deleteTask()">업무 삭제</button>
+		    		
 				</div>
 			</div>
 		    <h4 class="mt-3" id="detail-title">업무 제목</h4>
@@ -186,7 +209,18 @@
 			<hr>
 			
 			<div>
+				<!-- 작업 설명 -->
 				<span id="detail-desc"></span>
+				
+				<!-- 첨부된 이미지 프리뷰 -->
+				<div id="detail-image">
+				
+				</div>
+				
+				<!-- 첨부된 파일 다운 받는 공간 -->
+				<div id="detail-file">
+					
+				</div>
 			</div>
 			<hr>
 			<div class="border bg-light">

@@ -80,7 +80,33 @@
                     </div>
 					
 					<!-- 미리보기 영역 -->
-					<div id="filePreview" class="mt-3"></div>
+					<div id="filePreview" class="mt-3">
+					    <c:forEach items="${fileList}" var="f">
+					        <div class="mb-2 p-2 border rounded existing-file" data-fileid="${f.fileId}" data-filename="${f.fileName}">
+					            <p>
+					                ${f.fileOriginName} (${(f.fileSize/1024)} KB)
+					                <button type="button" id="removeBtn" class="btn btn-sm btn-outline-danger ms-2 remove-existing-file">
+									<i class="ti ti-trash"></i>
+									</button>
+					            </p>
+					            
+					            <c:if test="${f.fileExt eq 'jpg' 
+					                       or f.fileExt eq 'jpeg' 
+					                       or f.fileExt eq 'png' 
+					                       or f.fileExt eq 'gif'}">
+					                <img src="/upload/${f.fileName}.${f.fileExt}"
+					                     alt="${f.fileOriginName}"
+					                     class="img-thumbnail mt-1"
+					                     style="max-width:150px; max-height:150px;">
+					            </c:if>
+					        </div>
+					    </c:forEach>
+					</div>
+					
+					<!-- 새로운 추가 파일 -->
+					<div id="newFilePreview">
+					
+					</div>
 				</form>
 	            </div> <!-- modal-body -->
 	            <div class="modal-footer">

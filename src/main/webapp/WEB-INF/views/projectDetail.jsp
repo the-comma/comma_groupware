@@ -6,7 +6,7 @@
 <head>
 	<!-- CSS -->
 	<jsp:include page ="../views/nav/head-css.jsp"></jsp:include>
-	
+
 <meta charset="UTF-8">
 <title>프로젝트 상세</title>
 </head>

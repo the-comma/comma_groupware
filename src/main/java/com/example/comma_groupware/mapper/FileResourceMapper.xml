@@ -3,6 +3,7 @@
 <mapper
 	namespace="com.example.comma_groupware.mapper.FileResourceMapper">
 	
+	<!-- 파일 추가 -->
 	<insert id="addFile" parameterType="com.example.comma_groupware.dto.FileResource">
 		INSERT INTO file_resource(
 			file_size, file_origin_name, file_name, file_ref_type, file_ref_id, file_ext, file_uploader
@@ -11,4 +12,29 @@
 			#{fileSize}, #{fileOriginName}, #{fileName}, #{fileRefType}, #{fileRefId}, #{fileExt}, #{fileUploader}
 		)
 	</insert>
+	
+	<!-- 작업 아이디로 첨부 파일 조회  -->
+	<select id="selectTaskFileByTaskId" parameterType="com.example.comma_groupware.dto.FileResource">
+		SELECT 
+			file_id AS fileId,
+			file_size AS fileSize,
+			file_origin_name AS fileOriginName,
+			file_name AS fileName,
+			file_ext AS fileExt
+		FROM file_resource
+		WHERE file_ref_id = #{taskId} AND file_ref_type = 'TASK';
+	</select>
+	
+	<!--  파일 아이디로 파일 상세 조회 -->
+	<select id="selectFileByFileId" parameterType="int" resultType="com.example.comma_groupware.dto.FileResource">
+		SELECT 
+			file_id AS fileId,
+			file_size AS fileSize,
+			file_origin_name AS fileOriginName,
+			file_name AS fileName,
+			file_ext AS fileExt
+		FROM file_resource
+		WHERE file_id = #{fileId}
+	</select>
+	
 </mapper>

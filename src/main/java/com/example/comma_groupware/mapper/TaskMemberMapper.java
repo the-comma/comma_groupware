@@ -12,4 +12,5 @@ public interface TaskMemberMapper {
 	
 	int addTaskMember(TaskMember taskMember);			// 작업 멤버 추가
 	List<Map<String, Object>> selectTaskMemberByTaskId(int taskId);	// 작업 멤버 조회
+	int deleteTaskMember(Map<String,Object> param);		// 작업 멤버 삭제
 }

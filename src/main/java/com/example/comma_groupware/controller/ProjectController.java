@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.comma_groupware.dto.FileResource;
 import com.example.comma_groupware.dto.Page;
 import com.example.comma_groupware.dto.Project;
 import com.example.comma_groupware.dto.ProjectTask;
@@ -39,11 +40,25 @@ public class ProjectController {
 	public String modifyTask(@RequestParam int id, Model model) {
 	    ProjectTask task = projectService.selectTaskByTaskId(id);
 	    List<Map<String, Object>> taskMember = projectService.selectTaskMemberByTaskId(id);
+	    List<FileResource> fileList = projectService.selectTaskFileByTaskId(id);
 	    
 	    model.addAttribute("task", task);
 	    model.addAttribute("taskMember", taskMember);
+	    model.addAttribute("fileList", fileList);
 	    
 	    return "modifyTask"; // modifyTask.jsp
+	}
+	
+	// 업무 수정
+	@PostMapping("/modifyTask")
+	public String modifyTask(ProjectTask projectTask, HttpSession session
+			, @RequestParam(required = false) List<Integer> selectedEmp
+			, @RequestParam("file") List<MultipartFile> file) {
+
+		//	int pmId = session.getAttribute(null)
+		int pmId = 1;
+		projectService.modifyTask(pmId, projectTask, selectedEmp, file);
+		return "redirect:/projectDetail?id=" + projectTask.getProjectId();
 	}
 	
 	// 업무 추가 폼
@@ -51,14 +66,17 @@ public class ProjectController {
 	public String addTask() {
 		return "addTask";
 	}
-		
+	
+	// 업무 추가
 	@PostMapping("/addTask")
 	public String addTask(ProjectTask projectTask, HttpSession session
 			, @RequestParam(required = false) List<Integer> selectedEmp
+			, @RequestParam(required = false) int parentId
 			, @RequestParam("file") List<MultipartFile> file) {
 
 		//	int pmId = session.getAttribute(null)
 		int pmId = 1;
+		projectTask.setTaskParent(parentId);
 		projectService.addTask(pmId, projectTask, selectedEmp, file);
 		return "redirect:/projectDetail?id=" + projectTask.getProjectId();
 	}
