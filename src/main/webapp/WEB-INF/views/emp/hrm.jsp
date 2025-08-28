@@ -100,69 +100,6 @@
 			</div>
 		</div>
 	</div>
-
-	<!-- 직원 정보 수정 모달 -->
-	<div class="modal fade" id="editModal" tabindex="-1" role="dialog"
-		aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="myModalLabel">직원 정보 수정</h5>
-				</div>
-				<div class="modal-body">
-					<h4 id="editEmpName" class="mb-3"></h4>
-					<form id="editForm">
-						<input type="hidden" id="editEmpId" name="empId">
-						<div class="form-group row">
-							<label for="editSalaryDisplay" class="col-4 col-form-label">급여</label>
-							<div class="col-8">
-								<!-- 화면에 보이는 입력창 -->
-								<input type="text" id="editSalaryDisplay" class="form-control"
-									oninput="formatSalaryInput('editSalaryDisplay', 'editSalary', 'koreanAmount')">
-								<!-- 실제 서버로 넘어가는 값 -->
-								<input type="hidden" id="editSalary" name="salaryAmount">
-								<small class="form-text text-muted" id="koreanAmount"></small>
-							</div>
-						</div>
-						<div class="form-group row">
-							<label for="editRank" class="col-4 col-form-label">직급</label>
-							<div class="col-8">
-								<select id="editRank" name="rankName" class="form-control"></select>
-							</div>
-						</div>
-						<div class="form-group row">
-							<label for="editStatus" class="col-4 col-form-label">재직상태</label>
-							<div class="col-8">
-								<select id="editStatus" name="empStatus" class="form-control">
-									<option value="재직">재직</option>
-									<option value="휴직">휴직</option>
-								</select>
-							</div>
-						</div>
-						<div class="form-group row">
-							<label for="editDept" class="col-4 col-form-label">부서</label>
-							<div class="col-8">
-								<select id="editDept" name="deptName" class="form-control"></select>
-							</div>
-						</div>
-						<div class="form-group row">
-							<label for="editTeam" class="col-4 col-form-label">팀</label>
-							<div class="col-8">
-								<select id="editTeam" name="teamName" class="form-control"></select>
-							</div>
-						</div>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary waves-effect"
-						onclick="closeEditModal()">취소</button>
-					<button type="button" onclick="submitEditForm()"
-						class="btn btn-primary waves-effect waves-light">저장</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
 	<!-- 직원 등록 모달 -->
 	<div class="modal fade" id="registerModal" tabindex="-1" role="dialog"
 		aria-labelledby="registerModalLabel" aria-hidden="true">
@@ -232,6 +169,8 @@
 									class="form-text text-muted" id="regKoreanAmount"></small>
 							</div>
 						</div>
+						
+						
 						<div class="form-group row mb-2">
 							<label for="regRank" class="col-4 col-form-label">직급</label>
 							<div class="col-8">
@@ -270,7 +209,85 @@
 			</div>
 		</div>
 	</div>
+	
+	<!-- 직원 정보 수정 모달 -->
+	<div class="modal fade" id="editModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="myModalLabel">직원 정보 수정</h5>
+				</div>
+				<div class="modal-body">
+					<h4 id="editEmpName" class="mb-3"></h4>
+					<form id="editForm">
+						<input type="hidden" id="editEmpId" name="empId">
+						<div class="form-group row">
+							<label for="editSalaryDisplay" class="col-4 col-form-label">급여</label>
+							<div class="col-8">
+								<!-- 화면에 보이는 입력창 -->
+								<input type="text" id="editSalaryDisplay" class="form-control"
+									oninput="formatSalaryInput('editSalaryDisplay', 'editSalary', 'koreanAmount')">
+								<!--  서버로 넘어가는 값 -->
+								<input type="hidden" id="editSalary" name="salaryAmount">
+								<small class="form-text text-muted" id="koreanAmount"></small>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="editRank" class="col-4 col-form-label">직급</label>
+							<div class="col-8">
+								<select id="editRank" name="rankName" class="form-control"></select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="editStatus" class="col-4 col-form-label">재직상태</label>
+							<div class="col-8">
+								<select id="editStatus" name="empStatus" class="form-control">
+									<option value="재직">재직</option>
+									<option value="휴직">휴직</option>
+								</select>
+							</div>
+						</div>
+							<div class="form-group row">
+							<label for="editRole" class="col-4 col-form-label">역할</label>
+							<div class="col-8">
+								<select id="editRole" name="role" class="form-control">
+									<option value="USER">USER</option>
+									<option value="MASTER">MASTER</option>
+								</select>
+							</div>
+						</div>
+							<div class="form-group row">
+							<label for="editExp" class="col-4 col-form-label">경력</label>
+							<div class="col-8">
+									<input type="text" id="editExp" name="empExp" placeholder="경력" class="form-control">						
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="editDept" class="col-4 col-form-label">부서</label>
+							<div class="col-8">
+								<select id="editDept" name="deptName" class="form-control"></select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="editTeam" class="col-4 col-form-label">팀</label>
+							<div class="col-8">
+								<select id="editTeam" name="teamName" class="form-control"></select>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary waves-effect"
+						onclick="closeEditModal()">취소</button>
+					<button type="button" onclick="submitEditForm()"
+						class="btn btn-primary waves-effect waves-light">저장</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
+	
 	<!-- 부서 관리 모달 -->
 	<div class="modal fade" id="deptManageModal" tabindex="-1"
 		role="dialog" aria-labelledby="deptManageModalLabel"

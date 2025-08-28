@@ -143,10 +143,10 @@ public class HrmService {
     public void updateEmployeeStatus(Employee employee) {
         hrmMapper.updateStatus(employee);
     }
-    // 업데이트 일시 수정
+    // 경력,역할,업데이트 날짜 수정 
     @Transactional
-    public void updateDate(Employee employhee) {
-    	hrmMapper.updateDate(employhee);
+    public void updateEmp(Employee employhee) {
+    	hrmMapper.updateEmp(employhee);
     }
     
     //새로운 부서 등록

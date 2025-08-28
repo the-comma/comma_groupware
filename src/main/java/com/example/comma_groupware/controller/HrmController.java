@@ -61,6 +61,7 @@ public class HrmController {
 		Map<String, Object> response = new HashMap<>();
 		try {
 			Employee employee = new Employee();
+			employee.setEmpId(Integer.parseInt((String) employeeMap.get("empId")));
 			employee.setEmpName((String) employeeMap.get("empName"));
 			employee.setEmpEmail((String) employeeMap.get("empEmail"));
 			employee.setEmpPhone((String) employeeMap.get("empPhone"));
@@ -159,7 +160,9 @@ public class HrmController {
 			}
 				Employee employee = new Employee();
 				employee.setEmpId(empId);
-				hrmService.updateDate(employee);
+				employee.setEmpExp((String) paramMap.get("empExp")); 
+				employee.setRole((String) paramMap.get("role"));  
+				hrmService.updateEmp(employee);
 			response.put("success", true);
 			response.put("message", "수정 완료.");
 		} catch (Exception e) {

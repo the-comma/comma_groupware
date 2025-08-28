@@ -49,7 +49,7 @@ public interface HrmMapper {
     int selectRankIdByRankName(@Param("rankName") String rankName);
     
     //업데이트 일시 수정
-    void updateDate(Employee employee);
+    void updateEmp(Employee employee);
     //특정 직원 정보 조회
     Map<String, Object> selectEmployeeById(@Param("empId") String empId);
     

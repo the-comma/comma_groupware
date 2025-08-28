@@ -85,7 +85,7 @@
         emp_id, username, password, emp_name, emp_status, emp_email, emp_phone, emp_exp,
         role, created_at
     ) VALUES (
-        #{empId}, #{empId}, #{password}, #{empName}, '재직' , #{empEmail}, #{empPhone}, #{empExp},
+        #{empId}, #{username}, #{password}, #{empName}, '재직' , #{empEmail}, #{empPhone}, #{empExp},
         #{role}, NOW()
     )
 	</insert>
@@ -132,10 +132,12 @@
 		emp_id = #{empId}
 		
 	</update>
-	<!-- 업데이트 일시  -->
-	<update id ="updateDate" parameterType="com.example.comma_groupware.dto.Employee">
+	<!-- 경력(연차),역할,업데이트 일시 수정  -->
+	<update id ="updateEmp" parameterType="com.example.comma_groupware.dto.Employee">
 		UPDATE employee
 		SET 
+		emp_exp = #{empExp},
+		role = #{role},
 		updated_at = now()
 		WHERE
 		emp_id = #{empId}	

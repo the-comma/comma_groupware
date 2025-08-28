@@ -132,7 +132,8 @@ function fetchEmployeeDataAndOpenModal(empId) {
 			document.getElementById('editEmpId').value = employeeData.empId;
 			document.getElementById('editSalary').value = employeeData.salaryAmount || "";
 			document.getElementById('editStatus').value = employeeData.empStatus;
-
+			document.getElementById('editRole').value = employeeData.role;
+			document.getElementById('editExp').value = employeeData.empExp || "";
 			if (employeeData.deptId) {
 				deptSelect.value = employeeData.deptId;
 			}
