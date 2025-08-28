@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Slf4j
 @Controller
@@ -43,12 +44,18 @@ public class HrmController {
 		return "emp/hrm";
 	}
 
-	@GetMapping("/employee/{empId}")
-	@ResponseBody
-	public Map<String, Object> getEmployee(@PathVariable String empId) {
-		return hrmService.getEmployee(empId);
-	}
 
+	
+	// 특정 직원 조회 API
+    @GetMapping("/employee/{empId}")
+    public ResponseEntity<Map<String, Object>> getEmployeeById(@PathVariable String empId) {
+        Map<String, Object> employee = hrmService.getEmployeeById(empId);
+        if (employee == null || employee.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(employee);
+    }
+    //등록 
 	@PostMapping("/register")
 	public ResponseEntity<Map<String, Object>> registerEmployee(@RequestBody Map<String, Object> employeeMap) {
 		Map<String, Object> response = new HashMap<>();
@@ -84,8 +91,8 @@ public class HrmController {
 			return ResponseEntity.status(500).body(response);
 		}
 	}
-
-	@GetMapping("/api/ranks")
+	//직급 목록 불러오는 API
+	@GetMapping("/api/ranks") 
 	@ResponseBody
 	public List<String> getRanks() {
 		return hrmService.getAllRanks();
@@ -97,14 +104,29 @@ public class HrmController {
     public List<Department> getAllDepartmentsWithId() {
         return hrmService.getAllDepartmentsWithId();
     }
-
+    //팀 목록 불러오는 API
 	@GetMapping("/api/teams")
 	@ResponseBody
 	public List<String> getTeamsByDepartment(@RequestParam String deptName) {
 		log.debug("deptName::::::::::::::::::::::::::: {}", deptName);
 		return hrmService.getTeamsByDepartment(deptName);
 	}
-	
+	//새로운 사번 부여
+	@GetMapping("/api/newEmpId")
+	public ResponseEntity<String> generateNewEmpId() {
+	    Random random = new Random();
+	    int min = 1000, max = 9999;
+	    String newEmpId;
+	    Map<String, Object> existingEmployee;
+	    
+	    do {
+	        newEmpId = String.valueOf(random.nextInt(max - min + 1) + min);
+	        existingEmployee = hrmService.getEmployeeById(newEmpId);
+	    } while (existingEmployee != null && !existingEmployee.isEmpty());
+	    
+	    return ResponseEntity.ok(newEmpId);
+	}
+	//사원 수정 
 	@PostMapping("/edit")
 	@ResponseBody
 	public Map<String, Object> editEmployee(@RequestBody Map<String, Object> paramMap) {
@@ -147,7 +169,7 @@ public class HrmController {
 		}
 		return response;
 	}
-
+	//새로운 부서 등록
 	@PostMapping("/api/dept/new")
 	@ResponseBody
 	public ResponseEntity<String> insertNewDept(@RequestBody Department department) {
@@ -158,7 +180,7 @@ public class HrmController {
 			return new ResponseEntity<>("부서 등록 실패", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
+	//부서 수정 
 	@PutMapping("/api/dept/update")
 	@ResponseBody
 	public ResponseEntity<String> updateDeptName(@RequestBody Department department) {
@@ -169,8 +191,9 @@ public class HrmController {
 			return new ResponseEntity<>("부서명 수정 실패", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
 
-	// 새로운 팀 등록 API (추가)
+	// 새로운 팀 등록
     @PostMapping("/api/team/new")
     @ResponseBody
     public ResponseEntity<String> insertNewTeam(@RequestBody Team team) {
@@ -182,7 +205,7 @@ public class HrmController {
         }
     }
 
-    // 팀 정보 수정 API (추가)
+    // 팀 정보 수정 
     @PutMapping("/api/team/update")
     @ResponseBody
     public ResponseEntity<String> updateTeam(@RequestBody Team team) {
@@ -193,10 +216,8 @@ public class HrmController {
             return new ResponseEntity<>("팀 수정 실패", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-   
-    
-    // 특정 부서의 팀 목록 API (ID 포함)
+  
+    // 특정 부서의 팀 목록 
     @GetMapping("/api/teams/by-dept-id")
     @ResponseBody
     public List<Team> getTeamsByDeptId(@RequestParam int deptId) {

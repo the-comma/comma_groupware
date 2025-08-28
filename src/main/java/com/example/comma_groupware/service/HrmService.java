@@ -12,7 +12,6 @@ import com.example.comma_groupware.mapper.HrmMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,54 +40,52 @@ public class HrmService {
     }
   
     //사원번호로 사원 1명 조회 
-    public Map<String, Object> getEmployee(String empId) {
+    public Map<String, Object> getEmployeeById(String empId) {
         return hrmMapper.selectEmployeeById(empId);
     }
-  
+
     //사원 등록
-   	@Transactional
-   	public boolean registerNewEmployee(Employee employee, Salary salary , String rankName, String teamName ) {
-   		try {
-   			// 사번 등록 4자리 난수 생성 
-   			Random random = new Random();
-   			int min = 1000;
-   			int max = 9999;
-   			String newEmpId;
-   			Map<String, Object> existingEmployee;
+    @Transactional
+    public boolean registerNewEmployee(Employee employee, Salary salary, String rankName, String teamName) {
+        try {
+            String empId = String.valueOf(employee.getEmpId());
 
-   			// 중복 사원번호 조회
-   			do {
-   				newEmpId = String.valueOf(random.nextInt(max - min + 1) + min);
-   				existingEmployee = hrmMapper.selectEmployeeById(newEmpId);
-   			} while (existingEmployee != null && !existingEmployee.isEmpty());
+            // 서버에서 중복 체크
+            Map<String, Object> existingEmployee = hrmMapper.selectEmployeeById(empId);
+            if (existingEmployee != null && !existingEmployee.isEmpty()) {
+                throw new IllegalArgumentException("이미 존재하는 사번입니다: " + empId);
+            }
 
-   			employee.setEmpId(Integer.parseInt(newEmpId));
-   			employee.setPassword(newEmpId); // 초기 비밀번호는 사원 아이디와 동일
-         
-               // rankName을 통해 rankId를 조회 후 DTO에 삽입
-               int rankId = hrmMapper.selectRankIdByRankName(rankName);
-               RankHistory rankHistory = new RankHistory();
-               rankHistory.setEmpId(Integer.parseInt(newEmpId));
-               rankHistory.setRankId(rankId);
+            // 초기 비밀번호는 사번과 동일
+            employee.setPassword(empId);
+            //userName 도 사번과 동일
+            employee.setUsername(empId);
+            // rankName -> rankId 조회
+            int rankId = hrmMapper.selectRankIdByRankName(rankName);
+            RankHistory rankHistory = new RankHistory();
+            rankHistory.setEmpId(Integer.parseInt(empId));
+            rankHistory.setRankId(rankId);
 
-               // teamName을 통해 teamId를 조회 후 DTO에 삽입
-               int teamId = hrmMapper.selectTeamIdByTeamName(teamName);
-               DepartmentHistory deptHistory = new DepartmentHistory();
-   			deptHistory.setEmpId(Integer.parseInt(newEmpId));
-               deptHistory.setTeamId(teamId);
+            // teamName -> teamId 조회
+            int teamId = hrmMapper.selectTeamIdByTeamName(teamName);
+            DepartmentHistory deptHistory = new DepartmentHistory();
+            deptHistory.setEmpId(Integer.parseInt(empId));
+            deptHistory.setTeamId(teamId);
 
-   			salary.setEmpId(Integer.parseInt(newEmpId));
+            salary.setEmpId(Integer.parseInt(empId));
 
-   			hrmMapper.insertEmployee(employee); //사원 등록
-   			hrmMapper.insertRankHistory(rankHistory); //신규 사원 직급 등록
-   			hrmMapper.insertDeptHistory(deptHistory); //신규 사원 부서 등록
-   			hrmMapper.insertSalary(salary);
-   			return true;
-   		} catch (Exception e) {
-   			e.printStackTrace();
-   			return false;
-   		}
-   	}
+            // DB Insert
+            hrmMapper.insertEmployee(employee);
+            hrmMapper.insertRankHistory(rankHistory);
+            hrmMapper.insertDeptHistory(deptHistory);
+            hrmMapper.insertSalary(salary);
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
     // 직급 목록
@@ -97,10 +94,7 @@ public class HrmService {
     }
     
 
-    // public List<String> getAllDepartments() {
-    //     return hrmMapper.selectAllDepartments();
-    // }
-
+    
     // 부서 이름으로 팀 목록을 가져옴
     public List<String> getTeamsByDepartment(String deptName) {
         return hrmMapper.selectTeamsByDepartment(deptName);

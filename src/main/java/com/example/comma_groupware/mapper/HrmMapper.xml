@@ -85,7 +85,7 @@
         emp_id, username, password, emp_name, emp_status, emp_email, emp_phone, emp_exp,
         role, created_at
     ) VALUES (
-        #{empId}, #{empName}, #{password}, #{empName}, '재직' , #{empEmail}, #{empPhone}, #{empExp},
+        #{empId}, #{empId}, #{password}, #{empName}, '재직' , #{empEmail}, #{empPhone}, #{empExp},
         #{role}, NOW()
     )
 	</insert>
