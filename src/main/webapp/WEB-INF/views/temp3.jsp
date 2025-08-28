@@ -14,66 +14,16 @@
     /* 캘린더 스타일 */
     #calendar .fc a { color:#111 !important; text-decoration:none !important; }
     
-    /* 요일 헤더 스타일 */
-	.fc-col-header-cell {
-	  background-color: #e0f2fe !important;  /* 파스텔 핑크톤 */
-	  color: #374151 !important;             /* 텍스트 진한 회색 */
-	  font-weight: 600;
-	  text-align: center;
-	  border: 1px solid #f3e8ff !important;  /* 연보라 테두리 */
-	}
-	
-	/* 헤더 전체 라인 */
-	.fc-col-header {
-	  border-bottom: 2px solid #e9d5ff !important; /* 아래쪽 진보라 라인 */
-	}
+    /* 일정 타입별 색상 */
+    .cat-company { background-color: #e5e7eb !important; color: #111 !important; }
+    .cat-department { background-color: #dcfce7 !important; color: #111 !important; }
+    .cat-project { background-color: #e9d5ff !important; color: #111 !important; }
+    .cat-vacation { background-color: #d1fae5 !important; color: #111 !important; }
+    .cat-personal { background-color: #dbeafe !important; color: #111 !important; }
     
-	/* 일정 타입별 파스텔톤 색상 */
-	.cat-company   { background-color: #fca5a5 !important; color: #111 !important; }  /* 파스텔 레드 */
-	.cat-department{ background-color: #fbcfe8 !important; color: #111 !important; }  /* 파스텔 핑크 */
-	.cat-project   { background-color: #c4b5fd !important; color: #111 !important; }  /* 파스텔 퍼플 */
-	.cat-vacation  { background-color: #fde68a !important; color: #111 !important; }  /* 파스텔 옐로우 */
-	.cat-personal  { background-color: #93c5fd !important; color: #111 !important; }  /* 파스텔 블루 */
-	
-	/* hover 시 살짝 진해지는 효과 */
-	.cat-company:hover   { background-color: #f87171 !important; } /* red-400 */
-	.cat-department:hover{ background-color: #f472b6 !important; } /* pink-400 */
-	.cat-project:hover   { background-color: #a78bfa !important; } /* purple-400 */
-	.cat-vacation:hover  { background-color: #facc15 !important; } /* yellow-400 */
-	.cat-personal:hover  { background-color: #60a5fa !important; } /* blue-400 */
-	    .fc-day-today {
-	      background-color: #fef3c7 !important;
-	    }
-	    
-	 /* 체크박스 라벨 색상 */
-	.label-company   { color: #fca5a5 !important; }
-	.label-department{ color: #f9a8d4 !important; }
-	.label-project   { color: #c4b5fd !important; }
-	.label-vacation  { color: #fde68a !important; }
-	.label-personal  { color: #93c5fd !important; }
-	
-	/* 일정 추가 버튼 (pill 스타일) */
-	  #btn-add-company,
-	  #btn-add-department,
-	  #btn-add-project,
-	  #btn-add-personal {
-	    border: none;
-	    color: #fff;
-	    border-radius: 9999px;   /* pill 모양 */
-	    padding: 6px 16px;
-	    font-weight: 500;
-	    transition: background-color 0.2s ease;
-	  }
-	  #btn-add-company   { background-color: #fca5a5; }
-	  #btn-add-department{ background-color: #f9a8d4; }
-	  #btn-add-project   { background-color: #c4b5fd; }
-	  #btn-add-personal  { background-color: #93c5fd; }
-		
-	/* hover 시 살짝 진해지는 효과 */
-		#btn-add-company:hover   { background-color: #f87171; }  /* red-400 */
-		#btn-add-department:hover{ background-color: #f472b6; }  /* pink-400 */
-		#btn-add-project:hover   { background-color: #a78bfa; }  /* purple-400 */
-		#btn-add-personal:hover  { background-color: #60a5fa; }  /* blue-400 */  
+    .fc-day-today {
+      background-color: #fef3c7 !important;
+    }
     
     .filter-container {
       display: flex;
@@ -137,48 +87,6 @@
 	  font-weight: bold;
 	}
     
-    /* 날짜 셀 안의 숫자 줄바꿈 방지 */
-	.fc-daygrid-day-top {
-	  flex-direction: row !important;   /* 가로 배치 */
-	  align-items: center;              /* 수직 가운데 정렬 */
-	  gap: 2px;                         /* 숫자와 "일" 간격 */
-	}
-	
-	.fc-daygrid-day-number {
-	  white-space: nowrap !important;   /* 줄바꿈 금지 */
-	}
-	
-	/* 툴바 버튼 공통 */
-	.fc .fc-button {
-	  border: none !important;
-	  border-radius: 9999px !important; /* pill */
-	  padding: 4px 12px !important;
-	  font-weight: 500;
-	  color: #374151 !important; /* 텍스트 진한 회색 */
-	  background-color: #e0f2fe !important; /* 파스텔 블루 기본 */
-	  transition: background-color 0.2s ease;
-	}
-	
-	/* hover 시 */
-	.fc .fc-button:hover {
-	  background-color: #bae6fd !important; /* 좀 더 진한 파스텔 블루 */
-	}
-	
-	/* 활성화된 버튼 (선택된 뷰, 오늘 버튼 클릭 등) */
-	.fc .fc-button-active {
-	  background-color: #93c5fd !important; /* 파스텔 블루-300 */
-	  color: #111 !important;
-	  font-weight: 600 !important;
-	}
-	
-	/* 일정 관리 / 오늘의 일정 / 휴가 현황 버튼 pill 스타일 */
-	.btn-outline-primary,
-	.btn-outline-success,
-	.btn-outline-dark {
-	  border-radius: 9999px !important; /* pill 모양 */
-	  padding: 6px 14px !important;
-	  font-weight: 500;
-	}
   </style>
   
     <meta name="_csrf" content="${_csrf.token}">
@@ -206,8 +114,9 @@
             	<div class="row">
                     <div class="col-16">
                         <div class="card">
-                            
-                           
+                            <div class="card-header border-bottom border-dashed d-flex align-items-center">
+                                <h4 class="header-title">제목</h4>
+                            </div>
 
                             <div class="card-body">
                                 <p class="text-muted">
@@ -215,6 +124,7 @@
                                 </p>
                                 <div class="row">
                                     <div class="col-lg-12">
+                                        <form>
 											<!-- 상태 알림 -->
 									        <div id="status-alert" class="status-alert d-none"></div>
 									
@@ -227,69 +137,71 @@
 											</div>
 									        
 									        <div class="col-12 mb-3">
-											  <div class="card">
-											    <div class="card-body">
-											      <!-- 필터 -->
-											      <div class="filter-container">
-											        <div class="filter-item">
-											          <input type="checkbox" id="filter-company" value="company" checked>
-											          <label for="filter-company"><span class="filter-dot" style="background:#fca5a5"></span> 회사</label>
-											        </div>
-											        <div class="filter-item">
-											          <input type="checkbox" id="filter-department" value="department" checked>
-											          <label for="filter-department"><span class="filter-dot" style="background:#f9a8d4"></span> 부서</label>
-											        </div>
-											        <div class="filter-item">
-											          <input type="checkbox" id="filter-project" value="project" checked>
-											          <label for="filter-project"><span class="filter-dot" style="background:#c4b5fd"></span> 프로젝트</label>
-											        </div>
-											        <div class="filter-item">
-											          <input type="checkbox" id="filter-vacation" value="vacation" checked>
-											          <label for="filter-vacation"><span class="filter-dot" style="background:#fde68a"></span> 휴가</label>
-											        </div>
-											        <div class="filter-item">
-											          <input type="checkbox" id="filter-personal" value="personal" checked>
-											          <label for="filter-personal"><span class="filter-dot" style="background:#93c5fd"></span> 개인</label>
-											        </div>
-											      </div>
-											      
-											      <!-- 일정 추가 버튼 -->
-											      <div class="d-flex gap-2 mt-2">
-											        <button class="btn btn-sm" id="btn-add-personal">
-											          <i class="bi bi-plus-circle"></i> 개인 일정 추가
-											        </button>
-											        
-											        <c:if test="${isManagementSupportManager}">
-											          <button class="btn btn-sm" id="btn-add-company">
-											            <i class="bi bi-building"></i> 회사 일정 추가
-											          </button>
-											        </c:if>
-											        
-											        <c:if test="${isDepartmentManager}">
-											          <button class="btn btn-sm" id="btn-add-department">
-											            <i class="bi bi-people"></i> 부서 일정 추가
-											          </button>
-											        </c:if>
-											        
-											        <c:if test="${isProjectManager}">
-											          <button class="btn btn-sm" id="btn-add-project">
-											            <i class="bi bi-diagram-3"></i> 프로젝트 일정 추가
-											          </button>
-											        </c:if>
-											        
-											                <button class="btn btn-outline-primary btn-sm ms-auto" id="btn-today-schedule">
-													          <i class="bi bi-calendar-day"></i> 오늘의 일정
-													        </button>
-													        
-													        <button class="btn btn-outline-success btn-sm" onclick="location.href='/calendar/vacation'">
-													          <i class="bi bi-calendar-week"></i> 휴가 현황
-													        </button>
-													   
-											      </div>
-											    </div>
-											  </div>
-											</div>
-
+									          <div class="card">
+									            <div class="card-body">
+									              <div class="filter-container">
+									                <div class="filter-item">
+									                  <input type="checkbox" id="filter-company" value="company" checked>
+									                  <label for="filter-company"><span class="filter-dot" style="background:#e5e7eb"></span> 회사</label>
+									                </div>
+									                <div class="filter-item">
+									                  <input type="checkbox" id="filter-department" value="department" checked>
+									                  <label for="filter-department"><span class="filter-dot" style="background:#dcfce7"></span> 부서</label>
+									                </div>
+									                <div class="filter-item">
+									                  <input type="checkbox" id="filter-project" value="project" checked>
+									                  <label for="filter-project"><span class="filter-dot" style="background:#e9d5ff"></span> 프로젝트</label>
+									                </div>
+									                <div class="filter-item">
+									                  <input type="checkbox" id="filter-vacation" value="vacation" checked>
+									                  <label for="filter-vacation"><span class="filter-dot" style="background:#d1fae5"></span> 휴가</label>
+									                </div>
+									                <div class="filter-item">
+									                  <input type="checkbox" id="filter-personal" value="personal" checked>
+									                  <label for="filter-personal"><span class="filter-dot" style="background:#dbeafe"></span> 개인</label>
+									                </div>
+									              </div>
+									              
+									              <div class="d-flex gap-2 mt-2">
+									                <button class="btn btn-primary btn-sm" id="btn-add-personal">
+									                  <i class="bi bi-plus-circle"></i> 개인 일정 추가
+									                </button>
+									                
+									                <c:if test="${isManagementSupportManager}">
+									                  <button class="btn btn-secondary btn-sm" id="btn-add-company">
+									                    <i class="bi bi-building"></i> 회사 일정 추가
+									                  </button>
+									                </c:if>
+									                
+									                <c:if test="${isDepartmentManager}">
+									                  <button class="btn btn-success btn-sm" id="btn-add-department">
+									                    <i class="bi bi-people"></i> 부서 일정 추가
+									                  </button>
+									                </c:if>
+									                
+									                <c:if test="${isProjectManager}">
+									                  <button class="btn btn-info btn-sm" id="btn-add-project">
+									                    <i class="bi bi-diagram-3"></i> 프로젝트 일정 추가
+									                  </button>
+									                </c:if>
+									                
+									                <button class="btn btn-outline-primary btn-sm ms-auto" id="btn-today-schedule">
+									                  <i class="bi bi-calendar-day"></i> 오늘의 일정
+									                </button>
+									                
+									                <button class="btn btn-outline-success btn-sm" onclick="location.href='/calendar/vacation'">
+									                  <i class="bi bi-calendar-week"></i> 휴가 현황
+									                </button>
+									                
+									                <c:if test="${isManagementSupportManager || isDepartmentManager || isProjectManager}">
+									                  <button class="btn btn-outline-dark btn-sm" onclick="location.href='/calendar/management'">
+									                    <i class="bi bi-gear"></i> 일정 관리
+									                  </button>
+									                </c:if>
+									              </div>
+									            </div>
+									          </div>
+									        </div>
 									
 									        <div class="col-12">
 									          <div class="card calendar-card">
@@ -308,6 +220,7 @@
 									            <div class="card-body" id="today-schedule-list"></div>
 									          </div>
 									        </div>
+                                        </form>
                                     </div> <!-- end col -->
                                 </div>
                                 <!-- end row-->
@@ -320,11 +233,20 @@
             	<!-- 본문 내용 끝 -->
             
             	</div><!-- container 끝 -->
-            	            	
+            	
             	<!-- 푸터 -->
             	<jsp:include page ="../views/nav/footer.jsp"></jsp:include>
             	
-            	            	   <!-- 일정 등록/수정 모달 -->
+            </div><!-- page-container 끝 -->
+            
+       	</div><!-- page-content 끝 -->
+       	
+   </div><!-- wrapper 끝 -->
+       	
+   <!-- 자바 스크립트 -->
+   <jsp:include page ="../views/nav/javascript.jsp"></jsp:include>
+   
+   <!-- 일정 등록/수정 모달 -->
   <div class="modal fade" id="event-modal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -398,25 +320,18 @@
       </div>
     </div>
   </div>
-            </div><!-- page-container 끝 -->
-            
-       	</div><!-- page-content 끝 -->
-       	
-   </div><!-- wrapper 끝 -->
-       	
-   <!-- 자바 스크립트 -->
-   <jsp:include page ="../views/nav/javascript.jsp"></jsp:include> 
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+// COLOR_MAP 정의
 var COLOR_MAP = {
-		  'company':   '#fca5a5', // 파스텔 블루 (blue-300)
-		  'department':'#f9a8d4', // 파스텔 퍼플 (purple-300)
-		  'project':   '#c4b5fd', // 파스텔 핑크 (pink-300)
-		  'vacation':  '#fde68a', // 파스텔 옐로우 (yellow-300)
-		  'personal':  '#93c5fd'  // 파스텔 레드 (red-300)
-		};
+  'company': '#e5e7eb',
+  'department': '#dcfce7', 
+  'project': '#e9d5ff',
+  'vacation': '#d1fae5',
+  'personal': '#dbeafe'
+};
 
 // CSRF 토큰 가져오기
 var csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
@@ -450,13 +365,6 @@ document.addEventListener('DOMContentLoaded', function() {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
-    buttonText: {
-    	  today: '오늘',
-    	  month: '월',
-    	  week: '주',
-    	  day: '일',
-    	  list: '목록'
-    	},
     height: 'auto',
     
     events: function(fetchInfo, successCallback, failureCallback) {

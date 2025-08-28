@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.comma_groupware.mapper.EquipmentUsageMapper">
+
+  <!-- 사용 이력 등록 -->
+  <insert id="insertUsage" parameterType="com.example.comma_groupware.dto.EquipmentUsage" useGeneratedKeys="true" keyProperty="usageId">
+    INSERT INTO equipment_usage (project_id, emp_id, equipment_id, usage_quantity)
+    VALUES (#{projectId}, #{empId}, #{equipmentId}, #{usageQuantity})
+  </insert>
+
+  <!-- 프로젝트별 사용 이력 조회 -->
+  <select id="findByProject" parameterType="int" resultType="com.example.comma_groupware.dto.EquipmentUsage">
+    SELECT *
+    FROM equipment_usage
+    WHERE project_id = #{projectId}
+    ORDER BY issued_date DESC
+  </select>
+
+  <!-- 특정 사용자 이력 조회 -->
+  <select id="findByEmp" parameterType="int" resultType="com.example.comma_groupware.dto.EquipmentUsage">
+    SELECT *
+    FROM equipment_usage
+    WHERE emp_id = #{empId}
+    ORDER BY issued_date DESC
+  </select>
+
+  <!-- 단건 조회 -->
+  <select id="selectById" parameterType="int" resultType="com.example.comma_groupware.dto.EquipmentUsage">
+    SELECT *
+    FROM equipment_usage
+    WHERE usage_id = #{usageId}
+  </select>
+
+  <!-- 상태 변경: 파손 처리 -->
+  <update id="markAsDamaged">
+    UPDATE equipment_usage
+    SET usage_status = 'DAMAGED', damaged_reported = 1
+    WHERE usage_id = #{usageId}
+  </update>
+
+  <!-- 상태 변경: 반납 완료 -->
+  <update id="markAsReturned">
+    UPDATE equipment_usage
+    SET usage_status = 'RETURNED'
+    WHERE usage_id = #{usageId}
+  </update>
+
+  <!-- 자동 반납 (스케줄러에서 실행) -->
+  <update id="updateStatusToReturnPending">
+    UPDATE equipment_usage
+    SET usage_status = 'RETURN_PENDING'
+    WHERE project_id = #{projectId} AND usage_status = 'IN_USE'
+  </update>
+  
+  <!-- 멤버 반납 요청 -->
+	<update id="updateStatusToReturnRequested">
+	  UPDATE equipment_usage
+	  SET usage_status = 'RETURN_REQUESTED'
+	  WHERE usage_id = #{usageId}
+	</update>
+
+</mapper>

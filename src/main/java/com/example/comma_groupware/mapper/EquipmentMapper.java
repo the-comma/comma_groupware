@@ -1,6 +1,8 @@
 package com.example.comma_groupware.mapper;
 
 import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.example.comma_groupware.dto.Equipment;
 
@@ -8,6 +10,7 @@ import com.example.comma_groupware.dto.Equipment;
  * EquipmentMapper
  * 비품(재고) 관련 Mapper
  */
+@Mapper
 public interface EquipmentMapper {
 
     /**

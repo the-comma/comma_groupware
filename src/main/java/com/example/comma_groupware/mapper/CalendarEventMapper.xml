@@ -92,11 +92,25 @@
     WHERE ce.start_datetime &lt;= #{endOfDay} 
       AND ce.end_datetime &gt;= #{startOfDay}
       AND (
+          -- 회사 일정은 모든 사용자
           ce.event_type = 'COMPANY'
-          OR (ce.event_type = 'DEPARTMENT' AND ce.dept_id = #{deptId})
-          OR ce.event_type = 'PROJECT'
-          OR (ce.event_type = 'VACATION' AND (ce.dept_id IS NULL OR ce.dept_id = #{deptId} OR ce.created_by = #{empId}))
-          OR (ce.event_type = 'PERSONAL' AND ce.created_by = #{empId})
+          OR 
+          -- 부서 일정은 같은 부서원만
+          (ce.event_type = 'DEPARTMENT' AND ce.dept_id = #{deptId})
+          OR 
+          -- 프로젝트 일정은 본인이 참여하는 프로젝트만
+          (ce.event_type = 'PROJECT' AND EXISTS (
+              SELECT 1 FROM project_member pm
+              WHERE pm.project_id = ce.project_id
+                AND pm.emp_id = #{empId}
+          ))
+          OR 
+          -- 휴가 일정은 본인이거나 같은 부서원
+          (ce.event_type = 'VACATION' AND 
+           (ce.created_by = #{empId} OR ce.dept_id = #{deptId}))
+          OR 
+          -- 개인 일정은 본인만
+          (ce.event_type = 'PERSONAL' AND ce.created_by = #{empId})
       )
     ORDER BY ce.is_all_day DESC, ce.start_datetime
 </select>
@@ -269,28 +283,43 @@
         AND start_datetime &lt; DATE_ADD(NOW(), INTERVAL 3 DAY)
     </select>
 
-    <select id="searchEvents" resultMap="CalendarEventMap">
-        SELECT * FROM calendar_event
-        <where>
-            <if test="keyword != null and keyword != ''">
-                AND (event_title LIKE CONCAT('%', #{keyword}, '%') 
-                OR event_desc LIKE CONCAT('%', #{keyword}, '%'))
-            </if>
-            <if test="eventType != null and eventType != ''">
-                AND event_type = #{eventType}
-            </if>
-            <if test="startDate != null">
-                AND DATE(start_datetime) >= #{startDate}
-            </if>
-            <if test="endDate != null">
-                AND DATE(end_datetime) &lt;= #{endDate}
-            </if>
-        </where>
-        ORDER BY start_datetime DESC
-        <if test="limit > 0">
-            LIMIT #{limit}
-        </if>
-    </select>
+<select id="searchEvents" resultType="com.example.comma_groupware.dto.CalendarEvent">
+    SELECT 
+        ce.*
+    FROM calendar_event ce
+    WHERE 1=1
+      <!-- 키워드 검색 (제목 + 설명) -->
+      <if test="keyword != null and keyword != ''">
+        AND (ce.event_title LIKE CONCAT('%', #{keyword}, '%')
+             OR ce.event_desc LIKE CONCAT('%', #{keyword}, '%'))
+      </if>
+
+      <!-- 본인 일정/부서/권한별 필터 -->
+      <if test="eventType != null and eventType != ''">
+        AND ce.event_type = #{eventType}
+      </if>
+
+      <!-- 부서 일정 -->
+      <if test="deptId != null and deptId > 0">
+        AND (ce.dept_id IS NULL OR ce.dept_id = #{deptId})
+      </if>
+
+      <!-- 본인 작성자 제한 -->
+      <if test="empId != null and empId > 0">
+        AND (ce.created_by = #{empId} OR ce.event_type != 'PERSONAL')
+      </if>
+
+      <!-- 기간 검색 -->
+      <if test="startDate != null and endDate != null">
+        AND ce.start_datetime BETWEEN #{startDate} AND #{endDate}
+      </if>
+
+    ORDER BY ce.start_datetime ASC
+    <if test="limit != null and limit > 0">
+        LIMIT #{limit}
+    </if>
+</select>
+
 
     <select id="checkConflictingEvents" resultType="int">
         SELECT COUNT(*) FROM calendar_event
@@ -340,6 +369,49 @@
 	    LEFT JOIN employee e ON e.emp_id = ce.created_by
 	    WHERE ce.event_id = #{eventId}
 	</select>
+	
+	<select id="findEventsByRangeAndUserWithKeyword" resultMap="CalendarEventMap">
+    SELECT ce.*
+    FROM calendar_event ce
+    WHERE ce.start_datetime BETWEEN #{start} AND #{end}
+      AND (
+            -- 회사 전체 일정
+            ce.event_type = 'COMPANY'
+            OR
+            -- 부서 일정 (같은 부서만)
+            (ce.event_type = 'DEPARTMENT' AND ce.dept_id = #{deptId})
+            OR
+            -- 휴가 일정 (같은 부서만)
+            (ce.event_type = 'VACATION' AND ce.dept_id = #{deptId})
+            OR
+            -- 개인 일정 (본인만)
+            (ce.event_type = 'PERSONAL' AND ce.created_by = #{empId})
+            OR
+            -- 프로젝트 일정 (프로젝트 멤버만)
+            (ce.event_type = 'PROJECT' AND EXISTS (
+                SELECT 1 FROM project_member pm
+                WHERE pm.project_id = ce.project_id
+                  AND pm.emp_id = #{empId}
+            ))
+      )
+      <!-- 키워드 검색 -->
+      <if test="keyword != null and keyword != ''">
+        AND (
+            ce.event_title LIKE CONCAT('%', #{keyword}, '%')
+            OR ce.event_desc LIKE CONCAT('%', #{keyword}, '%')
+        )
+      </if>
+      
+      <!-- 타입 필터 -->
+      <if test="types != null and types.size > 0">
+        AND ce.event_type IN
+        <foreach collection="types" item="type" open="(" separator="," close=")">
+            #{type}
+        </foreach>
+      </if>
+    ORDER BY ce.start_datetime
+</select>
+	
 	
 
 </mapper>

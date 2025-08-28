@@ -41,14 +41,15 @@ public interface CalendarEventMapper {
     );
     
     /**
-     * 범위별 일정 조회 (권한 및 필터 적용)
+     * 범위별 일정 조회 (권한 + 검색 지원)
      */
-    List<CalendarEvent> findEventsByRangeAndUser(
+    List<CalendarEvent> findEventsByRangeAndUserWithKeyword(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
             @Param("empId") int empId,
             @Param("deptId") int deptId,
-            @Param("types") List<String> types
+            @Param("types") List<String> types,
+            @Param("keyword") String keyword
     );
     
     /**
@@ -116,9 +117,10 @@ public interface CalendarEventMapper {
      * 부서 휴가 사용 현황 요약 (연간)
      */
     List<Map<String, Object>> getDepartmentVacationSummary(
-            @Param("deptId") int deptId,
-            @Param("year") int year
-    );
+    	    @Param("deptId") Integer deptId, 
+    	    @Param("year") int year
+    	);
+
     
     /**
      * 월간 부서 휴가 현황
@@ -223,4 +225,9 @@ public interface CalendarEventMapper {
             @Param("endDate") LocalDateTime endDate,
             @Param("intervalType") String intervalType
     );
+    
+    List<Map<String, Object>> selectDepartmentVacationSummary(
+    	    @Param("deptId") Integer deptId, 
+        @Param("year") int year
+    	);
 }

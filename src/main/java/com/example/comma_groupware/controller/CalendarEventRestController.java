@@ -167,6 +167,7 @@ public class CalendarEventRestController {
             event.getStartDatetime().plusHours(1) : parse(end));
         event.setIsAllDay((start != null && start.length() == 10) ? 1 : 0);
         event.setEventType(toEventType(eventType));
+        event.setCreatedBy(currentUser.getEmpId());
         
         // 타입별 추가 설정 (부서 일정 처리 강화)
         setEventTypeSpecificFieldsEnhanced(event, req, currentUser);
@@ -185,21 +186,23 @@ public class CalendarEventRestController {
     }
 
     // ====== 캘린더 범위 조회 (권한 강화) ======
+ // ====== 캘린더 범위 조회 (권한 강화 + 검색 추가) ======
     @PostMapping("/range")
     public List<Map<String, Object>> getEventsByRange(
-            @RequestBody Map<String, Object> req, 
+            @RequestBody Map<String, Object> req,
             Authentication auth) {
-        
+
         Employee currentUser = getCurrentEmployee(auth);
-        
+
         String startStr = (String) req.get("start");
         String endStr = (String) req.get("end");
+        String keyword = (String) req.get("keyword"); // 🔥 검색어 추가
         @SuppressWarnings("unchecked")
         List<String> types = (List<String>) req.get("types");
-        
+
         LocalDateTime start = parseRangeParam(startStr);
         LocalDateTime end = parseRangeParam(endStr);
-        
+
         if (types == null || types.isEmpty()) {
             types = new ArrayList<>();
             types.add("company");
@@ -208,28 +211,33 @@ public class CalendarEventRestController {
             types.add("vacation");
             types.add("personal");
         }
-        
-        System.out.println("=== 일정 범위 조회 (권한 강화) ===");
-        System.out.println("사용자: " + currentUser.getEmpName() + ", 기간: " + startStr + " ~ " + endStr);
-        System.out.println("요청 타입: " + types);
-        
+
+        System.out.println("=== 일정 범위 조회 (권한 강화 + 검색) ===");
+        System.out.println("사용자: " + currentUser.getEmpName() +
+                           ", 기간: " + startStr + " ~ " + endStr +
+                           ", 검색어: " + keyword +
+                           ", 타입: " + types);
+
         try {
-            // Service의 권한 기반 필터링 메서드 사용
+            // 🔥 Service에 keyword 전달
             List<CalendarEvent> events = calendarService.findEventsByRangeAndUserWithPermission(
-                start, end, currentUser.getEmpId(), types);
-            
+                start, end, currentUser.getEmpId(), types, 
+                (keyword != null && !keyword.isBlank()) ? "%" + keyword + "%" : null
+            );
+
             List<Map<String, Object>> response = events.stream()
                 .map(this::mapEventToResponse)
                 .collect(Collectors.toList());
-                
+
             System.out.println("조회 결과: " + response.size() + "개 일정");
             return response;
-            
+
         } catch (Exception e) {
             System.out.println("일정 조회 실패: " + e.getMessage());
             throw e;
         }
     }
+
 
     // ====== 일정 상세 조회 (권한 강화) ======
     @GetMapping("/{id}")

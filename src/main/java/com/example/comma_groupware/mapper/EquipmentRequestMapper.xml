@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.comma_groupware.mapper.EquipmentRequestMapper">
+
+  <!-- 비품 신청 등록 -->
+  <insert id="insertRequest" parameterType="com.example.comma_groupware.dto.EquipmentRequest" useGeneratedKeys="true" keyProperty="requestId">
+    INSERT INTO equipment_request (project_id, emp_id, equipment_id, quantity)
+    VALUES (#{projectId}, #{empId}, #{equipmentId}, #{quantity})
+  </insert>
+
+  <!-- 신청과 동시에 사용 이력 생성 -->
+  <insert id="insertUsageFromRequest" parameterType="com.example.comma_groupware.dto.EquipmentRequest">
+    INSERT INTO equipment_usage (project_id, emp_id, equipment_id, usage_quantity)
+    VALUES (#{projectId}, #{empId}, #{equipmentId}, #{quantity})
+  </insert>
+
+  <!-- 특정 프로젝트의 신청 내역 조회 -->
+  <select id="findRequestsByProject" parameterType="int" resultType="map">
+    SELECT r.*, e.equipment_name, pm.emp_id, pm.project_id
+    FROM equipment_request r
+    JOIN equipment e ON r.equipment_id = e.equipment_id
+    JOIN project_member pm ON r.emp_id = pm.emp_id
+    WHERE r.project_id = #{projectId}
+    ORDER BY r.request_date DESC
+  </select>
+
+</mapper>

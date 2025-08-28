@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.comma_groupware.mapper.EquipmentDamageReportMapper">
+
+  <!-- 파손 보고 등록 -->
+  <insert id="insertDamageReport" parameterType="com.example.comma_groupware.dto.EquipmentDamageReport" useGeneratedKeys="true" keyProperty="damageReportId">
+    INSERT INTO equipment_damage_report (usage_id, reported_by, damage_desc)
+    VALUES (#{usageId}, #{reportedBy}, #{damageDesc})
+  </insert>
+
+  <!-- 특정 사용 이력의 파손 내역 조회 -->
+  <select id="findByUsageId" parameterType="int" resultType="map">
+    SELECT d.*, u.emp_id, u.project_id, e.equipment_name
+    FROM equipment_damage_report d
+    JOIN equipment_usage u ON d.usage_id = u.usage_id
+    JOIN equipment e ON u.equipment_id = e.equipment_id
+    WHERE d.usage_id = #{usageId}
+  </select>
+
+  <!-- 전체 파손 내역 (경영지원팀 확인용) -->
+  <select id="findAllReports" resultType="map">
+    SELECT d.*, u.project_id, emp.emp_name, eq.equipment_name
+    FROM equipment_damage_report d
+    JOIN equipment_usage u ON d.usage_id = u.usage_id
+    JOIN employee emp ON d.reported_by = emp.emp_id
+    JOIN equipment eq ON u.equipment_id = eq.equipment_id
+    ORDER BY d.report_date DESC
+  </select>
+
+</mapper>

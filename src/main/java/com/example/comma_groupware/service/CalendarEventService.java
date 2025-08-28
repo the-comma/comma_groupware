@@ -134,9 +134,15 @@ public class CalendarEventService {
         return calendarEventMapper.findDepartmentVacationsByRange(deptId, start, end);
     }
     
+    /**
+     * 부서별 휴가 사용 현황 요약 (통합된 메서드)
+     * @param deptId 부서 ID (Integer - null 허용)
+     * @param year 연도
+     * @return 휴가 요약 통계
+     */
     @Transactional(readOnly = true)
-    public Map<String, Object> getDepartmentVacationSummary(int deptId, int year) {
-        List<Map<String, Object>> vacationList = calendarEventMapper.getDepartmentVacationSummary(deptId, year);
+    public Map<String, Object> getDepartmentVacationSummary(Integer deptId, int year) {
+        List<Map<String, Object>> vacationList = calendarEventMapper.selectDepartmentVacationSummary(deptId, year);
         
         // 요약 통계 계산
         int totalEmployees = vacationList.size();
@@ -328,38 +334,45 @@ public class CalendarEventService {
     
         // ====== 부서별 필터링이 강화된 조회 메서드들 ======
         
-        /**
-         * 사용자별 권한을 고려한 일정 범위 조회 (강화된 버전)
-         */
-        @Transactional(readOnly = true)
-        public List<CalendarEvent> findEventsByRangeAndUserWithPermission(LocalDateTime start, LocalDateTime end,
-                                                                         int empId, List<String> types) {
-            System.out.println("=== 권한 기반 일정 조회 시작 ===");
-            System.out.println("사용자 ID: " + empId);
-            System.out.println("요청 타입들: " + types);
-            
-            // 1. 사용자의 권한 정보 조회
-            Map<String, Object> userInfo = employeeService.getUserPermissionInfo(empId);
-            Integer userDeptId = (Integer) userInfo.get("deptId");
-            
-            System.out.println("사용자 부서: " + userInfo.get("deptName") + " (ID: " + userDeptId + ")");
-            
-            // 2. 기본 조회 (mapper에서 기본적인 권한 필터링)
-            List<CalendarEvent> events = calendarEventMapper.findEventsByRangeAndUser(
-                start, end, empId, userDeptId != null ? userDeptId : 0, types);
-            
-            System.out.println("DB에서 조회된 일정 수: " + events.size());
-            
-            // 3. 서비스 레이어에서 추가 권한 필터링
-            List<CalendarEvent> filteredEvents = events.stream()
-                .filter(event -> hasViewPermission(event, empId, userInfo))
-                .collect(java.util.stream.Collectors.toList());
-            
-            System.out.println("권한 필터링 후 일정 수: " + filteredEvents.size());
-            System.out.println("=== 권한 기반 일정 조회 완료 ===");
-            
-            return filteredEvents;
-        }
+    /**
+     * 사용자별 권한을 고려한 일정 범위 조회 (강화된 버전 + 검색 지원)
+     */
+    @Transactional(readOnly = true)
+    public List<CalendarEvent> findEventsByRangeAndUserWithPermission(
+            LocalDateTime start,
+            LocalDateTime end,
+            int empId,
+            List<String> types,
+            String keyword // 🔥 검색어 추가
+    ) {
+        System.out.println("=== 권한 기반 일정 조회 시작 ===");
+        System.out.println("사용자 ID: " + empId);
+        System.out.println("요청 타입들: " + types);
+        System.out.println("검색어: " + keyword);
+
+        // 1. 사용자의 권한 정보 조회
+        Map<String, Object> userInfo = employeeService.getUserPermissionInfo(empId);
+        Integer userDeptId = (Integer) userInfo.get("deptId");
+
+        System.out.println("사용자 부서: " + userInfo.get("deptName") + " (ID: " + userDeptId + ")");
+
+        // 2. 기본 조회 (mapper에서 권한 + 검색 조건 처리)
+        List<CalendarEvent> events = calendarEventMapper.findEventsByRangeAndUserWithKeyword(
+            start, end, empId, userDeptId != null ? userDeptId : 0, types, keyword
+        );
+
+        System.out.println("DB에서 조회된 일정 수: " + events.size());
+
+        // 3. 서비스 레이어에서 추가 권한 필터링
+        List<CalendarEvent> filteredEvents = events.stream()
+            .filter(event -> hasViewPermission(event, empId, userInfo))
+            .collect(java.util.stream.Collectors.toList());
+
+        System.out.println("권한 필터링 후 일정 수: " + filteredEvents.size());
+        System.out.println("=== 권한 기반 일정 조회 완료 ===");
+
+        return filteredEvents;
+    }
         
         /**
          * 오늘의 일정 조회 (권한 강화)
@@ -512,22 +525,30 @@ public class CalendarEventService {
             // 생성자 정보 설정
             event.setCreatedBy(creatorId);
             
-            // 타입별 권한 체크
+           
+         // 타입별 권한 체크
             switch (event.getEventType()) {
                 case "COMPANY":
                     if (!employeeService.isManagementSupportManager(creatorId)) {
                         throw new IllegalStateException("회사 일정은 경영지원부장만 등록할 수 있습니다.");
                     }
+                    // ✅ 회사 일정은 부서/프로젝트와 무관 → 강제 null 처리
+                    event.setDeptId(null);
+                    event.setProjectId(null);
                     break;
                     
                 case "DEPARTMENT":
                     validateDepartmentEventCreation(event, creatorId);
+                    // 혹시 모르니 projectId는 강제 null
+                    event.setProjectId(null);
                     break;
                     
                 case "PROJECT":
                     if (!employeeService.isProjectManager(creatorId)) {
                         throw new IllegalStateException("프로젝트 일정은 PM만 등록할 수 있습니다.");
                     }
+                    // 프로젝트는 부서와 무관
+                    event.setDeptId(null);
                     break;
                     
                 case "VACATION":
@@ -535,6 +556,9 @@ public class CalendarEventService {
                     
                 case "PERSONAL":
                     // 개인 일정은 모든 사용자 가능
+                    // 부서/프로젝트와 무관
+                    event.setDeptId(null);
+                    event.setProjectId(null);
                     break;
                     
                 default:

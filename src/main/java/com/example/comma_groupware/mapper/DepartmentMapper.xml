@@ -6,66 +6,78 @@
 
     <!-- 모든 부서 조회 -->
     <select id="selectAll" resultType="com.example.comma_groupware.dto.Department">
-        SELECT dept_id, dept_name as dateName
+        SELECT dept_id AS deptId,
+               dept_name AS deptName
         FROM department
         ORDER BY dept_name ASC
     </select>
 
     <!-- 부서 ID로 조회 -->
-    <select id="selectById" resultType="com.example.comma_groupware.dto.Department">
-        SELECT dept_id, dept_name as dateName
+    <select id="selectById" parameterType="int"
+            resultType="com.example.comma_groupware.dto.Department">
+        SELECT dept_id AS deptId,
+               dept_name AS deptName
         FROM department
         WHERE dept_id = #{deptId}
     </select>
 
     <!-- 부서명으로 조회 -->
-    <select id="selectByName" resultType="com.example.comma_groupware.dto.Department">
-        SELECT dept_id, dept_name as dateName
+    <select id="selectByName" parameterType="string"
+            resultType="com.example.comma_groupware.dto.Department">
+        SELECT dept_id AS deptId,
+               dept_name AS deptName
         FROM department
         WHERE dept_name = #{deptName}
     </select>
 
-    <!-- 활성 부서만 조회 (만약 status 컬럼이 있다면) -->
+    <!-- 활성 부서만 조회 (status 컬럼이 있다면) -->
     <select id="selectActiveDepartments" resultType="com.example.comma_groupware.dto.Department">
-        SELECT dept_id, dept_name as dateName
+        SELECT dept_id AS deptId,
+               dept_name AS deptName
         FROM department
         ORDER BY dept_name ASC
     </select>
 
     <!-- 부서 생성 -->
-    <insert id="insert" parameterType="com.example.comma_groupware.dto.Department" useGeneratedKeys="true" keyProperty="deptId">
+    <insert id="insert" parameterType="com.example.comma_groupware.dto.Department" 
+            useGeneratedKeys="true" keyProperty="deptId">
         INSERT INTO department (dept_name)
-        VALUES (#{dateName})
+        VALUES (#{deptName})
     </insert>
 
     <!-- 부서 수정 -->
     <update id="update" parameterType="com.example.comma_groupware.dto.Department">
         UPDATE department
-        SET dept_name = #{dateName}
+        SET dept_name = #{deptName}
         WHERE dept_id = #{deptId}
     </update>
 
     <!-- 부서 삭제 -->
-    <delete id="delete">
+    <delete id="delete" parameterType="int">
         DELETE FROM department
         WHERE dept_id = #{deptId}
     </delete>
 
     <!-- 부서별 직원 수 조회 (현재 활성 직원만) -->
-    <select id="countEmployees" resultType="int">
+    <select id="countEmployees" parameterType="int" resultType="int">
         SELECT COUNT(DISTINCT e.emp_id)
         FROM employee e
         INNER JOIN department_history dh ON e.emp_id = dh.emp_id
         INNER JOIN team t ON dh.team_id = t.team_id
         WHERE t.dept_id = #{deptId}
-          AND dh.end_date IS NULL  -- 현재 활성 상태만
-          AND e.emp_status = 'ACTIVE'  -- 활성 직원만 (emp_status 컬럼이 있다고 가정)
+          AND dh.end_date IS NULL
+          AND e.emp_status = '재직'
     </select>
 
-    <select id="getDeptTeamList">
-		SELECT 
-			d.dept_name AS deptName,
-			t.team_name AS teamName
-		FROM team t INNER JOIN department d ON t.dept_id = d.dept_id;
-	</select>
+    <!-- 부서별 팀 목록 -->
+    <select id="getDeptTeamList" resultType="map">
+        SELECT 
+            d.dept_id   AS deptId,
+            d.dept_name AS deptName,
+            t.team_id   AS teamId,
+            t.team_name AS teamName
+        FROM team t 
+        INNER JOIN department d ON t.dept_id = d.dept_id
+        ORDER BY d.dept_name, t.team_name
+    </select>
 </mapper>

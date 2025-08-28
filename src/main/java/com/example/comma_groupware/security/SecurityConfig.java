@@ -63,7 +63,8 @@ public class SecurityConfig {
 	        		res.sendRedirect("/resetPw");
 	        		return;
 	        	}
-	        	res.sendRedirect("/mainPage");
+					/* res.sendRedirect("/mainPage"); */
+	        	res.sendRedirect("/calendar");
 	        })
 	        .failureHandler((req, res, ex) -> {
 	            ex.printStackTrace();                     
