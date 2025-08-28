@@ -10,11 +10,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.comma_groupware.dto.ChatMessage;
 import com.example.comma_groupware.service.DepartmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ public class ChatController {
     private final ChatService chatService;
     private final ObjectMapper objectMapper;   // 🔸 주입
     private final DepartmentService departmentService;
+    private final ChatRoomUserService chatRoomUserService;
     
     
     @MessageMapping("/chat/send") // 클라에서 /pub/chat/send 로 보냄
@@ -53,8 +56,14 @@ public class ChatController {
     	}
     
     @PostMapping("/chat/rooms/one-to-one")
-    public void createPersonalRoom() {
-    	log.info("값이 넘어옴.");
+    public void createPersonalRoom(@RequestParam int chatTargetId, HttpSession session) {
+    	log.info("값이 넘어옴." + chatTargetId);
+    	String sessionUsername = (String) session.getAttribute("username");
+    	int username = Integer.parseInt(sessionUsername);
+    	long roomId = chatService.createRoom(chatTargetId, username);
+    	
+    	int result = chatRoomUserService.insertUser(roomId, chatTargetId, username);
+    	
     }
     
 }
