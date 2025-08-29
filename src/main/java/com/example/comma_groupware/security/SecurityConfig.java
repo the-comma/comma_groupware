@@ -44,7 +44,7 @@ public class SecurityConfig {
 		
 		httpSecurity.authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
 			    .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll() //  JSP forward 허용
-			    .requestMatchers("/login", "/loginAction", "/findPw", "/login-pin/**", "/resetPw", "/stomp/chat/**",
+			    .requestMatchers("/login", "/loginAction", "/findPw", "/login-pin/**", "/resetPw", "/stomp/chat/**", "/api/chat/rooms/*/messages",
 			                     "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/HTML/Admin/dist/assets/**" , "/static/assets/**").permitAll()
 				/* .requestMatchers("/user/**").hasRole(null)  역할부여 필요 */ 
 			    .anyRequest().authenticated()

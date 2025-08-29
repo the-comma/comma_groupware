@@ -1,7 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.comma_groupware.chat.ChatMapper">
+<insert id="save" parameterType="com.example.comma_groupware.dto.ChatMessage" >
+INSERT INTO chat_message  (chat_room_id, sender_id , chat_content , message_type) 
+		 VALUES (#{chatRoomId} , #{senderId}, #{chatContent}, #{messageType}); 
 
+</insert>
 
+  <!-- 초기: 최신 N개 (DESC) -->
+  <select id="findLatest" resultType="com.example.comma_groupware.dto.ChatMessage">
+    SELECT
+      chat_message_id As chatMessageId, chat_room_id As chatRoomId, sender_id As senderId, chat_content As chatContent, message_type As messageType, created_at As createdAt, is_deleted As isDeleted
+    FROM chat_message
+    WHERE chat_room_id = #{roomId}
+    ORDER BY chat_message_id DESC
+    LIMIT #{limit}
+  </select>
 
+  <!-- 과거: beforeId보다 작은 것들 (DESC) -->
+  <select id="findBefore" resultType="com.example.comma_groupware.dto.ChatMessage">
+    SELECT
+            chat_message_id As chatMessageId, chat_room_id As chatRoomId, sender_id As senderId, chat_content As chatContent, message_type As messageType, created_at As createdAt, is_deleted As isDeleted
+    FROM chat_message
+    WHERE chat_room_id = #{roomId}
+      AND chat_message_id &lt; #{beforeId}
+    ORDER BY chat_message_id DESC
+    LIMIT #{limit}
+  </select>
+
+  <!-- 최신 동기화: afterId보다 큰 것들 (ASC) -->
+  <select id="findAfter" resultType="com.example.comma_groupware.dto.ChatMessage">
+    SELECT
+            chat_message_id As chatMessageId, chat_room_id As chatRoomId, sender_id As senderId, chat_content As chatContent, message_type As messageType, created_at As createdAt, is_deleted As isDeleted
+    FROM chat_message
+    WHERE chat_room_id = #{roomId}
+      AND chat_message_id &gt; #{afterId}
+    ORDER BY chat_message_id ASC
+    LIMIT #{limit}
+  </select>
 </mapper>

@@ -37,7 +37,9 @@ public class ChatController {
     @MessageMapping("/chat/send") // 클라에서 /pub/chat/send 로 보냄
     public void send(@Payload ChatMessage message) throws Exception {
         log.info("WS IN  : {}", message);
-
+        
+        chatService.save(message);
+        
         // 필요하면 DB 저장 후 saved로 대체
         // ChatMessage saved = chatService.save(...);
 
