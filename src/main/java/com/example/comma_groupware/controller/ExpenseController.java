@@ -26,13 +26,12 @@ public class ExpenseController extends BaseApprovalController {
     private final ApprovalService approvalService;
 
     @GetMapping("/expenses/new")
-    public String form(@AuthenticationPrincipal Object principal, Model model) {
+    public String newForm(@AuthenticationPrincipal Object principal, Model model){
         int empId = getLoginEmpId(principal);
         model.addAttribute("codes", approvalService.getExpenseCodes());
-        
-        Map<String,Object> org = approvalService.getMyDeptTeam(empId);  
-        model.addAttribute("empId", empId);                            
-        model.addAttribute("org", org);                                
+        model.addAttribute("empId", empId);
+        model.addAttribute("org", approvalService.getMyDeptTeam(empId));
+        model.addAttribute("editing", false);                // ← 중요
         return "approval/expenseForm";
     }
 
@@ -56,37 +55,33 @@ public class ExpenseController extends BaseApprovalController {
         return "redirect:/approval/doc/" + docId;
     }
     
-    @GetMapping("/expenses/{docId}/edit")                  // [ADDED]
-    public String editForm(@AuthenticationPrincipal Object principal,
-                           @PathVariable int docId, Model model){
+    @GetMapping("/expenses/{docId}/edit")
+    public String expenseEditForm(@AuthenticationPrincipal Object principal,
+                                  @PathVariable int docId, Model model){
         int empId = getLoginEmpId(principal);
 
-        Map<String,Object> doc = approvalService.getDocumentDetail(docId);
+        Map<String,Object> doc = approvalService.getDocumentDetail(docId); // files, expense 포함
         model.addAttribute("doc", doc);
         model.addAttribute("codes", approvalService.getExpenseCodes());
-
-        Map<String,Object> org = approvalService.getMyDeptTeam(empId);   // [ADDED]
-        model.addAttribute("empId", empId);                              // [ADDED]
-        model.addAttribute("org", org);                                  // [ADDED]
-
-        return "approval/expenseForm"; // 폼 재사용                                // [ADDED]
+        model.addAttribute("empId", empId);
+        model.addAttribute("org", approvalService.getMyDeptTeam(empId));
+        model.addAttribute("editing", true);
+        return "approval/expenseForm"; // 위 JSP 파일명
     }
 
-    @PostMapping("/expenses/{docId}/edit")                 // [ADDED]
-    public String update(@AuthenticationPrincipal Object principal,
-                         @PathVariable int docId,
-                         @RequestParam int expenseId,
-                         @RequestParam long amount,
-                         @RequestParam String expenseDate,
-                         @RequestParam(required=false) String vendor,
-                         @RequestParam(required=false) String payMethod,
-                         @RequestParam(required=false) String bankInfo,
-                         @RequestParam(required=false) String expenseReason,
-                         @RequestParam(required=false, name="addFiles") List<MultipartFile> addFiles,
-                         @RequestParam(required=false, name="deleteFileId") List<Integer> deleteFileIds
-    ) throws Exception {
+    @PostMapping("/expenses/{docId}/edit")
+    public String expenseUpdate(@AuthenticationPrincipal Object principal,
+                                @PathVariable int docId,
+                                @RequestParam int expenseId,
+                                @RequestParam long amount,
+                                @RequestParam String expenseDate,
+                                @RequestParam(required=false) String vendor,
+                                @RequestParam(required=false) String payMethod,
+                                @RequestParam(required=false) String bankInfo,
+                                @RequestParam(required=false) String expenseReason,
+                                @RequestParam(required=false, name="addFiles") List<MultipartFile> addFiles,
+                                @RequestParam(required=false, name="deleteFileIds") List<Integer> deleteFileIds) throws Exception {
         int empId = getLoginEmpId(principal);
-
         approvalService.updateExpenseDocument(
             docId, empId, expenseId, amount, expenseDate,
             vendor, payMethod, bankInfo, expenseReason,

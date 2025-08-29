@@ -5,8 +5,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<!-- CSS -->
+	<jsp:include page ="../../views/nav/head-css.jsp"></jsp:include>	
   <meta charset="UTF-8">
   <title>지출결의서</title>
+    <link rel="stylesheet" href="<c:url value='/static/css/approval.expense.css'/>">
+	<link rel="stylesheet" href="<c:url value='/static/css/approval.expense.print.css'/>" media="print">
   <style>
     :root{ --line:#e5e7eb; --muted:#6b7280; --title:#111827; --paper:#fff; --bg:#f8fafc; }
     body{ margin:0; background:var(--bg); font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif; }
@@ -33,34 +37,63 @@
   </style>
 </head>
 <body>
-
-<form method="post" action="<c:url value='/approval/expenses/new'/>" enctype="multipart/form-data" id="expenseForm">
+    <!-- 페이지 시작 -->
+    <div class="wrapper">
+	<!-- 사이드바 -->
+	<jsp:include page ="../../views/nav/sidenav.jsp"></jsp:include>
+	<!-- 헤더 -->
+	<jsp:include page ="../../views/nav/header.jsp"></jsp:include>
+        <div class="page-content">
+            <div class="page-container">
+            	<div class="container">
+            	<!-- 본문 내용 -->
+            	<div class="row">
+                    <div class="col-16">
+                        <div class="card">
+                            <div class="card-header border-bottom border-dashed d-flex align-items-center">
+                                <h4 class="header-title">지출결의서</h4>
+                            </div>
+						        <div class="ms-auto pe-2">작성일: <span id="metaDate"></span></div>
+                                <div class="hdr">
+						    </div>
+                            <div class="card-body">
+                                <p class="text-muted">
+	                            	<!-- 부가 설명 -->
+                                </p>
+                                <div class="row">
+                                    <div class="col-lg-12">
+<c:choose>
+  <c:when test="${editing}">
+    <c:url var="formAction" value="/approval/expenses/${doc.approvalDocumentId}/edit"/>
+  </c:when>
+  <c:otherwise>
+    <c:url var="formAction" value="/approval/expenses/new"/>
+  </c:otherwise>
+</c:choose>
+ <form method="post" action="${formAction}"
+      enctype="multipart/form-data"
+      id="expenseForm"
+      data-edit="${editing}"
+      data-prev-date="${fn:escapeXml(JS_PREV_DATE)}"
+      data-prev-amt="${JS_PREV_AMT}">
   <div class="page">
 
-    <!-- 헤더 -->
-    <div class="hdr">
-      <h1>지출결의서</h1>
-      <div class="meta">
-        <div>작성일: <span id="metaDate"></span></div>
-        <div>문서번호: (자동)</div>
-      </div>
-    </div>
 
     <!-- 신청자 정보 -->
     <div class="section">
       <div class="grid-3">
-	    <div>
-	      <label>사번</label>
-	      <input type="text" value="${empId}" disabled />
-	    </div>
-	    <div>
-	      <label>부서</label>
-	      <input type="text" value="<c:out value='${empty org.deptName ? "-" : org.deptName}'/>" disabled />
-	    </div>
-	    <div>
-	      <label>팀</label>
-	      <input type="text" value="<c:out value='${empty org.teamName ? "-" : org.teamName}'/>" disabled />
-	    </div>
+        <div>
+          <label>사번</label>
+          <input type="text" value="${empId}" disabled />
+        </div>
+        <div>
+          <label>부서</label>
+          <input type="text" value="<c:out value='${empty org.deptName ? "-" : org.deptName}'/>" disabled />
+        </div>
+        <div>
+          <label>팀</label>
+          <input type="text" value="<c:out value='${empty org.teamName ? "-" : org.teamName}'/>" disabled />
+        </div>
       </div>
     </div>
 
@@ -69,46 +102,54 @@
       <div class="grid">
         <div>
           <label>지출 카테고리</label>
-			<select id="expenseCategory" name="expenseId" required>
-			  <option value="">-- 선택 --</option>
-			  <c:forEach var="c" items="${codes}">
-			    <option value="${c.expenseId}">${c.expenseTitle}</option>
-			  </c:forEach>
-			</select>
+          <select id="expenseCategory" name="expenseId" required>
+            <option value="">-- 선택 --</option>
+            <c:forEach var="c" items="${codes}">
+              <option value="${c.expenseId}"
+                <c:if test="${editing and doc.expense.expenseId == c.expenseId}">selected</c:if>>
+                <c:out value="${c.expenseTitle}"/>
+              </option>
+            </c:forEach>
+          </select>
           <div class="hint">예: 복리후생/출장비/소모품비/회식비</div>
         </div>
         <div>
           <label>거래처명</label>
-          <input type="text" id="vendor" name="vendor" placeholder="예: (주)샘플상사"> <!-- [CHANGED] name 지정 -->
+          <input type="text" id="vendor" name="vendor" placeholder="예: (주)샘플상사"
+                 value="<c:out value='${editing ? doc.expense.vendor : ""}'/>">
         </div>
       </div>
 
       <div class="grid">
         <div>
           <label>지급방법</label>
-          <select id="payMethod" name="payMethod"> <!-- [CHANGED] enum 값으로 제출 -->
-            <option value="CORP_CARD">법인카드</option>
-            <option value="PERSONAL_CARD">개인카드</option>
-            <option value="TRANSFER">계좌이체</option>
-            <option value="CASH">현금</option>
+          <select id="payMethod" name="payMethod">
+            <c:set var="pm" value="${editing ? doc.expense.payMethod : ''}"/>
+            <option value="CORP_CARD"     <c:if test="${pm=='CORP_CARD'}">selected</c:if>>법인카드</option>
+            <option value="PERSONAL_CARD" <c:if test="${pm=='PERSONAL_CARD'}">selected</c:if>>개인카드</option>
+            <option value="TRANSFER"      <c:if test="${pm=='TRANSFER'}">selected</c:if>>계좌이체</option>
+            <option value="CASH"          <c:if test="${pm=='CASH'}">selected</c:if>>현금</option>
           </select>
         </div>
         <div>
           <label>계좌정보(필요 시)</label>
-          <input type="text" id="bankInfo" name="bankInfo" placeholder="예: 우리 1002-***-**** (홍길동)">
+          <input type="text" id="bankInfo" name="bankInfo" placeholder="예: 우리 1002-***-**** (홍길동)"
+                 value="<c:out value='${editing ? doc.expense.bankInfo : ""}'/>">
         </div>
       </div>
     </div>
-        <div class="section">
-      	 <div class="grid">
-      	  <div>
-         	 <label>사용목적</label>
-        	  <input type="text" id="expenseReason" name="expenseReason" placeholder="사용목적을 적어주세요.">
-        	</div>
-       	 </div>
-        </div>
 
-    <!-- 지출 상세(라인 입력 → 합계 계산만, 저장은 총액/대표일만) -->
+    <div class="section">
+      <div class="grid">
+        <div>
+          <label>사용목적</label>
+          <input type="text" id="expenseReason" name="expenseReason" placeholder="사용목적을 적어주세요."
+                 value="<c:out value='${editing ? doc.expense.expenseReason : ""}'/>">
+        </div>
+      </div>
+    </div>
+
+    <!-- 지출 상세(라인 입력) -->
     <div class="section">
       <div class="no-print" style="display:flex; justify-content:space-between; align-items:center;">
         <div class="hint">* 과세 10% 자동 계산 (저장은 총액/대표일만 전송)</div>
@@ -150,14 +191,38 @@
       <div class="grid">
         <div>
           <label>증빙 첨부 (영수증/세금계산서 등)</label>
-          <input type="file" name="files" id="files" multiple accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp,.xlsx,.xls,.hwp,.hwpx">
-          <div class="hint" id="fileList"></div>
+          <c:choose>
+            <c:when test="${editing}">
+              <c:if test="${not empty doc.files}">
+                <div class="hint" style="margin-bottom:6px;">기존 첨부 파일</div>
+                <c:forEach var="f" items="${doc.files}">
+                  <div style="margin-bottom:6px;">
+                    <label>
+                      <input type="checkbox" name="deleteFileIds" value="${f.fileId}">
+                      삭제
+                    </label>
+                    <a href="<c:url value='/approval/file/${f.fileId}/download'/>">
+                      <c:out value="${f.originName}"/>
+                    </a>
+                    <span class="hint">(<fmt:formatNumber value='${f.size/1024}' maxFractionDigits='0'/> KB)</span>
+                  </div>
+                </c:forEach>
+              </c:if>
+              <!-- 추가 업로드 -->
+              <input type="file" name="addFiles" id="fileInput" multiple
+                     accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp,.xlsx,.xls,.hwp,.hwpx">
+              <div class="hint" id="fileList"></div>
+            </c:when>
+            <c:otherwise>
+              <input type="file" name="files" id="fileInput" multiple
+                     accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp,.xlsx,.xls,.hwp,.hwpx">
+              <div class="hint" id="fileList"></div>
+            </c:otherwise>
+          </c:choose>
         </div>
         <div>
           <label>전자결재 서명</label>
-          <div class="hint no-print">
-            ← 전자서명 컴포넌트(API) 들어갈 자리 (도장 이미지/마우스 서명)
-          </div>
+          <div class="hint no-print">← 전자서명 컴포넌트(API) 들어갈 자리</div>
         </div>
       </div>
     </div>
@@ -169,118 +234,33 @@
     </div>
   </div>
 
-  <!-- [KEEP] 서버 전송용 hidden (제목/총액/대표일자) -->
+  <!-- 서버 전송용 hidden -->
   <input type="hidden" name="title"        id="hiddenTitle">
   <input type="hidden" name="amount"       id="hiddenAmount">
   <input type="hidden" name="expenseDate"  id="hiddenExpenseDate">
 
-  <!-- CSRF -->
   <c:if test="${not empty _csrf}">
     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
   </c:if>
 </form>
-
-<script>
-  const KRW = n => (Number(n||0)).toLocaleString('ko-KR');
-  const unKRW = s => Number(String(s||'0').replace(/[^\d.-]/g,''))||0;
-  const metaDate = document.getElementById('metaDate');
-  metaDate.textContent = new Date().toISOString().slice(0,10);
-
-  const tblBody = document.querySelector('#itemTable tbody');
-  const sumSupplyEl = document.getElementById('sumSupply');
-  const sumVatEl    = document.getElementById('sumVat');
-  const sumTotalEl  = document.getElementById('sumTotal');
-  const fileInput   = document.getElementById('files');
-  const fileList    = document.getElementById('fileList');
-
-  function addRow(date='', desc='', taxable=true, supply=0){
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input type="date" class="i-date" value="${date}"></td>
-      <td><input type="text" class="i-desc" placeholder="예: 팀 회식(10명) / 소모품 구매" value="${desc}"></td>
-      <td>
-        <select class="i-tax">
-          <option ${taxable ? 'selected' : ''}>과세</option>
-          <option ${!taxable ? 'selected' : ''}>면세</option>
-        </select>
-      </td>
-      <td class="right"><input type="text" class="i-supply" value="${supply?KRW(supply):''}" placeholder="0"></td>
-      <td class="right i-vat">0</td>
-      <td class="right i-total">0</td>
-      <td class="no-print"><button type="button" class="btn destructive btn-del">삭제</button></td>
-    `;
-    tblBody.appendChild(tr);
-    recalc();
-  }
-
-  function recalc(){
-    let sumSupply=0, sumVat=0, sumTotal=0;
-    tblBody.querySelectorAll('tr').forEach(tr=>{
-      const taxable = tr.querySelector('.i-tax').value === '과세';
-      const supply  = unKRW(tr.querySelector('.i-supply').value);
-      const vat     = taxable ? Math.round(supply*0.1) : 0;
-      const total   = supply + vat;
-      sumSupply += supply; sumVat += vat; sumTotal += total;
-      tr.querySelector('.i-vat').textContent   = KRW(vat);
-      tr.querySelector('.i-total').textContent = KRW(total);
-    });
-    sumSupplyEl.textContent = KRW(sumSupply);
-    sumVatEl.textContent    = KRW(sumVat);
-    sumTotalEl.textContent  = KRW(sumTotal);
-  }
-
-  // 초기 1행
-  addRow(new Date().toISOString().slice(0,10), '', true, 0);
-
-  document.getElementById('addRowBtn').addEventListener('click', ()=> addRow());
-  document.getElementById('clearRowsBtn').addEventListener('click', ()=>{ tblBody.innerHTML=''; recalc(); });
-  tblBody.addEventListener('input', e=>{
-    if (e.target.classList.contains('i-supply')) {
-      const n = unKRW(e.target.value);
-      e.target.value = n ? KRW(n) : '';
-      recalc();
-    }
-  });
-  tblBody.addEventListener('change', e=>{
-    if (e.target.classList.contains('i-tax') || e.target.classList.contains('i-date')) recalc();
-  });
-  tblBody.addEventListener('click', e=>{
-    if (e.target.classList.contains('btn-del')) { e.target.closest('tr').remove(); recalc(); }
-  });
-
-  // 파일 리스트 표시
-  fileInput.addEventListener('change', ()=>{
-    if (!fileInput.files?.length){ fileList.textContent=''; return; }
-    fileList.innerHTML = Array.from(fileInput.files).map(f=>`• ${f.name} (${Math.round(f.size/1024)} KB)`).join('<br>');
-  });
-
-  // 제출 전 파라미터 구성
-  document.getElementById('expenseForm').addEventListener('submit', (e)=>{
-    if (!document.getElementById('expenseCategory').value){
-      alert('지출 카테고리를 선택하세요.'); e.preventDefault(); return;
-    }
-    if (!tblBody.querySelector('tr')){
-      alert('지출 내역을 1건 이상 입력하세요.'); e.preventDefault(); return;
-    }
-
-    // 합계 / 대표일자
-    let total = unKRW(sumTotalEl.textContent);
-    let firstDate = '';
-    tblBody.querySelectorAll('tr').forEach(tr=>{
-      const d = tr.querySelector('.i-date').value;
-      if (!firstDate && d) firstDate = d;
-    });
-
-    // [CHANGED] 제목에 날짜 제거 (작성일은 우측 meta에 따로 표시)
-    const catSel = document.getElementById('expenseCategory');
-    const catText = catSel.options[catSel.selectedIndex]?.text || '지출';
-    const vendor  = (document.getElementById('vendor').value || '').trim();
-    const title = `[${catText}] ${vendor ? vendor+' ' : ''}지출결의`;  // [CHANGED] 날짜 X
-
-    document.getElementById('hiddenTitle').value = title;
-    document.getElementById('hiddenAmount').value = total;
-    document.getElementById('hiddenExpenseDate').value = firstDate || new Date().toISOString().slice(0,10);
-  });
-</script>
+       	<a class="btn" href="/approval">홈으로</a>
+                                    </div> <!-- end col -->
+                                </div>
+                                <!-- end row-->
+                            </div> <!-- end card-body -->
+                        </div> <!-- end card -->
+                    </div><!-- end col -->
+                </div><!-- end row -->
+            	<!-- 본문 내용 끝 -->
+            	</div><!-- container 끝 -->
+            	<!-- 푸터 -->
+            	<jsp:include page ="../../views/nav/footer.jsp"></jsp:include>
+            </div><!-- page-container 끝 -->
+       	</div><!-- page-content 끝 -->
+   </div><!-- wrapper 끝 -->
+   <!-- 자바 스크립트 -->
+   <jsp:include page ="../../views/nav/javascript.jsp"></jsp:include>
+   <!-- 이 페이지 전용 -->
+   <script src="<c:url value='/js/expense.form.js'/>" defer></script>
 </body>
 </html>

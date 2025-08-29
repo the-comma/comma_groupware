@@ -5,6 +5,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<!-- CSS -->
+	<jsp:include page ="../../views/nav/head-css.jsp"></jsp:include>	
   <meta charset="UTF-8">
   <title>휴가신청서</title>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -29,42 +31,83 @@
     .btn{ display:inline-block; padding:10px 14px; border-radius:10px; border:1px solid var(--line); background:#fff; cursor:pointer; font-size:14px; }
     .btn.primary{ background:#111827; color:#fff; border-color:#111827; }
     @media print{ .no-print{ display:none !important; } .page{ box-shadow:none; border-radius:0; } body{ background:#fff; } }
+    .grid-3-eq{
+	  display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px 18px; align-items:end;
+	}
+	.toggle-group{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+	.chk{
+	  display:inline-flex; gap:6px; align-items:center;
+	  padding:6px 10px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:14px;
+	}
+	.chk input{ width:16px; height:16px; }
+	.half-row{ display:flex; gap:12px; align-items:center; margin-top:8px; }
+	.toggle-group{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+	.chk{
+	  display:inline-flex; gap:6px; align-items:center;
+	  padding:6px 10px; border:1px solid var(--line);
+	  border-radius:8px; background:#fff; font-size:14px;
+	}
+	.chk input{ width:16px; height:16px; }
   </style>
 </head>
 <body>
+    <!-- 페이지 시작 -->
+    <div class="wrapper">
+	<!-- 사이드바 -->
+	<jsp:include page ="../../views/nav/sidenav.jsp"></jsp:include>
+	<!-- 헤더 -->
+	<jsp:include page ="../../views/nav/header.jsp"></jsp:include>
+        <div class="page-content">
+            <div class="page-container">
+            	<div class="container">
+            	<!-- 본문 내용 -->
+            	<div class="row">
+                    <div class="col-16">
+                        <div class="card">
+                            <div class="card-header border-bottom border-dashed d-flex align-items-center">
+                                <h4 class="header-title">휴가신청서</h4>
+                            </div>
+                                <div class="ms-auto pe-2">작성일: <span id="metaDate"></span></div>
+                            <div class="card-body">
+                                <p class="text-muted">
+	                            	<!-- 부가 설명 -->
+                                </p>
+                                <div class="row">
+                                    <div class="col-lg-12">
+<c:choose>
+  <c:when test="${editing}">
+    <c:url var="formAction" value="/approval/vacations/${doc.approvalDocumentId}/edit"/>
+  </c:when>
+  <c:otherwise>
+    <c:url var="formAction" value="/approval/vacations/new"/>
+  </c:otherwise>
+</c:choose>
 
+<form method="post" action="${formAction}" enctype="multipart/form-data" id="vacationForm">
+<!--  
 <form method="post" action="<c:url value='/approval/vacations/new'/>" enctype="multipart/form-data" id="vacationForm">
+-->
   <div class="page">
-
-    <!-- 헤더 -->
-    <div class="hdr">
-      <h1>휴가신청서 <span class="badge">Vacation Request</span></h1>
-      <div class="meta">
-        <div>작성일: <span id="metaDate"></span></div>
-        <div>문서번호: (자동)</div>
-      </div>
-    </div>
-
-    <!-- 신청자 / 잔여연차 (성명 제거) -->
+    <!-- 신청자 / 잔여연차 -->
     <div class="section">
       <div class="grid-3">
-	    <div>
-	      <label>사번</label>
-	      <input type="text" value="${empId}" disabled />
-	    </div>
-	    <div>
-	      <label>부서</label>
-	      <input type="text" value="<c:out value='${empty org.deptName ? "-" : org.deptName}'/>" disabled />
-	    </div>
-	    <div>
-	      <label>팀</label>
-	      <input type="text" value="<c:out value='${empty org.teamName ? "-" : org.teamName}'/>" disabled />
-	    </div>
-	  </div>
-	  <div class="hint" style="margin-top:8px;">
-	    잔여연차: <strong><c:out value="${annualLeave}"/> 일</strong>
-	  </div>
-	</div>
+        <div>
+          <label>사번</label>
+          <input type="text" value="${empId}" disabled />
+        </div>
+        <div>
+          <label>부서</label>
+          <input type="text" value="<c:out value='${empty org.deptName ? "-" : org.deptName}'/>" disabled />
+        </div>
+        <div>
+          <label>팀</label>
+          <input type="text" value="<c:out value='${empty org.teamName ? "-" : org.teamName}'/>" disabled />
+        </div>
+      </div>
+      <div class="hint" style="margin-top:8px;">
+        잔여연차: <strong><c:out value="${annualLeave}"/> 일</strong>
+      </div>
+    </div>
 
     <!-- 휴가 기본 정보 -->
     <div class="section">
@@ -88,43 +131,64 @@
                   <c:otherwise>${c[1]}</c:otherwise>
                 </c:choose>
               </c:set>
-              <option value="${fn:trim(codeId)}">${fn:trim(codeTitle)}</option>
+				<c:set var="selId" value="${editing ? doc.vacation.vacationId : pre_vacationId}"/>
+				<option value="${fn:trim(codeId)}"
+				  <c:set var="codeIdInt" value="${codeId + 0}"/>
+				  <c:if test="${selId == codeIdInt}">selected</c:if>>
+				  ${fn:trim(codeTitle)}
+				</option>
             </c:forEach>
           </select>
           <div class="hint">예: 예비군/경조사/질병/연차/반차</div>
         </div>
-	    <div>
-	      <label>비상연락처</label>
-	      <input type="text" id="emergency" name="emergencyContact" placeholder="예: 010-1234-5678">
-	    </div>
-      </div>
-
-      <div class="grid">
         <div>
-          <label>시작일</label>
-          <div class="inline">
-            <input type="date" name="startDate" id="startDate" required>
-          </div>
-        </div>
-        <div>
-          <label>종료일</label>
-          <div class="inline">
-            <input type="date" name="endDate" id="endDate" required>
-            <label class="inline"><input type="checkbox"> 구현되지않은 반차</label> 
-          </div>
+          <label>비상연락처</label>
+          <input type="text" id="emergency" name="emergencyContact" placeholder="예: 010-1234-5678" 
+           value="<c:out value='${editing ? doc.vacation.emergencyContact : pre_emergencyContact}'/>">
         </div>
       </div>
 
+		<div class="grid">
+		  <div>
+		    <label>시작일</label>
+		    <div class="inline">
+		      <input type="date" name="startDate" id="startDate" value="${editing ? doc.vacation.startDate : pre_startDate}" required>
+		    </div>
+		  </div>
+		  <div>
+		    <label>종료일</label>
+		    <div class="inline">
+		      <input type="date" name="endDate" id="endDate" value="${editing ? doc.vacation.endDate : pre_endDate}" required>
+		    </div>
+		  </div>
+		</div>
+		
+		<!-- 날짜 선택 “아래”에 반차 옵션 한 줄 배치 -->
+		<div class="half-row">
+		  <!-- 같은 날일 때만 쓰는 반차 -->
+		  <label class="chk" id="halfDayWrap">
+		    <input type="checkbox" id="halfDay" disabled> 반차
+		  </label>
+		
+		  <!-- 기간일 때 쓰는 시작/종료 반차 -->
+		  <div class="toggle-group" id="rangeHalfs" style="display:none;">
+		    <label class="chk"><input type="checkbox" id="startHalf" disabled> 시작 반차</label>
+		    <label class="chk"><input type="checkbox" id="endHalf" disabled> 종료 반차</label>
+		  </div>
+		</div>
+
       <div class="grid">
-	    <div>
-	      <label>업무 인수인계(담당자/범위)</label>
-	      <input type="text" id="handover" name="handover" placeholder="예: 김PM에게 개발작업 진행 인수"> 
-	    </div>
+        <div>
+          <label>업무 인수인계(담당자/범위)</label>
+          <input type="text" id="handover" name="handover" placeholder="예: 김PM에게 개발작업 진행 인수"
+           value="<c:out value='${editing ? doc.vacation.handover : pre_handover}'/>">
+        </div>
       </div>
 
       <div>
         <label>사유(요약)</label>
-        <textarea id="reasonText" name="vacationReason" placeholder="예: 가족 경조사 참석 / 건강검진 등"></textarea>
+        <textarea id="reasonText" name="vacationReason" placeholder="예: 가족 경조사 참석 / 건강검진 등" >
+        <c:out value="${editing ? doc.vacation.vacationReason : pre_vacationReason}"/></textarea>
       </div>
     </div>
 
@@ -133,9 +197,34 @@
       <div class="grid">
         <div>
           <label>첨부 (진단서/청첩장/소명자료 등)</label>
-          <input type="file" name="files" id="files" multiple accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp">
-          <div class="hint" id="fileList"></div>
+			<c:choose>
+			  <c:when test="${editing}">
+			    <c:if test="${not empty doc.files}">
+			      <div class="hint" style="margin-bottom:6px;">기존 첨부 파일</div>
+			      <c:forEach var="f" items="${doc.files}">
+			        <div style="margin-bottom:6px;">
+			          <label><input type="checkbox" name="deleteFileIds" value="${f.fileId}"> 삭제</label>
+			          <a href="<c:url value='/approval/file/${f.fileId}/download'/>">
+			            <c:out value="${f.originName}"/>
+			          </a>
+			          <span class="hint">(<fmt:formatNumber value='${f.size/1024}' maxFractionDigits='0'/> KB)</span>
+			        </div>
+			      </c:forEach>
+			    </c:if>
+			    <!-- 수정: 추가 업로드 -->
+			    <input type="file" name="addFiles" id="uploadInput" multiple
+			           accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp">
+			    <div class="hint" id="fileList"></div>
+			  </c:when>
+			  <c:otherwise>
+			    <!-- 신규 -->
+			    <input type="file" name="files" id="uploadInput" multiple
+			           accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp">
+			    <div class="hint" id="fileList"></div>
+			  </c:otherwise>
+			</c:choose>
         </div>
+        
         <div>
           <label>전자결재 서명</label>
           <div class="sigpad no-print">
@@ -159,80 +248,28 @@
   <input type="hidden" name="reason" id="hiddenReason">
   <input type="hidden" name="totalDays" id="hiddenTotalDays">
 
-  <!-- CSRF -->
   <c:if test="${not empty _csrf}">
     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
   </c:if>
 </form>
-
-<script>
-  const metaDate = document.getElementById('metaDate');
-  metaDate.textContent = new Date().toISOString().slice(0,10);
-
-  const startDate = document.getElementById('startDate');
-  const endDate   = document.getElementById('endDate');
-  const startHalf = document.getElementById('startHalf');
-  const endHalf   = document.getElementById('endHalf');
-  const calcDays  = document.getElementById('calcDays');
-  const fileInput = document.getElementById('files');
-  const fileList  = document.getElementById('fileList');
-
-  function businessDaysInclusive(s, e){
-	    if (!s || !e) return 0;
-	    const sd = new Date(s), ed = new Date(e);
-	    if (ed < sd) return 0;
-	    let days = 0;
-	    for (let d = new Date(sd); d <= ed; d.setDate(d.getDate()+1)){
-	      const w = d.getDay();
-	      if (w !== 0 && w !== 6) days++;
-	    }
-	    return days;
-	  }
-
-  function recalc(){
-    const s = startDate.value, e = endDate.value;
-    let days = businessDaysInclusive(s, e);
-    if (s && e && days > 0){
-      let minus = 0;
-      if (startHalf.checked) minus += 0.5;
-      if (endHalf.checked)   minus += 0.5;
-      if (s === e){
-        days = 1 - (startHalf.checked && endHalf.checked ? 0 : (startHalf.checked || endHalf.checked ? 0.5 : 0));
-      }else{
-        days = days - minus;
-      }
-      if (days < 0) days = 0;
-    }
-    calcDays.textContent = days;
-    document.getElementById('hiddenTotalDays').value = days;
-  }
-  [startDate, endDate, startHalf, endHalf].forEach(el=> el.addEventListener('change', recalc));
-  recalc();
-
-  fileInput.addEventListener('change', ()=>{
-    if (!fileInput.files?.length){ fileList.textContent=''; return; }
-    fileList.innerHTML = Array.from(fileInput.files).map(f=>`• ${f.name} (${Math.round(f.size/1024)} KB)`).join('<br>');
-  });
-
-  document.getElementById('vacationForm').addEventListener('submit', (e)=>{
-	    if (!document.getElementById('vacationCategory').value){
-	      alert('휴가 구분을 선택하세요.'); e.preventDefault(); return;
-	    }
-	    if (!document.getElementById('startDate').value || !document.getElementById('endDate').value){
-	      alert('시작일과 종료일을 입력하세요.'); e.preventDefault(); return;
-	    }
-	    const days = Number(document.getElementById('hiddenTotalDays').value || 0);
-	    if (days <= 0){
-	      alert('사용일수를 확인하세요.'); e.preventDefault(); return;
-	    }
-
-	    const catSel = document.getElementById('vacationCategory');
-	    const catText = catSel.options[catSel.selectedIndex]?.text || '휴가';
-	    const s = document.getElementById('startDate').value;
-	    const e2 = document.getElementById('endDate').value;
-	    const title = `[${catText}] ${s} ~ ${e2} 휴가신청`;   // [CHANGED]
-	    document.getElementById('hiddenTitle').value = title;
-	  });
-</script>
+       	<a class="btn" href="/approval">홈으로</a>
+                                    </div> <!-- end col -->
+                                </div>
+                                <!-- end row-->
+                            </div> <!-- end card-body -->
+                        </div> <!-- end card -->
+                    </div><!-- end col -->
+                </div><!-- end row -->
+            	<!-- 본문 내용 끝 -->
+            	</div><!-- container 끝 -->
+            	<!-- 푸터 -->
+            	<jsp:include page ="../../views/nav/footer.jsp"></jsp:include>
+            </div><!-- page-container 끝 -->
+       	</div><!-- page-content 끝 -->
+   </div><!-- wrapper 끝 -->
+   <!-- 자바 스크립트 -->
+   <jsp:include page ="../../views/nav/javascript.jsp"></jsp:include>
+   <!-- 이 페이지 전용 -->
+   <script src="<c:url value='/js/vacation.form.js'/>" defer></script>
 </body>
 </html>

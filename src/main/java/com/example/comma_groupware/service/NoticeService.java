@@ -197,7 +197,7 @@ public class NoticeService {
 	 }
 
 	 /** 리스트용: 첫 파일 id */
-	 public Integer getFirstFileId(int noticeId) {            // ✨ changed
+	 public Integer getFirstFileId(int noticeId) {          
 	     return noticeMapper.selectFirstFileIdByNotice(noticeId);
 	 }
 

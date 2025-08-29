@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface ApprovalMapper {
     Map<String, Object> selectMyCurrentDeptInfo(int empId);
-
+    int countFilesByDoc(int approvalDocumentId);
     Integer selectStep1Approver(Map<String, Object> param);
     Integer selectStep2ApproverForVacation();
     Integer selectStep2ApproverForExpense();
@@ -39,8 +39,10 @@ public interface ApprovalMapper {
 
     int updateDocumentStatus(Map<String, Object> param);
     boolean isAllLinesApproved(int approvalDocumentId);
-
-    int decrementAnnualLeave(Map<String, Object> param);
+    
+    int ensureAnnualLeaveRow(int empId);    
+    int tryDecrementAnnualLeaveIfEnough(Map<String, Object> param);
+    int countOverlappingApprovedVacations(Map<String,Object> param);
 
     int insertFile(Map<String, Object> param);
 
@@ -70,6 +72,13 @@ public interface ApprovalMapper {
     int deleteRequestExpenseByDoc(int approvalDocumentId);
     int deleteDocument(int approvalDocumentId);
     
-    Map<String, Object> selectMyActionableLineForDoc(Map<String, Object> param);
+    Integer selectNextApproverInTeam(Map<String,Object> param);
+    Boolean existsApprovalLineForStep(Map<String,Object> param);
+    Integer selectNextApproverInDept(Map<String,Object> param);
     
+    Map<String, Object> selectMyActionableLineForDoc(Map<String, Object> param);
+    int insertExpenseItems(Map<String,Object> p);                   // p: {approvalDocumentId, items(List<Map>)}
+    List<Map<String,Object>> selectExpenseItemsByDoc(int approvalDocumentId);
+    Map<String,Object> selectExpenseItemSumsByDoc(int approvalDocumentId); // {sumSupply,sumVat,sumTotal}
+    int deleteExpenseItemsByDoc(int approvalDocumentId);
 }
