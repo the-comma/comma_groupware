@@ -13,6 +13,13 @@
 <script>
 
 </script>
+<style>
+.mention-tag {
+  color: #0d6efd;      /* 파랑색 */
+  font-weight: 600;
+  cursor: pointer;
+}
+</style>
 <body>
     <!-- 페이지 시작 -->
     <div class="wrapper">

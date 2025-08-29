@@ -16,7 +16,7 @@ import com.example.comma_groupware.dto.FileResource;
 import com.example.comma_groupware.dto.Page;
 import com.example.comma_groupware.dto.Project;
 import com.example.comma_groupware.dto.ProjectTask;
-import com.example.comma_groupware.dto.TaskMember;
+import com.example.comma_groupware.dto.TaskComment;
 import com.example.comma_groupware.service.DepartmentService;
 import com.example.comma_groupware.service.ProjectService;
 
@@ -119,7 +119,7 @@ public class ProjectController {
 		return "projectMain";
 	}
 	
-	
+	/** 프로젝트 추가 폼 **/
 	@GetMapping("addProject")
 	public String addProjectForm(Model model) {
 		// 1. 모달창에 쓸 부서/팀 리스트
@@ -130,6 +130,7 @@ public class ProjectController {
 		return "addProject";
 	}
 	
+	/** 프로젝트 추가 기능 **/
 	@PostMapping("addProject")
 	public String addProjectForm(Project project, HttpSession session
 								, @RequestParam List<Integer> feList

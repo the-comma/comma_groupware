@@ -3,6 +3,73 @@
 <mapper
 	namespace="com.example.comma_groupware.mapper.ProjectTaskMapper">
 	
+	<!-- 댓글 조회 -->
+	<select id="selectTaskCommentByTaskId" parameterType="int" resultType="map">
+			WITH RECURSIVE comment_tree AS (
+		    -- 1. 최상위 댓글 (부모 없는 댓글)
+		    SELECT 
+		        tc.task_comment_id,
+		        tc.writer_id,
+		        e.emp_name,
+		        tc.task_comment_content,
+		        tc.created_at,
+		        tc.task_comment_parent,
+		        0 AS depth,
+		        CAST(tc.task_comment_id AS CHAR(200)) AS path
+		    FROM task_comment tc
+		    INNER JOIN employee e ON e.emp_id = tc.writer_id
+		    WHERE tc.task_id = #{taskId} 
+		      AND tc.task_comment_parent IS NULL
+		
+		    UNION ALL
+		
+		    -- 2. 답글 (부모를 가진 댓글)
+		    SELECT 
+		        c.task_comment_id,
+		        c.writer_id,
+		        e.emp_name,
+		        c.task_comment_content,
+		        c.created_at,
+		        c.task_comment_parent,
+		        ct.depth + 1,
+		        CONCAT(ct.path, '>', c.task_comment_id)
+		    FROM task_comment c
+		    INNER JOIN employee e ON e.emp_id = c.writer_id
+		    INNER JOIN comment_tree ct ON c.task_comment_parent = ct.task_comment_id
+		)
+		SELECT 
+		    task_comment_id AS taskCommentId,
+		    writer_id AS writerId,
+		    emp_name AS empName,
+		    task_comment_content AS taskCommentContent,
+		    created_at AS createdAt,
+		    task_comment_parent AS parentId,
+		    depth
+		FROM comment_tree
+		ORDER BY path, createdAt;
+	</select>
+	
+	<!-- 댓글 작성 -->
+	<insert id="addTaskComment" parameterType="com.example.comma_groupware.dto.TaskComment">
+		INSERT INTO task_comment(
+			writer_id, task_id, task_comment_parent, task_comment_content
+		) VALUES(
+			#{writerId}, #{taskId}, #{taskCommentParent}, #{taskCommentContent}
+		)
+	</insert>
+	
+	<!-- 댓글 수정 -->
+	<update id="modifyComment" parameterType="com.example.comma_groupware.dto.TaskComment">
+		UPDATE task_comment SET task_comment_content = #{taskCommentContent}
+		WHERE task_comment_id = #{taskCommentId} 
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="deleteComment" parameterType="int">
+		DELETE FROM task_comment
+		WHERE task_comment_id = #{taskCommentId}
+	</delete>
+	
 	<!-- 작업 추가 -->
 	<insert id="addProjectTask" parameterType="com.example.comma_groupware.dto.ProjectTask"
 		useGeneratedKeys="true" keyProperty="taskId">
@@ -109,6 +176,14 @@
 	<delete id="deleteTaskFileByFileId" parameterType="int">
 		DELETE FROM file_resource WHERE file_id = #{fileId};
 	</delete>
+	
+	<!-- 자식 작업들 조회 -->
+	<select id="selectChildTaskIdByTaskId" parameterType="int" resultType="map">
+		SELECT 
+			task_id AS taskId, 
+			task_parent AS taskParent
+		FROM project_task WHERE task_parent = #{taskId};
+	</select>
 	
 	<!-- 작업 삭제 -->
 	<delete id="deleteTaskByTaskId" parameterType="int">

@@ -203,7 +203,7 @@ function deleteTask(taskId){
     .then(res => res.json())
     .then(result => {
         if(result){
-			
+			window.location.reload();
 		}
 		else{
 			alert('작업 삭제에 실패 했습니다.');	

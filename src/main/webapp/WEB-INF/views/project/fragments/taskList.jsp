@@ -1,7 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-	
-
 	<!-- 업무 작성, 수정 모달 -->
 	<div class="modal fade" id="scrollable-modal" tabindex="-1" role="dialog"
 	    aria-labelledby="scrollableModalTitle" aria-hidden="true">
@@ -65,10 +63,12 @@
 				            <c:forEach begin="1" end="${t.level}">
 				                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				            </c:forEach>
+				            <c:if test="${t.taskParent != 0}">
+				            	<i class="ti ti-corner-down-right"></i>
+				            </c:if>
 				            <c:if test="${t.childCount > 0}">
 				                <span class="toggle-btn" style="cursor:pointer;">[-]</span>
 				            </c:if>
-				            
 				            <!-- 작업 타이틀 -->
 				            <a href="#" 
 				            	class="link-dark" 
@@ -223,18 +223,36 @@
 				</div>
 			</div>
 			<hr>
-			<div class="border bg-light">
-				댓글
+			<div id="detail-comment">
+
 			</div>
 		</div> <!-- end offcanvas-body-->
 		
-		<div class="offcanvas-footer border" style="height:10%">
-			<div class="row">
-				<div class="col-lg-3">
-					<img src="/HTML/Admin/dist/assets/images/default_profile.png" alt="image" class="img-fluid avatar-lg rounded">
+		<!-- 댓글 입력 폼 -->
+		<div class="offcanvas-footer" style="height:18%">
+			<div class="row" style="margin-left:0px; height:55px">
+				<div class="col-lg-2">
+					<!-- 여백 -->
 				</div>
-				<div class="col-lg-9">
-					<input type="text" class="form-control" placeholder="댓글 입력.">
+				<!--  @ 멘션 리스트 -->
+				<div id="mentionList" 
+				     class="col-lg-9 rounded bg-light" 
+				     style="display:none; max-height:55px; overflow-y:auto; z-index:1000;">
+				</div>
+			</div>
+			<div class="row">
+				<!-- 사원 프로필 -->
+				<div class="col-lg-2">
+					<img src="/HTML/Admin/dist/assets/images/default_profile.png" alt="image" class="img-fluid avatar-xl rounded">
+				</div>				
+				<!-- 댓글 입력 부분 -->
+				<div class="col-lg-10">
+					<div class="input-group">
+					<input type="hidden" id="writerId" name="writerId" value="${loginEmp.empId}">
+					<input type="hidden" id="taskId" name="taskId" value="${loginEmp.empId}">
+                    <textarea rows="3" class="form-control" id="taskCommentContent" name="taskCommentContent" placeholder="댓글 입력."></textarea>
+					<button class="btn btn-primary btn-sm" id="addCommetBtn">작성</button>
+					</div>
 				</div>
 			</div>
 		</div>

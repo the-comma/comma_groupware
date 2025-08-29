@@ -16,6 +16,7 @@ import com.example.comma_groupware.dto.Page;
 import com.example.comma_groupware.dto.Project;
 import com.example.comma_groupware.dto.ProjectMember;
 import com.example.comma_groupware.dto.ProjectTask;
+import com.example.comma_groupware.dto.TaskComment;
 import com.example.comma_groupware.dto.TaskMember;
 import com.example.comma_groupware.mapper.FileResourceMapper;
 import com.example.comma_groupware.mapper.ProjectMapper;
@@ -42,6 +43,32 @@ public class ProjectService {
 		this.fileResourceMapper = fileResourceMapper;
 	}
 
+	/** 댓글 조회 **/
+	public List<Map<String,Object>> selectTaskCommentByTaskId(int taskId){
+		return projectTaskMapper.selectTaskCommentByTaskId(taskId);
+	}
+	
+	/** 댓글 달기 **/
+	public int addTaskComment(TaskComment taskComment) {
+		return projectTaskMapper.addTaskComment(taskComment);
+	}
+	
+	/** 댓글 수정 **/
+	public int modifyComment(TaskComment taskComment) {
+		return projectTaskMapper.modifyComment(taskComment);
+	}
+	
+	/** 댓글 삭제 **/
+	@Transactional
+	public boolean deleteComment(int taskCommentId) {
+		int row = projectTaskMapper.deleteComment(taskCommentId);
+		
+		if(row != 1) {
+			return false;
+		}	
+		return true;	
+	}
+	
 	/** 업무 조회 **/
 	public List<Map<String, Object>> selectTaskListByProjectId(Map<String, Object> param) {
 		return projectTaskMapper.selectTaskListByProjectId(param);
@@ -57,6 +84,7 @@ public class ProjectService {
 		return taskMemberMapper.selectTaskMemberByTaskId(taskId);
 	}
 
+	/** 작업 아이디로 파일 조회 **/
 	public List<FileResource> selectTaskFileByTaskId(int taskId) {
 		return fileResourceMapper.selectTaskFileByTaskId(taskId);
 	}
@@ -85,36 +113,7 @@ public class ProjectService {
 		}
 
 		// 3. 멀티 파일 있으면 추가
-		for (MultipartFile file : fileList) {
-			if(file.getSize() == 0) continue;
-			
-			// DB 파일 정보 저장
-			FileResource fileResource = new FileResource();
-
-			fileResource.setFileRefType("TASK");
-			fileResource.setFileRefId(taskId);
-			fileResource.setFileSize(file.getSize());
-			fileResource.setFileOriginName(file.getOriginalFilename());
-			fileResource.setFileUploader(10);
-
-			String filename = UUID.randomUUID().toString().replace("-", "");
-			String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1); // UUID
-																												// 문자열 +
-																												// .확장자
-			fileResource.setFileName(filename);
-			fileResource.setFileExt(ext);
-
-			fileResourceMapper.addFile(fileResource);
-
-			// 실제 파일 저장
-			File emptyFile = new File("c:/project/upload/" + filename + "." + ext);
-			// file 안에 파일스트림을 emptyFile로 이동
-			try {
-				file.transferTo(emptyFile);
-			} catch (Exception e) {
-				throw new RuntimeException();
-			}
-		}
+		fileUpload(taskId, fileList);
 
 		return 0;
 	}
@@ -185,36 +184,7 @@ public class ProjectService {
 		}
 
 		// 3. 새로운 파일 추가
-		for (MultipartFile file : fileList) {
-			if(file.getSize() == 0) continue;
-			
-			// DB 파일 정보 저장
-			FileResource fileResource = new FileResource();
-
-			fileResource.setFileRefType("TASK");
-			fileResource.setFileRefId(taskId);
-			fileResource.setFileSize(file.getSize());
-			fileResource.setFileOriginName(file.getOriginalFilename());
-			fileResource.setFileUploader(10);
-
-			String filename = UUID.randomUUID().toString().replace("-", "");
-			String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1); // UUID
-																												// 문자열 +
-																												// .확장자
-			fileResource.setFileName(filename);
-			fileResource.setFileExt(ext);
-
-			fileResourceMapper.addFile(fileResource);
-
-			// 실제 파일 저장
-			File emptyFile = new File("c:/project/upload/" + filename + "." + ext);
-			// file 안에 파일스트림을 emptyFile로 이동
-			try {
-				file.transferTo(emptyFile);
-			} catch (Exception e) {
-				throw new RuntimeException();
-			}
-		}
+		fileUpload(taskId, fileList);
 		
 		return 0;
 	}
@@ -223,11 +193,45 @@ public class ProjectService {
 	@Transactional
 	public boolean deleteTaskByTaskId(int taskId) {
 
-		// 해당 업무에 하위 업무들을 가져와서 재귀로 삭제
+		boolean isSuccess = false;	// 반환할 성공 유무
 		
+		// 해당 업무에 하위 업무들을 가져옴
+		List<Map<String, Object>> childTaskList = projectTaskMapper.selectChildTaskIdByTaskId(taskId);
 		
-
-		return projectTaskMapper.deleteTaskByTaskId(taskId);
+		if(childTaskList.size() == 0) { // 끝단 노드라 바로 삭제
+			
+			List<FileResource> fileList = fileResourceMapper.selectTaskFileByTaskId(taskId);
+			
+			for(FileResource f : fileList) {
+				deleteTaskFileByFileId(f.getFileId());
+			}
+			
+			isSuccess = projectTaskMapper.deleteTaskByTaskId(taskId);
+			return isSuccess;
+		}
+		else {	// 자식 노드가 있다
+			
+			// 재귀 함수로 자식 노드 삭제
+			for(Map<String,Object> m : childTaskList) {
+				int id = (int)m.get("taskId");
+				isSuccess = deleteTaskByTaskId(id);
+				
+				if(!isSuccess) break;
+			}
+			
+			// 자식 노드 삭제 실패함
+			if(!isSuccess) return false;
+			
+			// 마지막으로 자신 삭제
+			List<FileResource> fileList = fileResourceMapper.selectTaskFileByTaskId(taskId);
+			
+			for(FileResource f : fileList) {
+				deleteTaskFileByFileId(f.getFileId());
+			}
+			
+			isSuccess = projectTaskMapper.deleteTaskByTaskId(taskId);
+			return isSuccess;
+		}
 	}
 	
 	/** 업무 파일 삭제 **/
@@ -249,6 +253,41 @@ public class ProjectService {
 		boolean isSuccess = projectTaskMapper.deleteTaskFileByFileId(fileId);
 
 		return isSuccess;
+	}
+	
+	/** 실제 파일 저장 기능 **/
+	@Transactional
+	void fileUpload(int taskId,List<MultipartFile> fileList) {
+		for (MultipartFile file : fileList) {
+			if(file.getSize() == 0) continue;
+			
+			// DB 파일 정보 저장
+			FileResource fileResource = new FileResource();
+	
+			fileResource.setFileRefType("TASK");
+			fileResource.setFileRefId(taskId);
+			fileResource.setFileSize(file.getSize());
+			fileResource.setFileOriginName(file.getOriginalFilename());
+			fileResource.setFileUploader(10);
+	
+			String filename = UUID.randomUUID().toString().replace("-", "");
+			String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1); // UUID
+																												// 문자열 +
+																												// .확장자
+			fileResource.setFileName(filename);
+			fileResource.setFileExt(ext);
+	
+			fileResourceMapper.addFile(fileResource);
+	
+			// 실제 파일 저장
+			File emptyFile = new File("c:/project/upload/" + filename + "." + ext);
+			// file 안에 파일스트림을 emptyFile로 이동
+			try {
+				file.transferTo(emptyFile);
+			} catch (Exception e) {
+				throw new RuntimeException();
+			}
+		}
 	}
 	
 	/** 프로젝트 참여자 조회 **/

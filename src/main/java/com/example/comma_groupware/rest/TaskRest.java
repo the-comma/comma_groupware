@@ -4,14 +4,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.comma_groupware.dto.FileResource;
+import com.example.comma_groupware.dto.TaskComment;
 import com.example.comma_groupware.service.ProjectService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@Slf4j
 public class TaskRest {
 	ProjectService projectService;
 	
@@ -56,5 +63,39 @@ public class TaskRest {
 	@GetMapping("deleteTaskByTaskId/{id}")
 	public boolean deleteTaskByTaskId(@PathVariable int id) {
 		return projectService.deleteTaskByTaskId(id);
+	}
+	
+	/** 작업 댓글 조회하기 **/
+	@GetMapping("selectTaskCommentByTaskId/{id}")
+	public List<Map<String,Object>> selectTaskCommentByTaskId(@PathVariable int id){
+		return projectService.selectTaskCommentByTaskId(id);
+	}
+	
+	/** 작업 댓글 달기 **/
+	@PostMapping("addComment")
+	public ResponseEntity<Boolean> addComment(@RequestBody TaskComment taskComment) {
+		
+		int row = projectService.addTaskComment(taskComment);
+		
+		if(row != 1) return ResponseEntity.ok(false);	
+		
+		return ResponseEntity.ok(true);	
+	}
+	
+	/** 작업 댓글 수정 **/
+	@PostMapping("modifyComment")
+	public ResponseEntity<Boolean> modifyComment(@RequestBody TaskComment taskComment) {
+		
+		int row = projectService.modifyComment(taskComment);
+		
+		if(row != 1) return ResponseEntity.ok(false);	
+		
+		return ResponseEntity.ok(true);	
+	}
+	
+	/** 작업 댓글 삭제 **/
+	@GetMapping("deleteComment/{id}")
+	public boolean deleteComment(@PathVariable int id) {
+		return projectService.deleteComment(id);
 	}
 }
