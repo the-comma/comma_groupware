@@ -197,8 +197,11 @@
                                             <h5 class="mb-0 ms-1 fw-semibold fs-14">All Messages</h5>
                                         </div><!-- end chat-title -->
 
-                                        <a href="javascript:void(0);" class="text-body d-block">
-                                            <div class="chat-users">
+                                          <a href="#" 
+									     class="text-body d-block js-room"
+									     data-room-id="${chatList.chat_room_id}"     <%-- 또는 ${chat.chatRoomId} : 프로젝트 DTO 이름에 맞추세요 --%>
+									     data-title="${chatList.display_name}">      <%-- 또는 ${chat.displayName} --%>
+	                                            <div class="chat-users">
                                                 <div class="avatar-md chat-avatar-online">
                                                     <img src="HTML/Admin/dist/assets/images/users/avatar-3.jpg" class="img-fluid rounded-circle" alt="Brandon Smith" />
                                                 </div>
@@ -549,9 +552,9 @@
                             <div class="p-3 border-top position-sticky bottom-0 w-100 mb-0">
 							<!-- 로그인 사용자ID/엔드포인트/초기 방ID(없으면 공백) 전달 -->
 							<div id="chat-root"
-							     data-user-id="${loginEmp.username}"   <%-- 사원 번호 --%>
-							     data-user-name="${loginEmp.empName}"     <%-- 사원 이름 --%>
-							     data-room-id="${empty initRoomId ? 0 : initRoomId}"             <%-- 선택: 처음 열 방 --%>
+					         	 data-user-id="<c:out value='${loginEmp.username}' default='0'/>"
+    							 data-user-name="<c:out value='${loginEmp.empName}'   default='Me'/>"
+							     data-room-id="<c:out value='${initRoomId}' default='0'/>"             <%-- 선택: 처음 열 방 --%>
 							     data-ws-endpoint="<c:url value='/stomp/chat'/>"
 							     data-pub-dest="/pub/chat/send"
 							     data-sub-prefix="/sub/room."
