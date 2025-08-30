@@ -89,12 +89,12 @@
 			
 			                                <ul class="list-inline">
 			                                    <li class="list-inline-item me-4">
-			                                        <h4 class="mb-0 lh-base">56</h4>
-			                                        <p class="text-muted">미완료 작업</p>
+			                                        <h4 class="mb-0 lh-base">${p.taskCompletedCount}</h4>
+			                                        <p class="text-muted">완료된 작업</p>
 			                                    </li>
 			                                    <li class="list-inline-item">
-			                                        <h4 class="mb-0 lh-base">452</h4>
-			                                        <p class="text-muted">완료된 작업</p>
+			                                        <h4 class="mb-0 lh-base">${p.totalTaskCount}</h4>
+			                                        <p class="text-muted">전체 작업</p>
 			                                    </li>
 			                                </ul>
 			
@@ -131,13 +131,13 @@
 											<h5 class="mb-2">진행
 											<c:choose>
 													<c:when test="${p.projectStatus eq 'PROGRESS'}">
-														<span class="text-primary float-end">80%</span>
+														<span class="text-primary float-end">${p.progress}%</span>
 													</c:when>
 													<c:when test="${p.projectStatus eq 'PAUSED'}">
-														<span class="text-secondary float-end">80%</span>
+														<span class="text-secondary float-end">${p.progress}%</span>
 													</c:when>
 													<c:when test="${p.projectStatus eq 'COMPLETED'}">
-														<span class="text-success float-end">80%</span>
+														<span class="text-success float-end">${p.progress}%</span>
 													</c:when>
 											</c:choose>
 											</h5>
@@ -145,15 +145,15 @@
 			                                <div class="progress progress-soft progress-sm">
 			                                	<c:choose>
 														<c:when test="${p.projectStatus eq 'PROGRESS'}">
-															<div class="progress-bar bg-primary" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+															<div class="progress-bar bg-primary" style="width: ${p.progress}%" role="progressbar" aria-valuenow="${p.progress}" aria-valuemin="0" aria-valuemax="100">
 			                                    			</div>
 														</c:when>
 														<c:when test="${p.projectStatus eq 'PAUSED'}">
-															<div class="progress-bar bg-secondary" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+															<div class="progress-bar bg-secondary" style="width: ${p.progress}%" role="progressbar" aria-valuenow="${p.progress}" aria-valuemin="0" aria-valuemax="100">
 			                                    			</div>
 														</c:when>
 														<c:when test="${p.projectStatus eq 'COMPLETED'}">
-															<div class="progress-bar bg-success" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+															<div class="progress-bar bg-success" style="width: ${p.progress}%" role="progressbar" aria-valuenow="${p.progress}" aria-valuemin="0" aria-valuemax="100">
 			                                    			</div>
 														</c:when>
 												</c:choose>
@@ -199,34 +199,34 @@
 								                        <tbody>
 								                        	<c:forEach items="${projectList}" var="p">
 								                        		<tr>
-								                        			<td>${p.projectTitle}</td>
+								                        			<td><a href="/projectDetail?id=${p.projectId}">${p.projectTitle}</a></td>
 								                        			<td>${p.empName}</td>
 								                        			<td>${p.startDate}</td>
 								                        			<td>${p.endDate}</td>
 								                        			<td>
 								                        				<c:choose>
 																				<c:when test="${p.projectStatus eq 'PROGRESS'}">
-																					<span class="text-primary float-end">80%</span>
+																					<span class="text-primary float-end">${p.progress}%</span>
 																				</c:when>
 																				<c:when test="${p.projectStatus eq 'PAUSED'}">
-																					<span class="text-secondary float-end">80%</span>
+																					<span class="text-secondary float-end">${p.progress}%</span>
 																				</c:when>
 																				<c:when test="${p.projectStatus eq 'COMPLETED'}">
-																					<span class="text-success float-end">80%</span>
+																					<span class="text-success float-end">${p.progress}%</span>
 																				</c:when>
 																		</c:choose>
 																		<div class="progress progress-soft progress-sm">
 										                                	<c:choose>
 																					<c:when test="${p.projectStatus eq 'PROGRESS'}">
-																						<div class="progress-bar bg-primary" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+																						<div class="progress-bar bg-primary" style="width: ${p.progress}%" role="progressbar" aria-valuenow="${p.progress}" aria-valuemin="0" aria-valuemax="100">
 										                                    			</div>
 																					</c:when>
 																					<c:when test="${p.projectStatus eq 'PAUSED'}">
-																						<div class="progress-bar bg-secondary" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+																						<div class="progress-bar bg-secondary" style="width: ${p.progress}%" role="progressbar" aria-valuenow="${p.progress}" aria-valuemin="0" aria-valuemax="100">
 										                                    			</div>
 																					</c:when>
 																					<c:when test="${p.projectStatus eq 'COMPLETED'}">
-																						<div class="progress-bar bg-success" style="width: 80%" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+																						<div class="progress-bar bg-success" style="width: ${p.progress}%" role="progressbar" aria-valuenow="${p.progress}" aria-valuemin="0" aria-valuemax="100">
 										                                    			</div>
 																					</c:when>
 																			</c:choose>

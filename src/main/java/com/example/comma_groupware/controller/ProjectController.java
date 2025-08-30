@@ -84,7 +84,9 @@ public class ProjectController {
 	@GetMapping("projectDetail")
 	public String projectDetail(Model model, HttpSession session
 										,@RequestParam int id) {
-		model.addAttribute("projectId", id);
+		
+		Map<String, Object> project = projectService.selectProjectByProjectId(id);
+		model.addAttribute("project", project);
 		return "projectDetail";
 	}
 	

@@ -41,7 +41,22 @@
                     <div class=col-12>
                         <div class="card">
                             <div class="card-header justify-content-between d-sm-flex gap-2">
-                            	<p>프로젝트 타이틀</p>
+                            	<!-- 프로젝트 타이틀 -->
+                            	<h1>${project.projectTitle}</h1>
+                            	
+                            	<!-- 상태 뱃지 -->
+                            	<c:choose>
+									<c:when test="${project.projectStatus eq 'PROGRESS'}">
+										<h1 class="badge badge-soft-primary p-1">진행</h1>
+									</c:when>
+									<c:when test="${project.projectStatus eq 'PAUSED'}">
+										<h1 class="badge badge-soft-secondary p-1">대기</h1>
+									</c:when>
+									<c:when test="${project.projectStatus eq 'COMPLETED'}">
+										<h1 class="badge badge-soft-success p-1">완료</h1>
+									</c:when>
+								</c:choose>
+                            	
                                 <a href="addProject" class="btn btn-primary mb-sm-0 mb-2">
                                     <i class="ti ti-settings fs-20 me-2"></i>프로젝트 수정
                                 </a>
@@ -53,37 +68,37 @@
                             <div class="card-body">
                                 <ul class="nav nav-tabs nav-bordered mb-3" role="tablist">
                                     <li class="nav-item" role="presentation">
-                                        <a href="#main-b1" data-url="/project/${projectId}/main" data-bs-toggle="tab" aria-expanded="true" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
+                                        <a href="#main-b1" data-url="/project/${project.projectId}/main" data-bs-toggle="tab" aria-expanded="true" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
                                             <i class="ti ti-home fs-18 me-md-1"></i>
                                             <span class="d-none d-md-inline-block">메인</span>
                                         </a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a href="#dev-b1" data-url="${pageContext.request.contextPath}/project/${projectId}/task" data-bs-toggle="tab" aria-expanded="false" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
+                                        <a href="#dev-b1" data-url="${pageContext.request.contextPath}/project/${project.projectId}/task" data-bs-toggle="tab" aria-expanded="false" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
                                             <i class="ti ti-brand-github fs-18 me-md-1"></i>
                                             <span class="d-none d-md-inline-block">개발</span>
                                         </a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a href="#task-b1" data-url="/project/${projectId}/task" data-bs-toggle="tab" aria-expanded="false" class="nav-link active" aria-selected="true" role="tab">
+                                        <a href="#task-b1" data-url="/project/${project.projectId}/task" data-bs-toggle="tab" aria-expanded="false" class="nav-link active" aria-selected="true" role="tab">
                                             <i class="ti ti-list-check fs-18 me-md-1"></i>
                                             <span class="d-none d-md-inline-block">업무</span>
                                         </a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a href="#meet-b1" data-url="/project/${projectId}/meet" data-bs-toggle="tab" aria-expanded="false" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
+                                        <a href="#meet-b1" data-url="/project/${project.projectId}/meet" data-bs-toggle="tab" aria-expanded="false" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
                                             <i class="ti ti-clipboard fs-18 me-md-1"></i>
                                             <span class="d-none d-md-inline-block">회의</span>
                                         </a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a href="#schedule-b1" data-url="/project/${projectId}/schedule" data-bs-toggle="tab" aria-expanded="false" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
+                                        <a href="#schedule-b1" data-url="/project/${project.projectId}/schedule" data-bs-toggle="tab" aria-expanded="false" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
                                             <i class="ti ti-calendar-event fs-18 me-md-1"></i>
                                             <span class="d-none d-md-inline-block">일정</span>
                                         </a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a href="#file-b1" data-url="/project/${projectId}/file" data-bs-toggle="tab" aria-expanded="false" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
+                                        <a href="#file-b1" data-url="/project/${project.projectId}/file" data-bs-toggle="tab" aria-expanded="false" class="nav-link" aria-selected="false" role="tab" tabindex="-1">
                                             <i class="ti ti-folder fs-18 me-md-1"></i>
                                             <span class="d-none d-md-inline-block">파일</span>
                                         </a>
@@ -135,15 +150,16 @@
    	<script>
 		$(function() {
 		    // 첫 탭(업무) 자동 로드
-		    loadTabData($("#task-b1"), "/project/${projectId}/task");
-		
+		    loadTabData($("#task-b1"), "/project/${project.projectId}/task");
+		    loadTabData($("#main-b1"), "/project/${project.projectId}/main");
+		    
 		    // 탭 클릭할 때만 AJAX 호출
 		    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
 		        const targetId = $(e.target).attr("href");  // ex: #meet-b1
 		        const url = $(e.target).data("url");        // ex: /project/{id}/meetings
 		
 		        if (url && $(targetId).is(':empty')) {
-		            loadTabData($(targetId), url);
+		        	loadTabData($(targetId), url + `?projectId=${project.projectId}`);
 		        }
 		    });
 		

@@ -15,4 +15,5 @@ public interface ProjectMapper {
 	
 	List<Map<String, Object>> selectProjectByEmpId(Page page);	// 사원 아이디로 참여중인 프로젝트 조회
 	int countProjectByEmpId(Map<String,Object> param);			// 사원 아이디로 참여중인 프로젝트 카운트
+	Map<String, Object> selectProjectByProjectId(int projectId) ;								// 프로젝트 아이디로 프로젝트 조회
 }

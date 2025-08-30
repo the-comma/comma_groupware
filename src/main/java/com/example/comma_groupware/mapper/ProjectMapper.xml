@@ -5,19 +5,65 @@
 	<!-- 프로젝트 리스트 조회 -->
 	<select id="selectProjectByEmpId" parameterType="com.example.comma_groupware.dto.Page" resultType="map">
 		SELECT
+		    p.project_id AS projectId,
+		    p.project_title AS projectTitle,
+		    e.emp_name AS empName,
+		    p.project_desc AS projectDesc,
+		    p.project_status AS projectStatus,
+		    p.start_date AS startDate,
+		    p.end_date AS endDate,
+		    COALESCE(pt.taskCompletedCount, 0) AS taskCompletedCount,
+		    COALESCE(pt.totalTaskCount, 0) AS totalTaskCount,
+		    ROUND(
+			    CASE 
+			        WHEN COALESCE(pt.totalTaskCount, 0) = 0 THEN 0
+			        ELSE COALESCE(pt.taskCompletedCount, 0) / pt.totalTaskCount * 100
+			    END, 0
+			) AS progress,
+		    pm.count AS projectMemberCount
+		FROM project p
+		INNER JOIN (
+		    SELECT * 
+		    FROM rank_history 
+		    WHERE emp_id = #{searchList.empId} AND end_date IS NULL
+		) rh ON p.pm_id = rh.emp_id
+		INNER JOIN employee e ON e.emp_id = rh.emp_id
+		INNER JOIN (
+		    SELECT project_id, COUNT(*) AS count 
+		    FROM project_member 
+		    GROUP BY project_id
+		) pm ON p.project_id = pm.project_id
+		LEFT JOIN (
+		    SELECT 
+		        project_id,
+		        SUM(task_status = 'COMPLETED') AS taskCompletedCount,
+		        COUNT(*) AS totalTaskCount
+		    FROM project_task
+		    GROUP BY project_id
+		) pt ON p.project_id = pt.project_id
+		ORDER BY startDate DESC;
+	</select>
+
+	<!-- 프로젝트 아이디로 상세 조회 -->
+	<select id="selectProjectByProjectId" resultType="map">
+		SELECT
 			p.project_id AS projectId,
 			p.project_title AS projectTitle,
-			e.emp_name AS empName,
+			p.pm_id AS pmId,
+			e.emp_name AS pmName,
+			t.team_name AS teamName,
+			d.dept_name AS deptName,
 			p.project_desc AS projectDesc,
 			p.project_status AS projectStatus,
+			p.project_git_url AS projectGitUrl,
 			p.start_date AS startDate,
-			p.end_date AS endDate,
-			pm.count AS projectMemberCount
-		FROM project p
-		INNER JOIN (SELECT * FROM rank_history WHERE emp_id = #{searchList.empId} AND end_date IS NULL) rh ON p.pm_id = rh.emp_id
-		INNER JOIN employee e ON e.emp_id = rh.emp_id
-		INNER JOIN (SELECT project_id, COUNT(*) AS count FROM project_member GROUP BY project_id) pm ON p.project_id = pm.project_id
-		ORDER BY startDate DESC;
+			p.end_date AS endDate
+		FROM (SELECT * FROM project
+		WHERE project_id = #{projectId}) p
+		INNER JOIN employee e ON p.pm_id = e.emp_id
+		INNER JOIN (SELECT * FROM department_history WHERE end_date IS NULL) dh ON dh.emp_id = e.emp_id
+		INNER JOIN team t ON t.team_id = dh.team_id
+		INNER JOIN department d ON t.dept_id = d.dept_id
 	</select>
 
 	<!-- 프로젝트 리스트 카운트 -->

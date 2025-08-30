@@ -300,6 +300,11 @@ public class ProjectService {
 		return projectMapper.selectProjectByEmpId(page);
 	}
 
+	/** 프로젝트 정보 조회 **/
+	public Map<String, Object> selectProjectByProjectId(int id) {
+		return projectMapper.selectProjectByProjectId(id);
+	}
+	
 	/** 프로젝트 카운트 **/
 	public int countProjectByEmpId(Map<String, Object> param) {
 		return projectMapper.countProjectByEmpId(param);

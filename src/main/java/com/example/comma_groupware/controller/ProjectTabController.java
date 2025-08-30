@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.comma_groupware.dto.Project;
 import com.example.comma_groupware.service.ProjectService;
 
 @Controller
@@ -34,6 +35,16 @@ public class ProjectTabController {
         model.addAttribute("projectId",id);
         model.addAttribute("taskList",taskList);
         return "project/fragments/taskList"; // JSP 조각
+    }
+    
+	/** 메인탭 **/
+    @GetMapping("/{id}/main")
+    public String getMain(@PathVariable int id, Model model) {
+    	
+    	Map<String, Object> project = projectService.selectProjectByProjectId(id);
+    	model.addAttribute("project",project);
+    	
+        return "project/fragments/taskMain"; // JSP 조각
     }
 }
 
